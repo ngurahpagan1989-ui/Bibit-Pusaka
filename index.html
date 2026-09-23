@@ -9,7 +9,6 @@
   <!-- Supabase JS Client v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Styling scrollbar halus */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
@@ -59,17 +58,12 @@
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <main class="max-w-7xl mx-auto p-4 sm:p-6 flex-1 w-full space-y-6">
 
-    <!-- GLOBAL ERROR / STATUS BANNER -->
+    <!-- GLOBAL STATUS TOAST -->
     <div id="statusToast" class="hidden p-3 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
 
-    <!-- ============================================================== -->
-    <!-- 1. TAB MENU: DASHBOARD                                         -->
-    <!-- ============================================================== -->
+    <!-- 1. TAB MENU: DASHBOARD -->
     <section id="tab-dashboard" class="space-y-6">
-      
-      <!-- Ringkasan Statistik -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Card 1 -->
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between">
@@ -81,7 +75,6 @@
           <span class="text-[11px] text-stone-400 mt-2">Batch terdaftar di gudang</span>
         </div>
 
-        <!-- Card 2 -->
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between">
@@ -93,7 +86,6 @@
           <span class="text-[11px] text-stone-400 mt-2">Total berat fisik tersedia</span>
         </div>
 
-        <!-- Card 3 -->
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between">
@@ -105,7 +97,6 @@
           <span class="text-[11px] text-rose-500 font-semibold mt-2">Viabilitas turun / stok kritis</span>
         </div>
 
-        <!-- Card 4 -->
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between">
@@ -118,7 +109,6 @@
         </div>
       </div>
 
-      <!-- Action Banner -->
       <div id="dashAlertBanner" class="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50 border-emerald-200 text-emerald-950">
         <div>
           <h3 class="font-bold text-base flex items-center gap-2">
@@ -131,15 +121,12 @@
         </button>
       </div>
 
-      <!-- Tabel Batch Kritis / Butuh Regenerasi -->
       <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <div>
-            <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
-              <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
-            </h2>
-            <p class="text-xs text-stone-400">Batch yang membutuhkan penanaman ulang segera untuk mempertahankan kemurnian & viabilitas.</p>
-          </div>
+        <div>
+          <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
+            <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
+          </h2>
+          <p class="text-xs text-stone-400">Batch yang membutuhkan penanaman ulang segera untuk mempertahankan kemurnian & daya tumbuh.</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -162,15 +149,10 @@
           </table>
         </div>
       </div>
-
     </section>
 
-    <!-- ============================================================== -->
-    <!-- 2. TAB MENU: KATALOG BATCH                                     -->
-    <!-- ============================================================== -->
+    <!-- 2. TAB MENU: KATALOG BATCH -->
     <section id="tab-katalog" class="space-y-6 hidden">
-      
-      <!-- Form Input Batch Baru -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
         <div class="flex items-center justify-between border-b pb-3 mb-4">
           <div>
@@ -233,10 +215,7 @@
         </form>
       </div>
 
-      <!-- Tabel Daftar Lengkap Batch -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-        
-        <!-- Search & Filter Controls -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div class="flex items-center gap-2">
             <button onclick="setKatalogFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white">Semua</button>
@@ -269,17 +248,11 @@
             </tbody>
           </table>
         </div>
-
       </div>
-
     </section>
 
-    <!-- ============================================================== -->
-    <!-- 3. TAB MENU: QC (UJI MUTU)                                     -->
-    <!-- ============================================================== -->
+    <!-- 3. TAB MENU: QC (UJI MUTU) -->
     <section id="tab-qc" class="space-y-6 hidden">
-      
-      <!-- Input Uji Mutu Baru -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
         <div class="border-b pb-3 mb-4">
           <h2 class="text-base font-extrabold text-stone-800">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
@@ -316,7 +289,6 @@
         </form>
       </div>
 
-      <!-- Riwayat Log QC -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
         <h2 class="font-extrabold text-stone-800 text-base">Riwayat Log Uji Mutu</h2>
         <div class="overflow-x-auto">
@@ -339,15 +311,10 @@
           </table>
         </div>
       </div>
-
     </section>
 
-    <!-- ============================================================== -->
-    <!-- 4. TAB MENU: KALENDER TANAM                                    -->
-    <!-- ============================================================== -->
+    <!-- 4. TAB MENU: KALENDER TANAM -->
     <section id="tab-tanam" class="space-y-6 hidden">
-      
-      <!-- Jadwalkan Penanaman Regenerasi -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
         <div class="border-b pb-3 mb-4">
           <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
@@ -396,7 +363,6 @@
         </form>
       </div>
 
-      <!-- Timeline & Daftar Penanaman -->
       <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
         <h2 class="font-extrabold text-stone-800 text-base">Timeline Regenerasi Berjalan</h2>
         <div class="overflow-x-auto">
@@ -420,16 +386,25 @@
           </table>
         </div>
       </div>
-
     </section>
 
   </main>
 
   <!-- ================= LOGIKA JAVASCRIPT ================= -->
   <script>
-    // -------------------------------------------------------------
-    // 1. NAVIGASI TAB (DIJALANKAN PALING AWAL AGAR KEBAL ERROR)
-    // -------------------------------------------------------------
+    // 1. Inisialisasi Database Client dengan nama dbClient (Anti-Bentrokan Variabel)
+    const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
+    const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
+
+    const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
+
+    // Cache Data
+    let allBatches = [];
+    let allQcLogs = [];
+    let allPlantingSchedules = [];
+    let currentFilter = 'all';
+
+    // 2. Fungsi Navigasi Tab Global
     window.switchTab = function(tabId) {
       const allTabs = ['dashboard', 'katalog', 'qc', 'tanam'];
       allTabs.forEach(t => {
@@ -450,33 +425,11 @@
         activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
       }
 
-      // Muat ulang tampilan sesuai tab
       if (tabId === 'dashboard') renderDashboard();
       if (tabId === 'katalog') renderKatalog();
       if (tabId === 'qc') { populateDropdowns(); renderQcLogs(); }
       if (tabId === 'tanam') { populateDropdowns(); renderPlanting(); }
     };
-
-    // -------------------------------------------------------------
-    // 2. KREDENSIAL & INISIALISASI SUPABASE
-    // -------------------------------------------------------------
-    const SUPABASE_URL = "https://acaarknxdetojywbdwdh.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
-
-    let supabase = null;
-    try {
-      if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.error("Gagal inisialisasi Supabase:", e);
-    }
-
-    // Variabel Cache Data
-    let allBatches = [];
-    let allQcLogs = [];
-    let allPlantingSchedules = [];
-    let currentFilter = 'all';
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('statusToast');
@@ -488,7 +441,6 @@
       setTimeout(() => { t.classList.add('hidden'); }, 4000);
     }
 
-    // Evaluasi Status Kesehatan Benih
     function evaluateRegenStatus(batch) {
       const now = new Date();
       const harvest = new Date(batch.harvest_date);
@@ -509,20 +461,13 @@
       };
     }
 
-    // -------------------------------------------------------------
-    // 3. PENGAMBILAN DATA (FETCH)
-    // -------------------------------------------------------------
+    // 3. Pengambilan Data Supabase
     async function loadAllData() {
-      if (!supabase) {
-        showToast("Supabase client belum siap. Cek koneksi internet.", true);
-        return;
-      }
-
       try {
         const [resBatches, resQc, resPlant] = await Promise.allSettled([
-          supabase.from("seed_batches").select("*").order("created_at", { ascending: false }),
-          supabase.from("qc_logs").select("*").order("test_date", { ascending: false }),
-          supabase.from("planting_calendar").select("*").order("plant_date", { ascending: false })
+          dbClient.from("seed_batches").select("*").order("created_at", { ascending: false }),
+          dbClient.from("qc_logs").select("*").order("test_date", { ascending: false }),
+          dbClient.from("planting_calendar").select("*").order("plant_date", { ascending: false })
         ]);
 
         if (resBatches.status === 'fulfilled' && resBatches.value.data) {
@@ -542,13 +487,10 @@
         renderPlanting();
       } catch (err) {
         console.error("Gagal sinkron data:", err);
-        showToast("Gagal memuat sebagian data. Pastikan skrip SQL sudah dijalankan di Supabase.", true);
       }
     }
 
-    // -------------------------------------------------------------
-    // 4. RENDER DASHBOARD
-    // -------------------------------------------------------------
+    // 4. Render Dashboard
     function renderDashboard() {
       let totalStock = 0;
       let urgentList = [];
@@ -574,7 +516,7 @@
             <h3 class="font-bold text-base flex items-center gap-2">
               <span class="text-rose-600">🚨</span> Perhatian: Ada ${urgentList.length} Batch Benih Kritis!
             </h3>
-            <p class="text-xs text-rose-800 mt-0.5">Viabilitas telah menurun atau stok fisik telah mendekati ambang batas minimum.</p>
+            <p class="text-xs text-rose-800 mt-0.5">Viabilitas telah menurun atau stok fisik telah mendekati batas minimum.</p>
           </div>
           <button onclick="switchTab('tanam')" class="text-xs bg-rose-700 hover:bg-rose-800 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm whitespace-nowrap">
             Jadwalkan Tanam Segera
@@ -610,9 +552,7 @@
       });
     }
 
-    // -------------------------------------------------------------
-    // 5. RENDER KATALOG BATCH
-    // -------------------------------------------------------------
+    // 5. Render Katalog
     function renderKatalog() {
       let filtered = [...allBatches];
 
@@ -633,7 +573,7 @@
 
       const tbody = document.getElementById("katalogTableBody");
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada batch yang cocok dengan kriteria filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada batch yang cocok dengan kriteria pencarian/filter.</td></tr>`;
         return;
       }
 
@@ -679,7 +619,7 @@
       });
     }
 
-    function setKatalogFilter(filterType) {
+    window.setKatalogFilter = function(filterType) {
       currentFilter = filterType;
       ['all', 'urgent', 'safe'].forEach(f => {
         const btn = document.getElementById(`filter-${f}`);
@@ -691,15 +631,13 @@
         }
       });
       renderKatalog();
-    }
+    };
 
-    function filterKatalog() {
+    window.filterKatalog = function() {
       renderKatalog();
-    }
+    };
 
-    // -------------------------------------------------------------
-    // 6. RENDER QC & KALENDER TANAM
-    // -------------------------------------------------------------
+    // 6. QC & Dropdown Helper
     function populateDropdowns() {
       const qcSelect = document.getElementById("qcBatchCode");
       const plantSelect = document.getElementById("planParentBatch");
@@ -793,29 +731,27 @@
       });
     }
 
-    function onSelectParentBatch(parentCode) {
+    window.onSelectParentBatch = function(parentCode) {
       const b = allBatches.find(x => x.batch_code === parentCode);
       if (b) {
         document.getElementById("planVariety").value = b.variety_name;
         document.getElementById("planTargetBatch").value = `GEN2-${b.batch_code}`;
       }
-    }
+    };
 
-    function prefillPlanting(parentCode, variety) {
+    window.prefillPlanting = function(parentCode, variety) {
       switchTab('tanam');
       document.getElementById("planParentBatch").value = parentCode;
       document.getElementById("planVariety").value = variety;
       document.getElementById("planTargetBatch").value = `GEN2-${parentCode}`;
-    }
+    };
 
-    function prefillQc(batchCode) {
+    window.prefillQc = function(batchCode) {
       switchTab('qc');
       document.getElementById("qcBatchCode").value = batchCode;
-    }
+    };
 
-    // -------------------------------------------------------------
-    // 7. FORM SUBMIT HANDLERS
-    // -------------------------------------------------------------
+    // 7. Event Submissions
     document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitBatch");
@@ -835,7 +771,7 @@
         moisture_content: parseFloat(document.getElementById("moistureContent").value) || 0,
       };
 
-      const { error } = await supabase.from("seed_batches").insert([payload]);
+      const { error } = await dbClient.from("seed_batches").insert([payload]);
       btn.disabled = false;
 
       if (error) {
@@ -858,7 +794,7 @@
       const testDate = document.getElementById("qcTestDate").value;
       const notes = document.getElementById("qcNotes").value.trim();
 
-      const { error: logErr } = await supabase.from("qc_logs").insert([{
+      const { error: logErr } = await dbClient.from("qc_logs").insert([{
         batch_code: batchCode,
         test_date: testDate,
         germination_rate: germination,
@@ -866,7 +802,7 @@
         notes: notes
       }]);
 
-      const { error: batchErr } = await supabase.from("seed_batches")
+      const { error: batchErr } = await dbClient.from("seed_batches")
         .update({ germination_rate: germination, moisture_content: moisture })
         .eq("batch_code", batchCode);
 
@@ -898,7 +834,7 @@
         notes: document.getElementById("planNotes").value.trim()
       };
 
-      const { error } = await supabase.from("planting_calendar").insert([payload]);
+      const { error } = await dbClient.from("planting_calendar").insert([payload]);
       btn.disabled = false;
 
       if (error) {
@@ -910,7 +846,7 @@
       }
     });
 
-    async function completeHarvest(scheduleId, targetBatchCode, parentBatchCode, varietyName) {
+    window.completeHarvest = async function(scheduleId, targetBatchCode, parentBatchCode, varietyName) {
       const grams = prompt(`Hasil panen bersih benih baru untuk [${targetBatchCode}] (dalam gram):`, "1000");
       if (grams === null) return;
 
@@ -935,27 +871,27 @@
         provenance: `Regenerasi dari ${parentBatchCode}`
       };
 
-      const { error: insErr } = await supabase.from("seed_batches").insert([newBatch]);
+      const { error: insErr } = await dbClient.from("seed_batches").insert([newBatch]);
       if (insErr) {
         alert("Gagal menyimpan batch baru: " + insErr.message);
         return;
       }
 
-      await supabase.from("planting_calendar").update({ status: 'Selesai Panen' }).eq("id", scheduleId);
+      await dbClient.from("planting_calendar").update({ status: 'Selesai Panen' }).eq("id", scheduleId);
 
       alert(`Sukses! Batch [${targetBatchCode}] resmi masuk katalog sebagai generasi penerus dari [${parentBatchCode}].`);
       await loadAllData();
       switchTab('katalog');
-    }
+    };
 
-    async function deleteBatch(id) {
+    window.deleteBatch = async function(id) {
       if (confirm("Hapus batch benih ini dari katalog?")) {
-        await supabase.from("seed_batches").delete().eq("id", id);
+        await dbClient.from("seed_batches").delete().eq("id", id);
         await loadAllData();
       }
-    }
+    };
 
-    // Inisialisasi awal tanggal & muat data
+    // Inisialisasi awal saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
       const t1 = document.getElementById("qcTestDate");
       const t2 = document.getElementById("planPlantDate");

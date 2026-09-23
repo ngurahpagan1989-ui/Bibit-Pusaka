@@ -8,14 +8,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Library QR Code Generator (Zero-dependency & offline friendly) -->
+  <!-- Library QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-    /* Pengaturan Khusus Cetak Label */
     @media print {
       body { background: white !important; margin: 0 !important; padding: 0 !important; }
       body > *:not(#labelModal) { display: none !important; }
@@ -47,9 +46,7 @@
   <!-- ================= SIDEBAR KIRI ================= -->
   <aside id="mainSidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-emerald-950 text-white z-50 flex flex-col justify-between border-r border-emerald-900 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
     
-    <!-- Bagian Atas: Logo & Navigasi -->
     <div class="p-5 space-y-6">
-      
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
           <div class="w-10 h-10 rounded-xl bg-emerald-800/80 border border-emerald-700/60 flex items-center justify-center shadow-inner">
@@ -98,10 +95,8 @@
           <span>Pengaturan & Master</span>
         </button>
       </nav>
-
     </div>
 
-    <!-- Indikator Database -->
     <div class="p-4 border-t border-emerald-900/60 bg-emerald-950/80">
       <div class="flex items-center gap-2.5">
         <span class="relative flex h-2.5 w-2.5">
@@ -110,11 +105,10 @@
         </span>
         <div class="text-[11px]">
           <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">QR Passport Engine Ready</p>
+          <p class="text-emerald-400/80 font-mono text-[10px]">Micro-Code Stamp Ready</p>
         </div>
       </div>
     </div>
-
   </aside>
 
   <!-- ================= KONTEN UTAMA (KANAN) ================= -->
@@ -241,7 +235,7 @@
       </section>
 
       <!-- ============================================================== -->
-      <!-- 2. TAB MENU: KATALOG BATCH (ADA CETAK LABEL)                   -->
+      <!-- 2. TAB MENU: KATALOG BATCH (DILENGKAPI SHORT-CODE)             -->
       <!-- ============================================================== -->
       <section id="tab-katalog" class="space-y-6 hidden">
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
@@ -250,7 +244,7 @@
               <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch Benih Baru</h2>
               <p class="text-xs text-stone-400">Ketik nama varietas umum, kode batch dan nama spesies ilmiah akan terisi otomatis!</p>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species & QR Ready</span>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species & Micro-Code Ready</span>
           </div>
 
           <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -332,8 +326,8 @@
               <button onclick="setKatalogFilter('urgent')" id="filter-urgent" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Perlu Regenerasi</button>
               <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
             </div>
-            <div class="w-full md:w-72">
-              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, spesies, tag G1/G2..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+            <div class="w-full md:w-80">
+              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, short-code (misal: T26-01)..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
           </div>
 
@@ -341,7 +335,7 @@
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Kode Batch</th>
+                  <th class="p-3">Kode Batch & Sachet Stamp</th>
                   <th class="p-3">Varietas & Silsilah</th>
                   <th class="p-3">Lokasi Simpan</th>
                   <th class="p-3">Stok Tersedia</th>
@@ -566,7 +560,7 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu</h2>
+          <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu & Kodifikasi</h2>
           <p class="text-xs text-stone-400 mb-4">Aturan ambang batas yang dipakai oleh Dashboard Regeneration Engine secara otomatis.</p>
           
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -581,9 +575,9 @@
               <span class="text-stone-500 text-[11px]">Memicu regenerasi agar benih tidak mengalami penuaan fisiologis</span>
             </div>
             <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-              <span class="text-stone-400 font-semibold block uppercase">Format Penamaan Lot</span>
-              <p class="text-lg font-black text-emerald-800 mt-1">BN-[VAR]-[YY]-G[X]-[NO]</p>
-              <span class="text-stone-500 text-[11px]">Standar serial unik dengan pelacakan tingkat generasi otomatis</span>
+              <span class="text-stone-400 font-semibold block uppercase">Sachet Micro-Code (Stempel)</span>
+              <p class="text-lg font-black text-emerald-800 mt-1">[HURUF][YY]-[LOT]</p>
+              <span class="text-stone-500 text-[11px]">Kode pendek (misal: T26-01) untuk kemasan plastik klip kecil tanpa QR</span>
             </div>
           </div>
         </div>
@@ -628,6 +622,10 @@
           
           <div class="min-w-0 flex-1 space-y-1">
             <div id="lblBatchCode" class="font-mono font-black text-sm text-stone-900 leading-tight truncate">BN-TOM-26-G1-001</div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[9px] font-semibold text-stone-500">Stempel Sachet:</span>
+              <span id="lblShortCode" class="font-mono font-black text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 border border-amber-300">T26-01</span>
+            </div>
             <div id="lblVariety" class="font-bold text-xs text-stone-800 leading-tight truncate">Tomat Rampai</div>
             <div id="lblSpecies" class="text-[10px] italic text-stone-500 leading-tight truncate">Solanum lycopersicum</div>
             <div id="lblLineage" class="text-[9px] text-emerald-800 font-semibold truncate">Induk: -</div>
@@ -677,7 +675,23 @@
     let customPlantList = [];
     let currentFilter = 'all';
 
-    // 1. KAMUS BOTANI BAWAAN
+    // 1. ENGINE SHORT-CODE (MICRO-CODE UNTUK STEMPEL SACHET PLASTIK KLIP)
+    // Format: [1 HURUF AWAL][YY]-[2 DIGIT LOT] (Contoh: T26-01)
+    function generateShortCode(batchCode, varietyName) {
+      if (!batchCode) return "";
+      const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
+      if (match) {
+        const letter = match[1].charAt(0);
+        const yy = match[2];
+        const lot = String(parseInt(match[3], 10)).padStart(2, '0');
+        return `${letter}${yy}-${lot}`;
+      }
+      // Fallback ringkas jika kodenya kustom
+      const char = (varietyName ? varietyName.charAt(0) : 'B').toUpperCase();
+      return `${char}-${batchCode.slice(-4)}`;
+    }
+
+    // 2. KAMUS BOTANI BAWAAN
     const BASE_BOTANICAL_DICTIONARY = [
       { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
       { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
@@ -744,7 +758,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // 2. MANAGEMENT KAMUS BOTANI KUSTOM (PENGATURAN)
+    // 3. MANAGEMENT KAMUS BOTANI KUSTOM (PENGATURAN)
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -862,7 +876,7 @@
       await loadCustomPlants();
     };
 
-    // 3. ENGINE GENERATOR KODE BATCH (G1/G2 SERIAL)
+    // 4. ENGINE GENERATOR KODE BATCH (G1/G2 SERIAL)
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
       
@@ -925,16 +939,18 @@
       }
     };
 
-    // 4. FITUR MODAL & CETAK LABEL QR CODE
+    // 5. FITUR MODAL & CETAK LABEL QR CODE DENGAN SHORT-CODE
     window.openPrintLabel = function(batchId) {
       const batch = allBatches.find(b => b.id === batchId);
       if (!batch) return;
 
       const genMatch = batch.batch_code.match(/-G(\d+)-/i);
       const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+      const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
 
       document.getElementById("lblGenTag").textContent = genLabel;
       document.getElementById("lblBatchCode").textContent = batch.batch_code;
+      document.getElementById("lblShortCode").textContent = shortCode;
       document.getElementById("lblVariety").textContent = batch.variety_name;
       document.getElementById("lblSpecies").textContent = batch.species || "-";
       document.getElementById("lblLineage").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Batch Induk Utama (G1)";
@@ -942,11 +958,10 @@
       document.getElementById("lblLocation").textContent = batch.storage_location || "-";
       document.getElementById("lblViability").textContent = `${batch.germination_rate}% Kecambah`;
 
-      // Hasilkan QR Code baru
       const qrBox = document.getElementById("labelQrCode");
       qrBox.innerHTML = "";
       new QRCode(qrBox, {
-        text: `SEEDVAULT|${batch.batch_code}|${batch.variety_name}|${batch.harvest_date}`,
+        text: `SEEDVAULT|${batch.batch_code}|${shortCode}|${batch.variety_name}|${batch.harvest_date}`,
         width: 80,
         height: 80,
         colorDark: "#064e3b",
@@ -965,7 +980,7 @@
       window.print();
     };
 
-    // 5. TOGGLE SIDEBAR & NAVIGASI TAB
+    // 6. TOGGLE SIDEBAR & NAVIGASI TAB
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -982,7 +997,7 @@
 
     const tabMetadata = {
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
-      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan cetak label paspor QR" },
+      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan stempel sachet micro-code" },
       qc: { title: "Kontrol Mutu & Viabilitas (QC)", subtitle: "Pencatatan uji daya berkecambah dan kadar air benih" },
       tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam dengan regenerasi nomor serial otomatis" },
       pengaturan: { title: "Pengaturan & Master Data", subtitle: "Kelola kamus botani spesies tanaman dan parameter evaluasi" }
@@ -1147,12 +1162,14 @@
 
       const q = (document.getElementById("katalogSearch")?.value || "").toLowerCase();
       if (q) {
-        filtered = filtered.filter(b => 
-          b.batch_code.toLowerCase().includes(q) || 
-          b.variety_name.toLowerCase().includes(q) ||
-          (b.species && b.species.toLowerCase().includes(q)) ||
-          (b.storage_location && b.storage_location.toLowerCase().includes(q))
-        );
+        filtered = filtered.filter(b => {
+          const sc = generateShortCode(b.batch_code, b.variety_name).toLowerCase();
+          return b.batch_code.toLowerCase().includes(q) || 
+            b.variety_name.toLowerCase().includes(q) ||
+            sc.includes(q) ||
+            (b.species && b.species.toLowerCase().includes(q)) ||
+            (b.storage_location && b.storage_location.toLowerCase().includes(q));
+        });
       }
 
       const tbody = document.getElementById("katalogTableBody");
@@ -1168,6 +1185,7 @@
 
         const genMatch = batch.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+        const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
 
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
@@ -1176,6 +1194,12 @@
             <div class="font-mono font-black text-emerald-950 flex items-center gap-1.5">
               <span>${batch.batch_code}</span>
               <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">${genLabel}</span>
+            </div>
+            <div class="mt-1 flex items-center gap-1">
+              <span class="text-[9px] text-stone-400 font-semibold">Stempel:</span>
+              <span class="font-mono text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                ${shortCode}
+              </span>
             </div>
           </td>
           <td class="p-3">

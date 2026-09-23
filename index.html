@@ -81,7 +81,7 @@
         </span>
         <div class="text-[11px]">
           <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">G1/G2 Generation Engine Active</p>
+          <p class="text-emerald-400/80 font-mono text-[10px]">Botanical Auto-Species Active</p>
         </div>
       </div>
     </div>
@@ -219,33 +219,39 @@
           <div class="flex items-center justify-between border-b pb-3 mb-4">
             <div>
               <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch Benih Baru</h2>
-              <p class="text-xs text-stone-400">Catat lot benih panen baru ke dalam sistem inventaris fisik</p>
+              <p class="text-xs text-stone-400">Ketik nama varietas umum, kode batch dan nama spesies ilmiah akan terisi otomatis!</p>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-stone-100 text-stone-600 rounded-lg">Format Serial Generasi (G1/G2)</span>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species Enabled</span>
           </div>
 
           <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <!-- 1. Varietas (Pemicu Utama Auto-Fill) -->
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
-              <input type="text" id="varietyName" required oninput="triggerAutoBatchSuggest()" placeholder="Contoh: Tomat Rampai" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Cabai Rawit" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
 
-            <!-- Kode Batch + Tombol Generate Otomatis Format G1/G2 -->
+            <!-- 2. Spesies Ilmiah (Terisi Otomatis) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-stone-600">Spesies (Nama Ilmiah)</label>
+                <span id="speciesBadge" class="text-[10px] text-emerald-700 font-semibold hidden">⚡ Otomatis</span>
+              </div>
+              <input type="text" id="species" placeholder="Otomatis terisi (misal: Solanum lycopersicum)" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </div>
+
+            <!-- 3. Kode Batch + Tombol Generate -->
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
                 <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">
-                  ⚡ Buat Otomatis
+                  ⚡ Buat Ulang
                 </button>
               </div>
               <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Spesies / Taksonomi</label>
-              <input type="text" id="species" placeholder="Solanum lycopersicum" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-
+            <!-- 4. Batch Induk -->
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
               <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
@@ -303,7 +309,7 @@
               <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
             </div>
             <div class="w-full md:w-72">
-              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, kode, tag G1/G2..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, spesies, tag G1/G2..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
           </div>
 
@@ -402,7 +408,7 @@
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="border-b pb-3 mb-4">
             <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
-            <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menghitung dan menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
+            <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
           </div>
 
           <form id="plantingForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -488,33 +494,106 @@
     let currentFilter = 'all';
 
     // =============================================================
-    // 1. ENGINE GENERATOR KODE BATCH GENERASI (REKOMENDASI 2: G1, G2, G3)
-    // Format: BN-[VARIETAS]-[YY]-G[X]-[001]
+    // 1. KAMUS BOTANI & PENDETEKSI SPESIES OTOMATIS
+    // =============================================================
+    const BOTANICAL_DICTIONARY = {
+      "tomat": "Solanum lycopersicum",
+      "cabai rawit": "Capsicum frutescens",
+      "cabe rawit": "Capsicum frutescens",
+      "cabai": "Capsicum annuum",
+      "cabe": "Capsicum annuum",
+      "terong": "Solanum melongena",
+      "kangkung": "Ipomoea aquatica",
+      "bayam": "Amaranthus tricolor",
+      "pakcoy": "Brassica rapa subsp. chinensis",
+      "pokcoy": "Brassica rapa subsp. chinensis",
+      "caisim": "Brassica rapa subsp. parachinensis",
+      "sawi": "Brassica rapa",
+      "selada": "Lactuca sativa",
+      "kacang panjang": "Vigna unguiculata subsp. sesquipedalis",
+      "buncis": "Phaseolus vulgaris",
+      "mentimun": "Cucumis sativus",
+      "timun": "Cucumis sativus",
+      "jagung": "Zea mays",
+      "padi": "Oryza sativa",
+      "kemangi": "Ocimum basilicum",
+      "daun bawang": "Allium fistulosum",
+      "bawang merah": "Allium cepa",
+      "bawang putih": "Allium sativum",
+      "semangka": "Citrullus lanatus",
+      "melon": "Cucumis melo",
+      "labu": "Cucurbita moschata",
+      "pare": "Momordica charantia",
+      "oyong": "Luffa acutangula",
+      "wortel": "Daucus carota",
+      "seledri": "Apium graveolens",
+      "ketumbar": "Coriandrum sativum",
+      "okra": "Abelmoschus esculentus",
+      "rosella": "Hibiscus sabdariffa",
+      "kacang tanah": "Arachis hypogaea",
+      "kedelai": "Glycine max"
+    };
+
+    function autoDetectSpecies(varietyName) {
+      if (!varietyName) return "";
+      const lower = varietyName.trim().toLowerCase();
+
+      // 1. Cek dari histori database Supabase (mengingat varietas yang pernah diinput)
+      const matchedBatch = allBatches.find(b => b.variety_name && b.variety_name.toLowerCase() === lower && b.species);
+      if (matchedBatch) return matchedBatch.species;
+
+      // 2. Cocokkan dengan kamus botani bawaan
+      for (const [key, speciesName] of Object.entries(BOTANICAL_DICTIONARY)) {
+        if (lower.includes(key)) {
+          return speciesName;
+        }
+      }
+      return "";
+    }
+
+    // Dipanggil saat pengguna mengetik di kolom Nama Varietas
+    window.triggerVarietyAutoFill = function() {
+      const varietyInput = document.getElementById("varietyName");
+      const speciesInput = document.getElementById("species");
+      const speciesBadge = document.getElementById("speciesBadge");
+      const varietyVal = varietyInput.value.trim();
+
+      // 1. Auto-Detect Spesies Ilmiah
+      const detected = autoDetectSpecies(varietyVal);
+      if (detected) {
+        speciesInput.value = detected;
+        speciesBadge.classList.remove("hidden");
+      } else {
+        speciesBadge.classList.add("hidden");
+      }
+
+      // 2. Auto-Suggest Kode Batch (jika belum diedit manual)
+      triggerAutoBatchSuggest();
+    };
+
+    // =============================================================
+    // 2. ENGINE GENERATOR KODE BATCH (FORMAT G1/G2 SERIAL)
     // =============================================================
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
       
-      // Ambil 3 huruf varietas
       const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
       const prefix = cleanVar.length >= 3 ? cleanVar.substring(0, 3) : cleanVar.padEnd(3, 'X');
       
-      // Ambil 2 digit tahun
       const d = harvestDateVal ? new Date(harvestDateVal) : new Date();
       const yy = String(d.getFullYear()).slice(-2);
 
-      // Hitung Generasi (G1, G2, G3, dst)
       let genNum = 1;
       if (parentCode) {
         const parentMatch = parentCode.match(/-G(\d+)-/i);
         if (parentMatch) {
-          genNum = parseInt(parentMatch[1], 10) + 1; // Jika induk G1 -> anakan G2
+          genNum = parseInt(parentMatch[1], 10) + 1;
         } else {
-          genNum = 2; // Jika induk tidak punya label G, anggap anakan adalah G2
+          genNum = 2;
         }
       }
       const genTag = `G${genNum}`;
 
-      // Hitung Nomor Urut 3 Digit (001, 002, dst)
       const regex = new RegExp(`^BN-${prefix}-${yy}-${genTag}-(\\d{3})$`);
       const usedNums = [];
 
@@ -558,7 +637,7 @@
     };
 
     // =============================================================
-    // 2. TOGGLE SIDEBAR & NAVIGASI
+    // 3. TOGGLE SIDEBAR & NAVIGASI TAB
     // =============================================================
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
@@ -741,6 +820,7 @@
         filtered = filtered.filter(b => 
           b.batch_code.toLowerCase().includes(q) || 
           b.variety_name.toLowerCase().includes(q) ||
+          (b.species && b.species.toLowerCase().includes(q)) ||
           (b.storage_location && b.storage_location.toLowerCase().includes(q))
         );
       }
@@ -756,7 +836,6 @@
         const st = evaluateRegenStatus(batch);
         const germRate = Number(batch.germination_rate || 0);
 
-        // Ekstrak badge Generasi (G1, G2, dst)
         const genMatch = batch.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
 
@@ -772,7 +851,7 @@
           <td class="p-3">
             <div class="font-bold text-stone-900">${batch.variety_name}</div>
             <div class="text-[11px] text-stone-400">
-              ${batch.species || ''} 
+              <span class="italic text-emerald-900">${batch.species || ''}</span> 
               ${batch.parent_batch_code ? `• Induk: <span class="font-mono text-emerald-800 font-semibold">${batch.parent_batch_code}</span>` : ''}
             </div>
           </td>
@@ -910,7 +989,6 @@
       });
     }
 
-    // Pemilihan batch induk di kalender tanam: Otomatis menaikkan generasi G1 -> G2
     window.onSelectParentBatch = function(parentCode) {
       const b = allBatches.find(x => x.batch_code === parentCode);
       if (b) {
@@ -960,6 +1038,7 @@
         alert("Gagal menambahkan batch: " + error.message);
       } else {
         document.getElementById("seedForm").reset();
+        document.getElementById("speciesBadge").classList.add("hidden");
         showToast("Batch baru berhasil didaftarkan ke katalog!");
         await loadAllData();
       }
@@ -1042,10 +1121,12 @@
       }
 
       const today = new Date().toISOString().split('T')[0];
+      const parentObj = allBatches.find(b => b.batch_code === parentBatchCode);
 
       const newBatch = {
         batch_code: targetBatchCode,
         variety_name: varietyName,
+        species: parentObj ? parentObj.species : autoDetectSpecies(varietyName),
         parent_batch_code: parentBatchCode,
         harvest_date: today,
         stock_grams: parsedGrams,
@@ -1076,7 +1157,7 @@
       }
     };
 
-    // Inisialisasi awal
+    // Inisialisasi awal saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
       const t1 = document.getElementById("qcTestDate");
       const t2 = document.getElementById("planPlantDate");

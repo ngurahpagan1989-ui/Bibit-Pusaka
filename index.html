@@ -10,6 +10,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Library QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Library In-App QR Scanner (Kamera HP) -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -105,7 +107,7 @@
         </span>
         <div class="text-[11px]">
           <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">Micro-Code Stamp Ready</p>
+          <p class="text-emerald-400/80 font-mono text-[10px]">Camera Scanner & Live Passport</p>
         </div>
       </div>
     </div>
@@ -129,10 +131,15 @@
         </div>
       </div>
 
+      <!-- Action Header: Tombol Scan QR Kamera & Refresh Data -->
       <div class="flex items-center gap-2">
+        <button onclick="openCameraScanner()" class="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-3.5 py-1.5 rounded-xl shadow-sm transition">
+          <span>📷</span>
+          <span>Scan QR</span>
+        </button>
         <button onclick="loadAllData()" class="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl border border-stone-200 transition">
           <span>🔄</span>
-          <span class="hidden sm:inline">Refresh Data</span>
+          <span class="hidden sm:inline">Refresh</span>
         </button>
       </div>
     </header>
@@ -142,9 +149,7 @@
 
       <div id="statusToast" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
 
-      <!-- ============================================================== -->
-      <!-- 1. TAB MENU: DASHBOARD                                         -->
-      <!-- ============================================================== -->
+      <!-- 1. TAB MENU: DASHBOARD -->
       <section id="tab-dashboard" class="space-y-6">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
@@ -209,7 +214,7 @@
             <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
               <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
             </h2>
-            <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas < 70%, stok menipis, atau umur simpan > 1 tahun.</p>
+            <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas &lt; 70%, stok menipis, atau umur simpan &gt; 1 tahun.</p>
           </div>
 
           <div class="overflow-x-auto">
@@ -234,9 +239,7 @@
         </div>
       </section>
 
-      <!-- ============================================================== -->
-      <!-- 2. TAB MENU: KATALOG BATCH (DILENGKAPI SHORT-CODE)             -->
-      <!-- ============================================================== -->
+      <!-- 2. TAB MENU: KATALOG BATCH -->
       <section id="tab-katalog" class="space-y-6 hidden">
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="flex items-center justify-between border-b pb-3 mb-4">
@@ -244,7 +247,7 @@
               <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch Benih Baru</h2>
               <p class="text-xs text-stone-400">Ketik nama varietas umum, kode batch dan nama spesies ilmiah akan terisi otomatis!</p>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species & Micro-Code Ready</span>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species & QR Ready</span>
           </div>
 
           <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -342,7 +345,7 @@
                   <th class="p-3">Daya Kecambah</th>
                   <th class="p-3">Panen</th>
                   <th class="p-3">Status</th>
-                  <th class="p-3 text-center">Aksi & Label</th>
+                  <th class="p-3 text-center">Aksi Cepat</th>
                 </tr>
               </thead>
               <tbody id="katalogTableBody" class="divide-y divide-stone-100">
@@ -355,9 +358,7 @@
         </div>
       </section>
 
-      <!-- ============================================================== -->
-      <!-- 3. TAB MENU: QC (UJI MUTU)                                     -->
-      <!-- ============================================================== -->
+      <!-- 3. TAB MENU: QC (UJI MUTU) -->
       <section id="tab-qc" class="space-y-6 hidden">
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="border-b pb-3 mb-4">
@@ -419,9 +420,7 @@
         </div>
       </section>
 
-      <!-- ============================================================== -->
-      <!-- 4. TAB MENU: KALENDER TANAM                                    -->
-      <!-- ============================================================== -->
+      <!-- 4. TAB MENU: KALENDER TANAM -->
       <section id="tab-tanam" class="space-y-6 hidden">
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="border-b pb-3 mb-4">
@@ -496,9 +495,7 @@
         </div>
       </section>
 
-      <!-- ============================================================== -->
-      <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI                   -->
-      <!-- ============================================================== -->
+      <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI -->
       <section id="tab-pengaturan" class="space-y-6 hidden">
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="flex items-center justify-between border-b pb-3 mb-4">
@@ -584,11 +581,36 @@
       </section>
 
     </main>
-
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL POPUP: CETAK LABEL PASPOR BENIH DENGAN QR CODE           -->
+  <!-- MODAL 1: SCANNER KAMERA QR DI DALAM APLIKASI (IN-APP SCANNER)  -->
+  <!-- ============================================================== -->
+  <div id="cameraScannerModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-stone-200">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <h3 class="font-black text-stone-800 text-sm flex items-center gap-1.5">
+            <span>📷</span> Pemindai QR Paspor Benih
+          </h3>
+          <p class="text-[11px] text-stone-400">Arahkan kamera ke QR Code pada toples benih</p>
+        </div>
+        <button onclick="closeCameraScanner()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Kotak Kamera Scanner -->
+      <div id="qrReaderBox" class="w-full bg-stone-900 rounded-2xl overflow-hidden aspect-square border border-stone-300"></div>
+
+      <p class="text-center text-[11px] text-stone-500">Mendukung kamera smartphone Android / iPhone & laptop.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL 2: CETAK LABEL PASPOR BENIH DENGAN QR CODE (REK. 1 & 4)  -->
   <!-- ============================================================== -->
   <div id="labelModal" class="fixed inset-0 bg-stone-900/70 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-stone-200">
@@ -605,9 +627,7 @@
         </button>
       </div>
 
-      <!-- KARTU FISIK LABEL (YANG DI-PRINT) -->
       <div id="labelModalContent" class="bg-stone-50 border-2 border-stone-800 p-4 rounded-xl text-stone-900 font-sans space-y-3">
-        <!-- Header Label -->
         <div class="flex items-center justify-between border-b-2 border-stone-800 pb-2">
           <div>
             <span class="text-[10px] font-black uppercase tracking-wider text-emerald-900 block leading-tight">SEEDVAULT PASSPORT</span>
@@ -616,7 +636,6 @@
           <span id="lblGenTag" class="text-xs font-black px-2 py-0.5 rounded bg-stone-900 text-white font-mono">G1</span>
         </div>
 
-        <!-- Body Label: QR Code + Batch Details -->
         <div class="flex items-center gap-3">
           <div id="labelQrCode" class="p-1.5 bg-white border border-stone-300 rounded-lg shadow-2xs shrink-0 flex items-center justify-center"></div>
           
@@ -632,7 +651,6 @@
           </div>
         </div>
 
-        <!-- Footer Grid: Data Pengujian & Fisik -->
         <div class="border-t border-dashed border-stone-400 pt-2 grid grid-cols-3 gap-1 text-[9px]">
           <div>
             <span class="text-stone-400 block font-semibold">TGL PANEN</span>
@@ -649,7 +667,6 @@
         </div>
       </div>
 
-      <!-- Action Buttons Modal -->
       <div id="labelModalActions" class="flex gap-2 justify-end pt-2">
         <button onclick="closePrintLabel()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
           Batal
@@ -657,6 +674,74 @@
         <button onclick="printSeedLabel()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
           <span>🖨️</span>
           <span>Cetak Sekarang</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL 3: DIGITAL SEED PASSPORT POPUP (HASIL SCAN KAMERA HP)   -->
+  <!-- ============================================================== -->
+  <div id="passportModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-stone-200">
+      
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="p-2 rounded-xl bg-emerald-100 text-emerald-800 text-base">🌱</span>
+          <div>
+            <h3 class="font-black text-stone-900 text-base">Paspor Digital Benih</h3>
+            <p class="text-[11px] text-stone-400">Data sertifikasi dan riwayat fisik terverifikasi</p>
+          </div>
+        </div>
+        <button onclick="closePassportModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Kode Batch Terdaftar</span>
+            <p id="passBatchCode" class="text-base font-black font-mono text-emerald-950">BN-TOM-26-G1-001</p>
+          </div>
+          <span id="passGenTag" class="px-2.5 py-1 rounded-xl bg-emerald-800 text-white font-mono font-bold text-xs">G1</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <span class="text-stone-400 font-semibold block">Varietas</span>
+            <p id="passVariety" class="font-bold text-stone-900 text-sm mt-0.5">-</p>
+            <p id="passSpecies" class="text-[11px] italic text-emerald-900">-</p>
+          </div>
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <span class="text-stone-400 font-semibold block">Sisa Stok Fisik</span>
+            <p id="passStock" class="font-black text-emerald-800 text-sm mt-0.5">-</p>
+            <p id="passLocation" class="text-[11px] text-stone-500 truncate">-</p>
+          </div>
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <span class="text-stone-400 font-semibold block">Daya Kecambah (QC)</span>
+            <p id="passGermination" class="font-black text-emerald-700 text-sm mt-0.5">-</p>
+            <p id="passMoisture" class="text-[11px] text-stone-500">Air: -</p>
+          </div>
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <span class="text-stone-400 font-semibold block">Silsilah & Asal</span>
+            <p id="passLineage" class="font-bold text-stone-800 text-xs mt-0.5 truncate">-</p>
+            <p id="passProvenance" class="text-[11px] text-stone-500 truncate">-</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action: Quick Stock Out Langsung dari Hasil Scan -->
+      <div class="pt-2 flex gap-2">
+        <button id="passQuickOutBtn" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-sm flex items-center justify-center gap-1.5">
+          <span>⚡</span>
+          <span>Ambil / Kurangi Stok</span>
+        </button>
+        <button onclick="closePassportModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
+          Tutup
         </button>
       </div>
 
@@ -674,9 +759,9 @@
     let allPlantingSchedules = [];
     let customPlantList = [];
     let currentFilter = 'all';
+    let html5QrScanner = null;
 
-    // 1. ENGINE SHORT-CODE (MICRO-CODE UNTUK STEMPEL SACHET PLASTIK KLIP)
-    // Format: [1 HURUF AWAL][YY]-[2 DIGIT LOT] (Contoh: T26-01)
+    // 1. SHORT-CODE GENERATOR (STEMPEL SACHET KLIP KECIL)
     function generateShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
       const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
@@ -686,12 +771,11 @@
         const lot = String(parseInt(match[3], 10)).padStart(2, '0');
         return `${letter}${yy}-${lot}`;
       }
-      // Fallback ringkas jika kodenya kustom
       const char = (varietyName ? varietyName.charAt(0) : 'B').toUpperCase();
       return `${char}-${batchCode.slice(-4)}`;
     }
 
-    // 2. KAMUS BOTANI BAWAAN
+    // 2. KAMUS BOTANI
     const BASE_BOTANICAL_DICTIONARY = [
       { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
       { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
@@ -758,7 +842,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // 3. MANAGEMENT KAMUS BOTANI KUSTOM (PENGATURAN)
+    // 3. PENGATURAN KAMUS BOTANI KUSTOM
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -876,7 +960,7 @@
       await loadCustomPlants();
     };
 
-    // 4. ENGINE GENERATOR KODE BATCH (G1/G2 SERIAL)
+    // 4. GENERATOR KODE BATCH
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
       
@@ -939,7 +1023,9 @@
       }
     };
 
-    // 5. FITUR MODAL & CETAK LABEL QR CODE DENGAN SHORT-CODE
+    // =============================================================
+    // 5. FITUR REKOMENDASI 1 & 4: CETAK LABEL DENGAN DIGITAL PASSPORT URL
+    // =============================================================
     window.openPrintLabel = function(batchId) {
       const batch = allBatches.find(b => b.id === batchId);
       if (!batch) return;
@@ -958,10 +1044,14 @@
       document.getElementById("lblLocation").textContent = batch.storage_location || "-";
       document.getElementById("lblViability").textContent = `${batch.germination_rate}% Kecambah`;
 
+      // REKOMENDASI NO. 1: URL PASSPORT LANGSUNG
+      const baseUrl = window.location.href.split('?')[0];
+      const passportUrl = `${baseUrl}?passport=${encodeURIComponent(batch.batch_code)}`;
+
       const qrBox = document.getElementById("labelQrCode");
       qrBox.innerHTML = "";
       new QRCode(qrBox, {
-        text: `SEEDVAULT|${batch.batch_code}|${shortCode}|${batch.variety_name}|${batch.harvest_date}`,
+        text: passportUrl,
         width: 80,
         height: 80,
         colorDark: "#064e3b",
@@ -980,7 +1070,124 @@
       window.print();
     };
 
-    // 6. TOGGLE SIDEBAR & NAVIGASI TAB
+    // =============================================================
+    // 6. FITUR REKOMENDASI 2: IN-APP CAMERA SCANNER
+    // =============================================================
+    window.openCameraScanner = function() {
+      document.getElementById("cameraScannerModal").classList.remove("hidden");
+      
+      html5QrScanner = new Html5Qrcode("qrReaderBox");
+      const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+      html5QrScanner.start({ facingMode: "environment" }, config, (decodedText) => {
+        // Berhasil Scan
+        closeCameraScanner();
+
+        // Cek jika hasil scan adalah URL passport
+        let targetCode = decodedText;
+        if (decodedText.includes("?passport=")) {
+          const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+          targetCode = urlParams.get("passport");
+        } else if (decodedText.startsWith("SEEDVAULT|")) {
+          const parts = decodedText.split('|');
+          targetCode = parts[1];
+        }
+
+        // Buka Paspor Digital Benih
+        showPassportModal(targetCode);
+      }).catch(err => {
+        console.warn("Gagal membuka kamera:", err);
+      });
+    };
+
+    window.closeCameraScanner = function() {
+      if (html5QrScanner) {
+        html5QrScanner.stop().then(() => {
+          html5QrScanner.clear();
+        }).catch(() => {});
+      }
+      document.getElementById("cameraScannerModal").classList.add("hidden");
+    };
+
+    // =============================================================
+    // 7. FITUR DIGITAL PASSPORT MODAL & REKOMENDASI 3: QUICK STOCK-OUT
+    // =============================================================
+    window.showPassportModal = function(batchCodeOrShort) {
+      if (!batchCodeOrShort) return;
+      const q = batchCodeOrShort.trim().toLowerCase();
+
+      const batch = allBatches.find(b => 
+        b.batch_code.toLowerCase() === q || 
+        generateShortCode(b.batch_code, b.variety_name).toLowerCase() === q
+      );
+
+      if (!batch) {
+        alert(`Batch benih dengan kode [${batchCodeOrShort}] tidak ditemukan di database.`);
+        return;
+      }
+
+      const genMatch = batch.batch_code.match(/-G(\d+)-/i);
+      const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+
+      document.getElementById("passBatchCode").textContent = batch.batch_code;
+      document.getElementById("passGenTag").textContent = genLabel;
+      document.getElementById("passVariety").textContent = batch.variety_name;
+      document.getElementById("passSpecies").textContent = batch.species || "Spesies belum dicatat";
+      document.getElementById("passStock").textContent = `${batch.stock_grams} Gram`;
+      document.getElementById("passLocation").textContent = `Lokasi: ${batch.storage_location || '-'}`;
+      document.getElementById("passGermination").textContent = `${batch.germination_rate}% Viabel`;
+      document.getElementById("passMoisture").textContent = `Air: ${batch.moisture_content || 0}%`;
+      document.getElementById("passLineage").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Batch Induk (Perdana)";
+      document.getElementById("passProvenance").textContent = `Asal: ${batch.provenance || '-'}`;
+
+      // Pasang Event Tombol Quick Stock Out
+      const btn = document.getElementById("passQuickOutBtn");
+      btn.onclick = () => {
+        quickStockOut(batch.id, batch.batch_code, batch.stock_grams);
+      };
+
+      document.getElementById("passportModal").classList.remove("hidden");
+    };
+
+    window.closePassportModal = function() {
+      document.getElementById("passportModal").classList.add("hidden");
+    };
+
+    // REKOMENDASI NO. 3: QUICK STOCK-OUT
+    window.quickStockOut = async function(batchId, batchCode, currentStock) {
+      const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik saat ini: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
+      if (takeStr === null) return;
+
+      const takeGrams = parseFloat(takeStr);
+      if (isNaN(takeGrams) || takeGrams <= 0) {
+        alert("Harap masukkan angka gram yang valid.");
+        return;
+      }
+
+      if (takeGrams > currentStock) {
+        alert("Jumlah yang diambil melebihi sisa stok fisik yang ada!");
+        return;
+      }
+
+      const purpose = prompt("Tujuan pengambilan stok benih? (Misal: Sachet Petani Mitra / Uji Lab / Tanam Kebun):", "Sachet Plastik Klip Mitra");
+      if (purpose === null) return;
+
+      const newStock = currentStock - takeGrams;
+
+      const { error } = await dbClient.from("seed_batches")
+        .update({ stock_grams: newStock })
+        .eq("id", batchId);
+
+      if (error) {
+        alert("Gagal memotong stok: " + error.message);
+      } else {
+        alert(`Berhasil mengeluarkan ${takeGrams} gram benih [${batchCode}].\nSisa stok di toples sekarang: ${newStock} gram.`);
+        closePassportModal();
+        await loadAllData();
+      }
+    };
+
+    // 8. TOGGLE SIDEBAR & NAVIGASI TAB
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -1090,6 +1297,13 @@
         populateDropdowns();
         renderQcLogs();
         renderPlanting();
+
+        // Cek URL params saat halaman dimuat (jika dibuka dari scan kamera HP luar)
+        const urlParams = new URLSearchParams(window.location.search);
+        const passportBatch = urlParams.get('passport');
+        if (passportBatch) {
+          showPassportModal(passportBatch);
+        }
       } catch (err) {
         console.error("Gagal sinkron data:", err);
       }
@@ -1226,10 +1440,12 @@
               ${st.label}
             </span>
           </td>
-          <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-            <button onclick="openPrintLabel('${batch.id}')" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition inline-flex items-center gap-1 shadow-2xs">
-              <span>🏷️</span>
-              <span>Label</span>
+          <td class="p-3 text-center space-x-1 whitespace-nowrap">
+            <button onclick="openPrintLabel('${batch.id}')" title="Cetak Label QR Paspor" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition shadow-2xs">
+              🏷️ Label
+            </button>
+            <button onclick="quickStockOut('${batch.id}', '${batch.batch_code}', ${batch.stock_grams})" title="Ambil Cepat Sebagian Stok" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">
+              ⚡ Ambil
             </button>
             <button onclick="prefillQc('${batch.batch_code}')" class="text-xs text-emerald-700 hover:text-emerald-900 font-bold hover:underline">QC</button>
             <button onclick="deleteBatch('${batch.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">Hapus</button>

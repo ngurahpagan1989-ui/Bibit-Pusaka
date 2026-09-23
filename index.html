@@ -40,7 +40,6 @@
           </div>
         </div>
 
-        <!-- Tombol Tutup Sidebar di Layar HP -->
         <button type="button" onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg text-emerald-300 hover:bg-emerald-900 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -82,7 +81,7 @@
         </span>
         <div class="text-[11px]">
           <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">Vault Cloud DB Active</p>
+          <p class="text-emerald-400/80 font-mono text-[10px]">G1/G2 Generation Engine Active</p>
         </div>
       </div>
     </div>
@@ -92,11 +91,9 @@
   <!-- ================= KONTEN UTAMA (KANAN) ================= -->
   <div class="flex-1 flex flex-col min-w-0 lg:ml-64">
 
-    <!-- Top Bar Header (Dengan Hamburger Menu di Mobile) -->
+    <!-- Top Bar Header -->
     <header class="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
-      
       <div class="flex items-center gap-3">
-        <!-- Tombol Hamburger (Khusus Mobile) -->
         <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition focus:outline-none">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -115,21 +112,17 @@
           <span class="hidden sm:inline">Refresh Data</span>
         </button>
       </div>
-
     </header>
 
-    <!-- Konten Isi Tab -->
+    <!-- Konten Tab -->
     <main class="p-4 sm:p-6 flex-1 space-y-6">
 
-      <!-- Status Toast / Pesan Berhasil -->
       <div id="statusToast" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
 
       <!-- ============================================================== -->
       <!-- 1. TAB MENU: DASHBOARD                                         -->
       <!-- ============================================================== -->
       <section id="tab-dashboard" class="space-y-6">
-        
-        <!-- Statistik Card -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
             <div>
@@ -176,7 +169,6 @@
           </div>
         </div>
 
-        <!-- Banner Alert -->
         <div id="dashAlertBanner" class="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50 border-emerald-200 text-emerald-950">
           <div>
             <h3 class="font-bold text-base flex items-center gap-2">
@@ -189,13 +181,12 @@
           </button>
         </div>
 
-        <!-- Tabel Batch Kritis -->
         <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4">
           <div>
             <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
               <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
             </h2>
-            <p class="text-xs text-stone-400">Batch yang membutuhkan penanaman ulang segera untuk mempertahankan daya tumbuh dan kemurnian genetik.</p>
+            <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas < 70%, stok menipis, atau umur simpan > 1 tahun.</p>
           </div>
 
           <div class="overflow-x-auto">
@@ -218,69 +209,83 @@
             </table>
           </div>
         </div>
-
       </section>
 
       <!-- ============================================================== -->
       <!-- 2. TAB MENU: KATALOG BATCH                                     -->
       <!-- ============================================================== -->
       <section id="tab-katalog" class="space-y-6 hidden">
-        
-        <!-- Input Batch Baru -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="flex items-center justify-between border-b pb-3 mb-4">
             <div>
               <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch Benih Baru</h2>
               <p class="text-xs text-stone-400">Catat lot benih panen baru ke dalam sistem inventaris fisik</p>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-stone-100 text-stone-600 rounded-lg">Form Inbound</span>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-stone-100 text-stone-600 rounded-lg">Format Serial Generasi (G1/G2)</span>
           </div>
 
           <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
             <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Kode Batch <span class="text-rose-500">*</span></label>
-              <input type="text" id="batchCode" required placeholder="Contoh: BN-TOM-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
-              <input type="text" id="varietyName" required placeholder="Tomat Rampai" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <input type="text" id="varietyName" required oninput="triggerAutoBatchSuggest()" placeholder="Contoh: Tomat Rampai" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
+            <!-- Kode Batch + Tombol Generate Otomatis Format G1/G2 -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
+                <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">
+                  ⚡ Buat Otomatis
+                </button>
+              </div>
+              <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Spesies / Taksonomi</label>
               <input type="text" id="species" placeholder="Solanum lycopersicum" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Silsilah)</label>
-              <input type="text" id="parentBatchCode" placeholder="Kosongkan jika batch perdana" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
+              <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Asal Benih (Provenance)</label>
               <input type="text" id="provenance" placeholder="Mitra Karangasem / Kebun Sendiri" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Simpan (Rak / Bins)</label>
               <input type="text" id="storageLocation" placeholder="Rak A - Kotak 02" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Panen <span class="text-rose-500">*</span></label>
-              <input type="date" id="harvestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <input type="date" id="harvestDate" required onchange="generateAutoBatchCode()" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Stok Awal (Gram) <span class="text-rose-500">*</span></label>
               <input type="number" id="stockGrams" min="0" step="any" required placeholder="500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Batas Minimum Stok (Gr)</label>
               <input type="number" id="minStock" min="0" step="any" value="50" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah Awal (%)</label>
               <input type="number" id="germinationRate" min="0" max="100" value="85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
               <input type="number" id="moistureContent" min="0" max="100" step="0.1" value="7.5" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
+
             <div class="flex items-end">
               <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
                 + Simpan ke Katalog
@@ -298,7 +303,7 @@
               <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
             </div>
             <div class="w-full md:w-72">
-              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, kode, lokasi..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, kode, tag G1/G2..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
           </div>
 
@@ -324,15 +329,12 @@
             </table>
           </div>
         </div>
-
       </section>
 
       <!-- ============================================================== -->
       <!-- 3. TAB MENU: QC (UJI MUTU)                                     -->
       <!-- ============================================================== -->
       <section id="tab-qc" class="space-y-6 hidden">
-        
-        <!-- Input QC Baru -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="border-b pb-3 mb-4">
             <h2 class="text-base font-extrabold text-stone-800">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
@@ -369,7 +371,6 @@
           </form>
         </div>
 
-        <!-- Riwayat Log QC -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
           <h2 class="font-extrabold text-stone-800 text-base">Riwayat Log Uji Mutu</h2>
           <div class="overflow-x-auto">
@@ -392,19 +393,16 @@
             </table>
           </div>
         </div>
-
       </section>
 
       <!-- ============================================================== -->
       <!-- 4. TAB MENU: KALENDER TANAM                                    -->
       <!-- ============================================================== -->
       <section id="tab-tanam" class="space-y-6 hidden">
-        
-        <!-- Input Kalender Tanam -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
           <div class="border-b pb-3 mb-4">
             <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
-            <p class="text-xs text-stone-400">Rencanakan perbanyakan lot benih yang telah menipis atau turun viabilitasnya.</p>
+            <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menghitung dan menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
           </div>
 
           <form id="plantingForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -419,8 +417,8 @@
               <input type="text" id="planVariety" readonly placeholder="Otomatis dari batch induk" class="w-full border border-stone-200 bg-stone-100 rounded-xl p-2.5 text-xs text-stone-500 outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Baru <span class="text-rose-500">*</span></label>
-              <input type="text" id="planTargetBatch" required placeholder="GEN2-BN-..." class="w-full border border-stone-200 rounded-xl p-2.5 font-mono text-emerald-900 font-bold focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Anakan <span class="text-emerald-700 font-bold">(Auto-Gen)</span></label>
+              <input type="text" id="planTargetBatch" required placeholder="BN-TOM-26-G2-001" class="w-full border border-emerald-300 bg-emerald-50/50 rounded-xl p-2.5 font-mono text-emerald-950 font-black focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Lahan / Plot Mitra</label>
@@ -449,14 +447,13 @@
           </form>
         </div>
 
-        <!-- Tabel Regenerasi -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
           <h2 class="font-extrabold text-stone-800 text-base">Timeline Regenerasi Berjalan</h2>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead>
                 <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Calon Batch Baru</th>
+                  <th class="p-3">Calon Batch Anakan</th>
                   <th class="p-3">Batch Induk</th>
                   <th class="p-3">Varietas & Lahan</th>
                   <th class="p-3">Tgl Tanam</th>
@@ -473,7 +470,6 @@
             </table>
           </div>
         </div>
-
       </section>
 
     </main>
@@ -491,7 +487,79 @@
     let allPlantingSchedules = [];
     let currentFilter = 'all';
 
-    // Toggle Sidebar Drawer (Mobile)
+    // =============================================================
+    // 1. ENGINE GENERATOR KODE BATCH GENERASI (REKOMENDASI 2: G1, G2, G3)
+    // Format: BN-[VARIETAS]-[YY]-G[X]-[001]
+    // =============================================================
+    function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
+      if (!varietyName) return "";
+      
+      // Ambil 3 huruf varietas
+      const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
+      const prefix = cleanVar.length >= 3 ? cleanVar.substring(0, 3) : cleanVar.padEnd(3, 'X');
+      
+      // Ambil 2 digit tahun
+      const d = harvestDateVal ? new Date(harvestDateVal) : new Date();
+      const yy = String(d.getFullYear()).slice(-2);
+
+      // Hitung Generasi (G1, G2, G3, dst)
+      let genNum = 1;
+      if (parentCode) {
+        const parentMatch = parentCode.match(/-G(\d+)-/i);
+        if (parentMatch) {
+          genNum = parseInt(parentMatch[1], 10) + 1; // Jika induk G1 -> anakan G2
+        } else {
+          genNum = 2; // Jika induk tidak punya label G, anggap anakan adalah G2
+        }
+      }
+      const genTag = `G${genNum}`;
+
+      // Hitung Nomor Urut 3 Digit (001, 002, dst)
+      const regex = new RegExp(`^BN-${prefix}-${yy}-${genTag}-(\\d{3})$`);
+      const usedNums = [];
+
+      [...allBatches.map(b => b.batch_code), ...allPlantingSchedules.map(p => p.target_batch_code)].forEach(code => {
+        if (code) {
+          const m = code.match(regex);
+          if (m) usedNums.push(parseInt(m[1], 10));
+        }
+      });
+
+      const nextSeq = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 1;
+      return `BN-${prefix}-${yy}-${genTag}-${String(nextSeq).padStart(3, '0')}`;
+    }
+
+    window.generateAutoBatchCode = function() {
+      const varietyInput = document.getElementById("varietyName");
+      const harvestInput = document.getElementById("harvestDate");
+      const parentInput = document.getElementById("parentBatchCode");
+      const batchCodeInput = document.getElementById("batchCode");
+
+      const variety = varietyInput.value.trim();
+      if (!variety) {
+        alert("Harap ketik Nama Varietas terlebih dahulu!");
+        varietyInput.focus();
+        return;
+      }
+
+      batchCodeInput.value = generateGenerationBatchCode(variety, harvestInput.value, parentInput.value.trim());
+    };
+
+    window.triggerAutoBatchSuggest = function() {
+      const batchCodeInput = document.getElementById("batchCode");
+      if (!batchCodeInput.value.trim()) {
+        const variety = document.getElementById("varietyName").value.trim();
+        const harvest = document.getElementById("harvestDate").value;
+        const parent = document.getElementById("parentBatchCode").value.trim();
+        if (variety.length >= 3) {
+          batchCodeInput.value = generateGenerationBatchCode(variety, harvest, parent);
+        }
+      }
+    };
+
+    // =============================================================
+    // 2. TOGGLE SIDEBAR & NAVIGASI
+    // =============================================================
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -508,9 +576,9 @@
 
     const tabMetadata = {
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
-      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan silsilah" },
+      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan nomor generasi (G1, G2)" },
       qc: { title: "Kontrol Mutu & Viabilitas (QC)", subtitle: "Pencatatan uji daya berkecambah dan kadar air benih" },
-      tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam untuk peremajaan cadangan benih" }
+      tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam dengan regenerasi nomor serial otomatis" }
     };
 
     window.switchTab = function(tabId) {
@@ -538,7 +606,6 @@
         document.getElementById("pageSubtitle").textContent = tabMetadata[tabId].subtitle;
       }
 
-      // Tutup drawer di layar HP setelah memilih menu
       if (window.innerWidth < 1024) {
         const sidebar = document.getElementById("mainSidebar");
         const backdrop = document.getElementById("sidebarBackdrop");
@@ -689,10 +756,19 @@
         const st = evaluateRegenStatus(batch);
         const germRate = Number(batch.germination_rate || 0);
 
+        // Ekstrak badge Generasi (G1, G2, dst)
+        const genMatch = batch.batch_code.match(/-G(\d+)-/i);
+        const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
         tr.innerHTML = `
-          <td class="p-3 font-mono font-bold text-stone-800">${batch.batch_code}</td>
+          <td class="p-3">
+            <div class="font-mono font-black text-emerald-950 flex items-center gap-1.5">
+              <span>${batch.batch_code}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">${genLabel}</span>
+            </div>
+          </td>
           <td class="p-3">
             <div class="font-bold text-stone-900">${batch.variety_name}</div>
             <div class="text-[11px] text-stone-400">
@@ -811,7 +887,7 @@
         if (item.status === 'Selesai Panen') badge = "bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
 
         tr.innerHTML = `
-          <td class="p-3 font-mono font-black text-emerald-800">${item.target_batch_code}</td>
+          <td class="p-3 font-mono font-black text-emerald-900">${item.target_batch_code}</td>
           <td class="p-3 text-xs font-mono text-stone-400">${item.parent_batch_code}</td>
           <td class="p-3">
             <div class="font-bold text-stone-800">${item.variety_name}</div>
@@ -834,11 +910,13 @@
       });
     }
 
+    // Pemilihan batch induk di kalender tanam: Otomatis menaikkan generasi G1 -> G2
     window.onSelectParentBatch = function(parentCode) {
       const b = allBatches.find(x => x.batch_code === parentCode);
       if (b) {
         document.getElementById("planVariety").value = b.variety_name;
-        document.getElementById("planTargetBatch").value = `GEN2-${b.batch_code}`;
+        const plantDate = document.getElementById("planPlantDate").value;
+        document.getElementById("planTargetBatch").value = generateGenerationBatchCode(b.variety_name, plantDate, parentCode);
       }
     };
 
@@ -846,7 +924,8 @@
       switchTab('tanam');
       document.getElementById("planParentBatch").value = parentCode;
       document.getElementById("planVariety").value = variety;
-      document.getElementById("planTargetBatch").value = `GEN2-${parentCode}`;
+      const plantDate = document.getElementById("planPlantDate").value;
+      document.getElementById("planTargetBatch").value = generateGenerationBatchCode(variety, plantDate, parentCode);
     };
 
     window.prefillQc = function(batchCode) {
@@ -854,6 +933,7 @@
       document.getElementById("qcBatchCode").value = batchCode;
     };
 
+    // Form Inbound Batch Baru
     document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitBatch");
@@ -885,6 +965,7 @@
       }
     });
 
+    // Form QC
     document.getElementById("qcForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitQc");
@@ -919,6 +1000,7 @@
       }
     });
 
+    // Form Jadwal Tanam
     document.getElementById("plantingForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitPlan");
@@ -948,6 +1030,7 @@
       }
     });
 
+    // Panen & Terbitkan Batch Anakan Baru
     window.completeHarvest = async function(scheduleId, targetBatchCode, parentBatchCode, varietyName) {
       const grams = prompt(`Hasil panen bersih benih baru untuk [${targetBatchCode}] (dalam gram):`, "1000");
       if (grams === null) return;
@@ -981,7 +1064,7 @@
 
       await dbClient.from("planting_calendar").update({ status: 'Selesai Panen' }).eq("id", scheduleId);
 
-      alert(`Sukses! Batch [${targetBatchCode}] resmi masuk katalog sebagai generasi penerus dari [${parentBatchCode}].`);
+      alert(`Sukses! Batch baru [${targetBatchCode}] resmi masuk katalog sebagai generasi penerus dari [${parentBatchCode}].`);
       await loadAllData();
       switchTab('katalog');
     };
@@ -993,11 +1076,15 @@
       }
     };
 
+    // Inisialisasi awal
     window.addEventListener("DOMContentLoaded", () => {
       const t1 = document.getElementById("qcTestDate");
       const t2 = document.getElementById("planPlantDate");
-      if (t1) t1.valueAsDate = new Date();
-      if (t2) t2.valueAsDate = new Date();
+      const t3 = document.getElementById("harvestDate");
+      const today = new Date();
+      if (t1) t1.valueAsDate = today;
+      if (t2) t2.valueAsDate = today;
+      if (t3) t3.valueAsDate = today;
       loadAllData();
     });
   </script>

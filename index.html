@@ -68,6 +68,12 @@
           <span class="text-lg">🗓️</span>
           <span>Kalender Tanam</span>
         </button>
+
+        <!-- MENU BARU: PENGATURAN -->
+        <button type="button" onclick="switchTab('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left border-t border-emerald-900/60 pt-3">
+          <span class="text-lg">⚙️</span>
+          <span>Pengaturan & Master</span>
+        </button>
       </nav>
 
     </div>
@@ -81,7 +87,7 @@
         </span>
         <div class="text-[11px]">
           <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">Botanical Auto-Species Active</p>
+          <p class="text-emerald-400/80 font-mono text-[10px]">Taxonomy Master Active</p>
         </div>
       </div>
     </div>
@@ -225,13 +231,11 @@
           </div>
 
           <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <!-- 1. Varietas (Pemicu Utama Auto-Fill) -->
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
               <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Cabai Rawit" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
 
-            <!-- 2. Spesies Ilmiah (Terisi Otomatis) -->
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-bold text-stone-600">Spesies (Nama Ilmiah)</label>
@@ -240,7 +244,6 @@
               <input type="text" id="species" placeholder="Otomatis terisi (misal: Solanum lycopersicum)" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
 
-            <!-- 3. Kode Batch + Tombol Generate -->
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
@@ -251,7 +254,6 @@
               <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
             </div>
 
-            <!-- 4. Batch Induk -->
             <div>
               <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
               <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
@@ -300,7 +302,6 @@
           </form>
         </div>
 
-        <!-- Tabel Katalog -->
         <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div class="flex items-center gap-2">
@@ -478,6 +479,98 @@
         </div>
       </section>
 
+      <!-- ============================================================== -->
+      <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI (FITUR BARU)       -->
+      <!-- ============================================================== -->
+      <section id="tab-pengaturan" class="space-y-6 hidden">
+        
+        <!-- Form Tambah Master Tanaman Baru -->
+        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+          <div class="flex items-center justify-between border-b pb-3 mb-4">
+            <div>
+              <h2 class="text-base font-extrabold text-stone-800">Tambah Koleksi Tanaman & Spesies Ilmiah</h2>
+              <p class="text-xs text-stone-400">Daftarkan tanaman baru agar otomatis terdeteksi saat input katalog benih.</p>
+            </div>
+            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
+          </div>
+
+          <form id="masterPlantForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+            <div>
+              <label class="block text-xs font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
+              <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Porang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
+              <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
+              <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </div>
+            <div class="sm:col-span-3 flex justify-end">
+              <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
+                + Simpan ke Kamus Botani
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tabel Daftar Master Kamus Botani -->
+        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 class="font-extrabold text-stone-800 text-base">Daftar Kamus Botani Aktif</h2>
+              <p class="text-xs text-stone-400">Daftar tanaman bawaan sistem dan tanaman kustom yang telah tersimpan di memori.</p>
+            </div>
+            <input type="text" id="searchMasterBotanical" oninput="renderBotanicalTable()" placeholder="Cari tanaman atau nama latin..." class="border border-stone-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-64 focus:ring-2 focus:ring-emerald-600 outline-none" />
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                  <th class="p-3">Nama Tanaman Umum</th>
+                  <th class="p-3">Nama Ilmiah (Spesies)</th>
+                  <th class="p-3">Famili / Taksonomi</th>
+                  <th class="p-3">Tipe Data</th>
+                  <th class="p-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="botanicalTableBody" class="divide-y divide-stone-100">
+                <tr>
+                  <td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card Parameter Konfigurasi Standar -->
+        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+          <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu</h2>
+          <p class="text-xs text-stone-400 mb-4">Aturan ambang batas yang dipakai oleh Dashboard Regeneration Engine secara otomatis.</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+              <span class="text-stone-400 font-semibold block uppercase">Batas Minimum Viabilitas</span>
+              <p class="text-lg font-black text-rose-600 mt-1">&lt; 70%</p>
+              <span class="text-stone-500 text-[11px]">Memicu peringatan regenerasi jika daya kecambah drop di bawah 70%</span>
+            </div>
+            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+              <span class="text-stone-400 font-semibold block uppercase">Batas Maksimum Masa Simpan</span>
+              <p class="text-lg font-black text-amber-600 mt-1">&gt; 365 Hari (1 Thn)</p>
+              <span class="text-stone-500 text-[11px]">Memicu regenerasi agar benih tidak mengalami penuaan fisiologis</span>
+            </div>
+            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+              <span class="text-stone-400 font-semibold block uppercase">Format Penamaan Lot</span>
+              <p class="text-lg font-black text-emerald-800 mt-1">BN-[VAR]-[YY]-G[X]-[NO]</p>
+              <span class="text-stone-500 text-[11px]">Standar serial unik dengan pelacakan tingkat generasi otomatis</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
     </main>
 
   </div>
@@ -491,74 +584,70 @@
     let allBatches = [];
     let allQcLogs = [];
     let allPlantingSchedules = [];
+    let customPlantList = []; // Daftar tanaman kustom (Supabase / LocalStorage)
     let currentFilter = 'all';
 
     // =============================================================
-    // 1. KAMUS BOTANI & PENDETEKSI SPESIES OTOMATIS
+    // 1. KAMUS BOTANI BAWAAN & DETEKSI SPESIES OTOMATIS
     // =============================================================
-    const BOTANICAL_DICTIONARY = {
-      "tomat": "Solanum lycopersicum",
-      "cabai rawit": "Capsicum frutescens",
-      "cabe rawit": "Capsicum frutescens",
-      "cabai": "Capsicum annuum",
-      "cabe": "Capsicum annuum",
-      "terong": "Solanum melongena",
-      "kangkung": "Ipomoea aquatica",
-      "bayam": "Amaranthus tricolor",
-      "pakcoy": "Brassica rapa subsp. chinensis",
-      "pokcoy": "Brassica rapa subsp. chinensis",
-      "caisim": "Brassica rapa subsp. parachinensis",
-      "sawi": "Brassica rapa",
-      "selada": "Lactuca sativa",
-      "kacang panjang": "Vigna unguiculata subsp. sesquipedalis",
-      "buncis": "Phaseolus vulgaris",
-      "mentimun": "Cucumis sativus",
-      "timun": "Cucumis sativus",
-      "jagung": "Zea mays",
-      "padi": "Oryza sativa",
-      "kemangi": "Ocimum basilicum",
-      "daun bawang": "Allium fistulosum",
-      "bawang merah": "Allium cepa",
-      "bawang putih": "Allium sativum",
-      "semangka": "Citrullus lanatus",
-      "melon": "Cucumis melo",
-      "labu": "Cucurbita moschata",
-      "pare": "Momordica charantia",
-      "oyong": "Luffa acutangula",
-      "wortel": "Daucus carota",
-      "seledri": "Apium graveolens",
-      "ketumbar": "Coriandrum sativum",
-      "okra": "Abelmoschus esculentus",
-      "rosella": "Hibiscus sabdariffa",
-      "kacang tanah": "Arachis hypogaea",
-      "kedelai": "Glycine max"
-    };
+    const BASE_BOTANICAL_DICTIONARY = [
+      { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
+      { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
+      { common: "Cabai Merah", scientific: "Capsicum annuum", family: "Solanaceae" },
+      { common: "Terong", scientific: "Solanum melongena", family: "Solanaceae" },
+      { common: "Kangkung", scientific: "Ipomoea aquatica", family: "Convolvulaceae" },
+      { common: "Bayam", scientific: "Amaranthus tricolor", family: "Amaranthaceae" },
+      { common: "Pakcoy", scientific: "Brassica rapa subsp. chinensis", family: "Brassicaceae" },
+      { common: "Caisim", scientific: "Brassica rapa subsp. parachinensis", family: "Brassicaceae" },
+      { common: "Selada", scientific: "Lactuca sativa", family: "Asteraceae" },
+      { common: "Kacang Panjang", scientific: "Vigna unguiculata subsp. sesquipedalis", family: "Fabaceae" },
+      { common: "Buncis", scientific: "Phaseolus vulgaris", family: "Fabaceae" },
+      { common: "Mentimun", scientific: "Cucumis sativus", family: "Cucurbitaceae" },
+      { common: "Jagung", scientific: "Zea mays", family: "Poaceae" },
+      { common: "Padi", scientific: "Oryza sativa", family: "Poaceae" },
+      { common: "Kemangi", scientific: "Ocimum basilicum", family: "Lamiaceae" },
+      { common: "Daun Bawang", scientific: "Allium fistulosum", family: "Amaryllidaceae" },
+      { common: "Bawang Merah", scientific: "Allium cepa", family: "Amaryllidaceae" },
+      { common: "Semangka", scientific: "Citrullus lanatus", family: "Cucurbitaceae" },
+      { common: "Melon", scientific: "Cucumis melo", family: "Cucurbitaceae" },
+      { common: "Labu Kuning", scientific: "Cucurbita moschata", family: "Cucurbitaceae" },
+      { common: "Pare", scientific: "Momordica charantia", family: "Cucurbitaceae" },
+      { common: "Wortel", scientific: "Daucus carota", family: "Apiaceae" },
+      { common: "Seledri", scientific: "Apium graveolens", family: "Apiaceae" },
+      { common: "Okra", scientific: "Abelmoschus esculentus", family: "Malvaceae" },
+      { common: "Kacang Tanah", scientific: "Arachis hypogaea", family: "Fabaceae" }
+    ];
+
+    function getAllBotanicalEntries() {
+      // Gabungkan kamus bawaan + tanaman kustom
+      return [...customPlantList, ...BASE_BOTANICAL_DICTIONARY];
+    }
 
     function autoDetectSpecies(varietyName) {
       if (!varietyName) return "";
       const lower = varietyName.trim().toLowerCase();
 
-      // 1. Cek dari histori database Supabase (mengingat varietas yang pernah diinput)
+      // 1. Cek dari tanaman kustom & database memory
+      const allEntries = getAllBotanicalEntries();
+      for (const item of allEntries) {
+        if (lower.includes(item.common.toLowerCase())) {
+          return item.scientific;
+        }
+      }
+
+      // 2. Cek histori pencatatan batch terdahulu
       const matchedBatch = allBatches.find(b => b.variety_name && b.variety_name.toLowerCase() === lower && b.species);
       if (matchedBatch) return matchedBatch.species;
 
-      // 2. Cocokkan dengan kamus botani bawaan
-      for (const [key, speciesName] of Object.entries(BOTANICAL_DICTIONARY)) {
-        if (lower.includes(key)) {
-          return speciesName;
-        }
-      }
       return "";
     }
 
-    // Dipanggil saat pengguna mengetik di kolom Nama Varietas
     window.triggerVarietyAutoFill = function() {
       const varietyInput = document.getElementById("varietyName");
       const speciesInput = document.getElementById("species");
       const speciesBadge = document.getElementById("speciesBadge");
       const varietyVal = varietyInput.value.trim();
 
-      // 1. Auto-Detect Spesies Ilmiah
       const detected = autoDetectSpecies(varietyVal);
       if (detected) {
         speciesInput.value = detected;
@@ -567,12 +656,149 @@
         speciesBadge.classList.add("hidden");
       }
 
-      // 2. Auto-Suggest Kode Batch (jika belum diedit manual)
       triggerAutoBatchSuggest();
     };
 
     // =============================================================
-    // 2. ENGINE GENERATOR KODE BATCH (FORMAT G1/G2 SERIAL)
+    // 2. MANAGEMENT KAMUS BOTANI KUSTOM (PENGATURAN)
+    // =============================================================
+    async function loadCustomPlants() {
+      // 1. Coba baca dari Supabase
+      try {
+        const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
+        if (!error && data) {
+          customPlantList = data.map(d => ({
+            id: d.id,
+            common: d.common_name,
+            scientific: d.scientific_name,
+            family: d.family || "-",
+            isCustom: true
+          }));
+          renderBotanicalTable();
+          return;
+        }
+      } catch (e) {
+        console.warn("Tabel plant_species belum ada di Supabase, fallback ke LocalStorage.");
+      }
+
+      // 2. Fallback aman ke LocalStorage
+      const local = localStorage.getItem("seedvault_custom_plants");
+      if (local) {
+        try {
+          customPlantList = JSON.parse(local);
+        } catch (e) {
+          customPlantList = [];
+        }
+      }
+      renderBotanicalTable();
+    }
+
+    function renderBotanicalTable() {
+      const tbody = document.getElementById("botanicalTableBody");
+      if (!tbody) return;
+
+      const q = (document.getElementById("searchMasterBotanical")?.value || "").toLowerCase();
+      const allList = getAllBotanicalEntries();
+
+      const filtered = allList.filter(item => 
+        item.common.toLowerCase().includes(q) || 
+        item.scientific.toLowerCase().includes(q) ||
+        (item.family && item.family.toLowerCase().includes(q))
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-stone-400">Tidak ada koleksi tanaman yang cocok.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      filtered.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-stone-50 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-stone-800">${item.common}</td>
+          <td class="p-3 italic text-emerald-900 font-semibold">${item.scientific}</td>
+          <td class="p-3 text-stone-500 text-xs">${item.family || "-"}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.isCustom ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-stone-100 text-stone-600'}">
+              ${item.isCustom ? 'Kustom Ditambahkan' : 'Standar Bawaan'}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            ${item.isCustom ? `
+              <button onclick="deleteCustomPlant('${item.id || item.common}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">
+                Hapus
+              </button>
+            ` : `<span class="text-[11px] text-stone-300">Bawaan</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Submit Tambah Tanaman Kustom
+    document.getElementById("masterPlantForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitMasterPlant");
+      btn.disabled = true;
+
+      const common = document.getElementById("masterCommonName").value.trim();
+      const scientific = document.getElementById("masterScientificName").value.trim();
+      const family = document.getElementById("masterFamily").value.trim();
+
+      // Cek duplikasi
+      const exists = getAllBotanicalEntries().some(item => item.common.toLowerCase() === common.toLowerCase());
+      if (exists) {
+        alert(`Tanaman "${common}" sudah ada di dalam kamus botani!`);
+        btn.disabled = false;
+        return;
+      }
+
+      const newEntry = { common, scientific, family, isCustom: true };
+
+      // 1. Simpan ke Supabase (jika tabel ada)
+      try {
+        const { error } = await dbClient.from("plant_species").insert([{
+          common_name: common,
+          scientific_name: scientific,
+          family: family
+        }]);
+        if (error) throw error;
+      } catch (err) {
+        console.warn("Gagal simpan ke Supabase, menyimpan ke LocalStorage:", err.message);
+      }
+
+      // 2. Simpan juga ke LocalStorage sebagai backup instan
+      const currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
+      currentLocal.push(newEntry);
+      localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
+
+      document.getElementById("masterPlantForm").reset();
+      btn.disabled = false;
+      showToast(`Koleksi tanaman "${common} (${scientific})" berhasil ditambahkan ke kamus!`);
+      await loadCustomPlants();
+    });
+
+    window.deleteCustomPlant = async function(identifier) {
+      if (!confirm("Hapus tanaman ini dari kamus kustom?")) return;
+
+      // Hapus dari Supabase
+      try {
+        await dbClient.from("plant_species").delete().eq("id", identifier);
+        await dbClient.from("plant_species").delete().eq("common_name", identifier);
+      } catch (e) {}
+
+      // Hapus dari LocalStorage
+      let currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
+      currentLocal = currentLocal.filter(x => (x.id !== identifier && x.common !== identifier));
+      localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
+
+      showToast("Tanaman berhasil dihapus dari kamus kustom.");
+      await loadCustomPlants();
+    };
+
+    // =============================================================
+    // 3. ENGINE GENERATOR KODE BATCH (FORMAT G1/G2 SERIAL)
     // =============================================================
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
@@ -637,7 +863,7 @@
     };
 
     // =============================================================
-    // 3. TOGGLE SIDEBAR & NAVIGASI TAB
+    // 4. TOGGLE SIDEBAR & NAVIGASI TAB
     // =============================================================
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
@@ -657,11 +883,12 @@
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
       katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan nomor generasi (G1, G2)" },
       qc: { title: "Kontrol Mutu & Viabilitas (QC)", subtitle: "Pencatatan uji daya berkecambah dan kadar air benih" },
-      tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam dengan regenerasi nomor serial otomatis" }
+      tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam dengan regenerasi nomor serial otomatis" },
+      pengaturan: { title: "Pengaturan & Master Data", subtitle: "Kelola kamus botani spesies tanaman dan parameter evaluasi" }
     };
 
     window.switchTab = function(tabId) {
-      const allTabs = ['dashboard', 'katalog', 'qc', 'tanam'];
+      const allTabs = ['dashboard', 'katalog', 'qc', 'tanam', 'pengaturan'];
       allTabs.forEach(t => {
         const sec = document.getElementById(`tab-${t}`);
         const btn = document.getElementById(`nav-${t}`);
@@ -696,6 +923,7 @@
       if (tabId === 'katalog') renderKatalog();
       if (tabId === 'qc') { populateDropdowns(); renderQcLogs(); }
       if (tabId === 'tanam') { populateDropdowns(); renderPlanting(); }
+      if (tabId === 'pengaturan') renderBotanicalTable();
     };
 
     function showToast(msg, isError = false) {
@@ -740,6 +968,7 @@
         if (resQc.status === 'fulfilled' && resQc.value.data) allQcLogs = resQc.value.data;
         if (resPlant.status === 'fulfilled' && resPlant.value.data) allPlantingSchedules = resPlant.value.data;
 
+        await loadCustomPlants();
         renderDashboard();
         renderKatalog();
         populateDropdowns();

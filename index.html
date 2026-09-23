@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Library QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Library In-App QR Scanner (Kamera HP) -->
+  <!-- Library In-App QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -40,551 +40,574 @@
     }
   </style>
 </head>
-<body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex">
+<body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col">
+
+  <!-- ================= GERBANG KUNCI PIN STAFF (GUARD LAYER) ================= -->
+  <div id="authGateModal" class="fixed inset-0 bg-stone-900/90 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl border border-stone-200 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
+        🔒
+      </div>
+      <div>
+        <h3 class="font-black text-stone-900 text-base">Autentikasi Staf Gudang</h3>
+        <p class="text-xs text-stone-400 mt-1">Masukkan PIN untuk mengelola inventaris internal bank benih</p>
+      </div>
+      <form id="pinAuthForm" onsubmit="handlePinSubmit(event)" class="space-y-3">
+        <input type="password" id="staffPinInput" maxlength="6" autofocus placeholder="Default: 1234" class="w-full text-center tracking-widest text-lg font-black py-2.5 px-4 border-2 border-stone-200 rounded-xl focus:border-emerald-600 outline-none transition" />
+        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
+          Buka Katalog Internal
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- ================= BACKDROP OVERLAY (MOBILE) ================= -->
   <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-stone-900/60 z-40 hidden lg:hidden transition-opacity"></div>
 
-  <!-- ================= SIDEBAR KIRI ================= -->
-  <aside id="mainSidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-emerald-950 text-white z-50 flex flex-col justify-between border-r border-emerald-900 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
-    
-    <div class="p-5 space-y-6">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
-          <div class="w-10 h-10 rounded-xl bg-emerald-800/80 border border-emerald-700/60 flex items-center justify-center shadow-inner">
-            <svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+  <!-- ================= WRAPPER APLIKASI INTERNAL ================= -->
+  <div id="appContainer" class="flex min-h-screen w-full">
+
+    <!-- ================= SIDEBAR KIRI ================= -->
+    <aside id="mainSidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-emerald-950 text-white z-50 flex flex-col justify-between border-r border-emerald-900 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
+      
+      <div class="p-5 space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+            <div class="w-10 h-10 rounded-xl bg-emerald-800/80 border border-emerald-700/60 flex items-center justify-center shadow-inner">
+              <svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="font-black text-base tracking-tight text-white flex items-center gap-1.5">
+                SeedVault <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-300 font-bold border border-emerald-700">PRO</span>
+              </h1>
+              <p class="text-[11px] text-emerald-300/70 font-medium">Sistem Siklus Benih</p>
+            </div>
+          </div>
+
+          <button type="button" onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg text-emerald-300 hover:bg-emerald-900 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </div>
-          <div>
-            <h1 class="font-black text-base tracking-tight text-white flex items-center gap-1.5">
-              SeedVault <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-300 font-bold border border-emerald-700">PRO</span>
-            </h1>
-            <p class="text-[11px] text-emerald-300/70 font-medium">Sistem Siklus Benih</p>
-          </div>
-        </div>
-
-        <button type="button" onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg text-emerald-300 hover:bg-emerald-900 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <nav class="space-y-1.5 text-sm font-semibold">
-        <button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-emerald-600 text-white shadow-sm text-left">
-          <span class="text-lg">📊</span>
-          <span>Dashboard</span>
-        </button>
-
-        <button type="button" onclick="switchTab('katalog')" id="nav-katalog" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-          <span class="text-lg">🗂️</span>
-          <span>Katalog Batch</span>
-        </button>
-
-        <button type="button" onclick="switchTab('qc')" id="nav-qc" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-          <span class="text-lg">🧪</span>
-          <span>Uji Mutu (QC)</span>
-        </button>
-
-        <button type="button" onclick="switchTab('tanam')" id="nav-tanam" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-          <span class="text-lg">🗓️</span>
-          <span>Kalender Tanam</span>
-        </button>
-
-        <button type="button" onclick="switchTab('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left border-t border-emerald-900/60 pt-3">
-          <span class="text-lg">⚙️</span>
-          <span>Pengaturan & Master</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="p-4 border-t border-emerald-900/60 bg-emerald-950/80">
-      <div class="flex items-center gap-2.5">
-        <span class="relative flex h-2.5 w-2.5">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-        </span>
-        <div class="text-[11px]">
-          <p class="font-bold text-emerald-100">Supabase Connected</p>
-          <p class="text-emerald-400/80 font-mono text-[10px]">Camera Scanner & Live Passport</p>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ================= KONTEN UTAMA (KANAN) ================= -->
-  <div class="flex-1 flex flex-col min-w-0 lg:ml-64">
-
-    <!-- Top Bar Header -->
-    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
-      <div class="flex items-center gap-3">
-        <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition focus:outline-none">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-
-        <div>
-          <h2 id="pageTitle" class="text-base sm:text-lg font-black text-stone-800 tracking-tight leading-tight">Dashboard Ringkasan</h2>
-          <p id="pageSubtitle" class="text-xs text-stone-400 hidden sm:block">Status kesehatan benih dan prioritas regenerasi</p>
-        </div>
-      </div>
-
-      <!-- Action Header: Tombol Scan QR Kamera & Refresh Data -->
-      <div class="flex items-center gap-2">
-        <button onclick="openCameraScanner()" class="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-3.5 py-1.5 rounded-xl shadow-sm transition">
-          <span>📷</span>
-          <span>Scan QR</span>
-        </button>
-        <button onclick="loadAllData()" class="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl border border-stone-200 transition">
-          <span>🔄</span>
-          <span class="hidden sm:inline">Refresh</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Konten Tab Body -->
-    <main class="p-4 sm:p-6 flex-1 space-y-6">
-
-      <div id="statusToast" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
-
-      <!-- 1. TAB MENU: DASHBOARD -->
-      <section id="tab-dashboard" class="space-y-6">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Varietas</span>
-                <span class="p-2 rounded-lg bg-emerald-50 text-emerald-700">🌱</span>
-              </div>
-              <p id="dashTotalBatch" class="text-3xl font-black text-stone-800 mt-2">0</p>
-            </div>
-            <span class="text-[11px] text-stone-400 mt-2">Batch terdaftar di gudang</span>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Cadangan Stok</span>
-                <span class="p-2 rounded-lg bg-blue-50 text-blue-700">⚖️</span>
-              </div>
-              <p id="dashTotalStock" class="text-3xl font-black text-emerald-800 mt-2">0 gr</p>
-            </div>
-            <span class="text-[11px] text-stone-400 mt-2">Total berat fisik tersedia</span>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Perlu Regenerasi</span>
-                <span class="p-2 rounded-lg bg-rose-50 text-rose-700">⚠️</span>
-              </div>
-              <p id="dashUrgentRegen" class="text-3xl font-black text-rose-600 mt-2">0</p>
-            </div>
-            <span class="text-[11px] text-rose-500 font-semibold mt-2">Viabilitas turun / stok kritis</span>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Sedang Ditanam</span>
-                <span class="p-2 rounded-lg bg-amber-50 text-amber-700">🌾</span>
-              </div>
-              <p id="dashActivePlanting" class="text-3xl font-black text-stone-800 mt-2">0</p>
-            </div>
-            <span class="text-[11px] text-stone-400 mt-2">Proses regenerasi aktif</span>
-          </div>
-        </div>
-
-        <div id="dashAlertBanner" class="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50 border-emerald-200 text-emerald-950">
-          <div>
-            <h3 class="font-bold text-base flex items-center gap-2">
-              <span>✅</span> Status Inventaris Terkendali
-            </h3>
-            <p class="text-xs text-emerald-800 mt-0.5">Semua lot benih berada di atas ambang batas viabilitas simpan.</p>
-          </div>
-          <button onclick="switchTab('tanam')" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm">
-            + Rencanakan Tanam
           </button>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <div>
-            <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
-              <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
-            </h2>
-            <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas &lt; 70%, stok menipis, atau umur simpan &gt; 1 tahun.</p>
-          </div>
+        <nav class="space-y-1.5 text-sm font-semibold">
+          <button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-emerald-600 text-white shadow-sm text-left">
+            <span class="text-lg">📊</span>
+            <span>Dashboard</span>
+          </button>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Kode Batch</th>
-                  <th class="p-3">Varietas</th>
-                  <th class="p-3">Sisa Stok</th>
-                  <th class="p-3">Viabilitas</th>
-                  <th class="p-3">Alasan Kritis</th>
-                  <th class="p-3 text-center">Tindakan</th>
-                </tr>
-              </thead>
-              <tbody id="dashUrgentTableBody" class="divide-y divide-stone-100">
-                <tr>
-                  <td colspan="6" class="p-6 text-center text-stone-400">Memeriksa inventaris...</td>
-                </tr>
-              </tbody>
-            </table>
+          <button type="button" onclick="switchTab('katalog')" id="nav-katalog" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
+            <span class="text-lg">🗂️</span>
+            <span>Katalog Batch</span>
+          </button>
+
+          <button type="button" onclick="switchTab('qc')" id="nav-qc" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
+            <span class="text-lg">🧪</span>
+            <span>Uji Mutu (QC)</span>
+          </button>
+
+          <button type="button" onclick="switchTab('tanam')" id="nav-tanam" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
+            <span class="text-lg">🗓️</span>
+            <span>Kalender Tanam</span>
+          </button>
+
+          <button type="button" onclick="switchTab('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left border-t border-emerald-900/60 pt-3">
+            <span class="text-lg">⚙️</span>
+            <span>Pengaturan & Master</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-emerald-900/60 bg-emerald-950/80">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-[11px] font-bold text-emerald-200">Mode Staf Terkunci</span>
+          </div>
+          <button onclick="lockSystem()" title="Kunci Kembali" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= KONTEN UTAMA (KANAN) ================= -->
+    <div class="flex-1 flex flex-col min-w-0 lg:ml-64">
+
+      <!-- Top Bar Header -->
+      <header class="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div>
+            <h2 id="pageTitle" class="text-base sm:text-lg font-black text-stone-800 tracking-tight leading-tight">Dashboard Ringkasan</h2>
+            <p id="pageSubtitle" class="text-xs text-stone-400 hidden sm:block">Status kesehatan benih dan prioritas regenerasi</p>
           </div>
         </div>
-      </section>
 
-      <!-- 2. TAB MENU: KATALOG BATCH -->
-      <section id="tab-katalog" class="space-y-6 hidden">
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <div class="flex items-center justify-between border-b pb-3 mb-4">
-            <div>
-              <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch Benih Baru</h2>
-              <p class="text-xs text-stone-400">Ketik nama varietas umum, kode batch dan nama spesies ilmiah akan terisi otomatis!</p>
+        <div class="flex items-center gap-2">
+          <button onclick="openCameraScanner()" class="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-3.5 py-1.5 rounded-xl shadow-sm transition">
+            <span>📷</span>
+            <span>Scan QR</span>
+          </button>
+          <button onclick="loadAllData()" class="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl border border-stone-200 transition">
+            <span>🔄</span>
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Konten Tab Body -->
+      <main class="p-4 sm:p-6 flex-1 space-y-6">
+
+        <div id="statusToast" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
+
+        <!-- 1. TAB MENU: DASHBOARD -->
+        <section id="tab-dashboard" class="space-y-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Varietas</span>
+                  <span class="p-2 rounded-lg bg-emerald-50 text-emerald-700">🌱</span>
+                </div>
+                <p id="dashTotalBatch" class="text-3xl font-black text-stone-800 mt-2">0</p>
+              </div>
+              <span class="text-[11px] text-stone-400 mt-2">Batch terdaftar di gudang</span>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Auto-Species & QR Ready</span>
+
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Cadangan Stok</span>
+                  <span class="p-2 rounded-lg bg-blue-50 text-blue-700">⚖️</span>
+                </div>
+                <p id="dashTotalStock" class="text-3xl font-black text-emerald-800 mt-2">0 gr</p>
+              </div>
+              <span class="text-[11px] text-stone-400 mt-2">Total berat fisik tersedia</span>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Perlu Regenerasi</span>
+                  <span class="p-2 rounded-lg bg-rose-50 text-rose-700">⚠️</span>
+                </div>
+                <p id="dashUrgentRegen" class="text-3xl font-black text-rose-600 mt-2">0</p>
+              </div>
+              <span class="text-[11px] text-rose-500 font-semibold mt-2">Viabilitas turun / stok kritis</span>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Sedang Ditanam</span>
+                  <span class="p-2 rounded-lg bg-amber-50 text-amber-700">🌾</span>
+                </div>
+                <p id="dashActivePlanting" class="text-3xl font-black text-stone-800 mt-2">0</p>
+              </div>
+              <span class="text-[11px] text-stone-400 mt-2">Proses regenerasi aktif</span>
+            </div>
           </div>
 
-          <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+          <div id="dashAlertBanner" class="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50 border-emerald-200 text-emerald-950">
             <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
-              <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Cabai Rawit" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <h3 class="font-bold text-base flex items-center gap-2">
+                <span>✅</span> Status Inventaris Terkendali
+              </h3>
+              <p class="text-xs text-emerald-800 mt-0.5">Semua lot benih berada di atas ambang batas viabilitas simpan.</p>
+            </div>
+            <button onclick="switchTab('tanam')" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm">
+              + Rencanakan Tanam
+            </button>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div>
+              <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
+                <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
+              </h2>
+              <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas &lt; 70%, stok menipis, atau umur simpan &gt; 1 tahun.</p>
             </div>
 
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-xs font-bold text-stone-600">Spesies (Nama Ilmiah)</label>
-                <span id="speciesBadge" class="text-[10px] text-emerald-700 font-semibold hidden">⚡ Otomatis</span>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Kode Batch</th>
+                    <th class="p-3">Varietas</th>
+                    <th class="p-3">Sisa Stok</th>
+                    <th class="p-3">Viabilitas</th>
+                    <th class="p-3">Alasan Kritis</th>
+                    <th class="p-3 text-center">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody id="dashUrgentTableBody" class="divide-y divide-stone-100">
+                  <tr>
+                    <td colspan="6" class="p-6 text-center text-stone-400">Memeriksa inventaris...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. TAB MENU: KATALOG BATCH -->
+        <section id="tab-katalog" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+            <div class="flex items-center justify-between border-b pb-3 mb-4">
+              <div>
+                <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch & Cetak Sekaligus</h2>
+                <p class="text-xs text-stone-400">Ketik data benih, sistem otomatis menyinkronkan ke katalog dan langsung menyiapkan lembar label cetak.</p>
               </div>
-              <input type="text" id="species" placeholder="Otomatis terisi (misal: Solanum lycopersicum)" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Single-Action Print & Save</span>
             </div>
 
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
-                <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">
-                  ⚡ Buat Ulang
+            <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
+                <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Cabai Rawit" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-bold text-stone-600">Spesies (Nama Ilmiah)</label>
+                  <span id="speciesBadge" class="text-[10px] text-emerald-700 font-semibold hidden">⚡ Otomatis</span>
+                </div>
+                <input type="text" id="species" placeholder="Otomatis terisi (misal: Solanum lycopersicum)" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
+                  <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">
+                    ⚡ Buat Ulang
+                  </button>
+                </div>
+                <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
+                <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Asal Benih (Provenance)</label>
+                <input type="text" id="provenance" placeholder="Mitra Karangasem / Kebun Sendiri" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Simpan (Rak / Bins)</label>
+                <input type="text" id="storageLocation" placeholder="Rak A - Kotak 02" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Panen <span class="text-rose-500">*</span></label>
+                <input type="date" id="harvestDate" required onchange="generateAutoBatchCode()" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Stok Awal (Gram) <span class="text-rose-500">*</span></label>
+                <input type="number" id="stockGrams" min="0" step="any" required placeholder="500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Batas Minimum Stok (Gr)</label>
+                <input type="number" id="minStock" min="0" step="any" value="50" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah Awal (%)</label>
+                <input type="number" id="germinationRate" min="0" max="100" value="85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
+                <input type="number" id="moistureContent" min="0" max="100" step="0.1" value="7.5" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+
+              <div class="flex items-end">
+                <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5">
+                  <span>🖨️</span>
+                  <span>Cetak Label & Simpan ke Katalog</span>
                 </button>
               </div>
-              <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            </form>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+              <div class="flex items-center gap-2">
+                <button onclick="setKatalogFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white">Semua</button>
+                <button onclick="setKatalogFilter('urgent')" id="filter-urgent" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Perlu Regenerasi</button>
+                <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
+              </div>
+              <div class="w-full md:w-80">
+                <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, short-code (misal: T26-01)..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+              </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
-              <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Kode Batch & Sachet Stamp</th>
+                    <th class="p-3">Varietas & Silsilah</th>
+                    <th class="p-3">Lokasi Simpan</th>
+                    <th class="p-3">Stok Tersedia</th>
+                    <th class="p-3">Daya Kecambah</th>
+                    <th class="p-3">Panen</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-center">Aksi Cepat</th>
+                  </tr>
+                </thead>
+                <tbody id="katalogTableBody" class="divide-y divide-stone-100">
+                  <tr>
+                    <td colspan="8" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. TAB MENU: QC (UJI MUTU) -->
+        <section id="tab-qc" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+            <div class="border-b pb-3 mb-4">
+              <h2 class="text-base font-extrabold text-stone-800">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
+              <p class="text-xs text-stone-400">Data hasil pengujian berkala otomatis memperbarui status viabilitas pada katalog batch.</p>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Asal Benih (Provenance)</label>
-              <input type="text" id="provenance" placeholder="Mitra Karangasem / Kebun Sendiri" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <form id="qcForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Pilih Batch <span class="text-rose-500">*</span></label>
+                <select id="qcBatchCode" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs">
+                  <option value="">-- Pilih Batch --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Uji <span class="text-rose-500">*</span></label>
+                <input type="date" id="qcTestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah (%) <span class="text-rose-500">*</span></label>
+                <input type="number" id="qcGermination" min="0" max="100" required placeholder="Misal: 85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
+                <input type="number" id="qcMoisture" min="0" max="100" step="0.1" placeholder="Misal: 7.2" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div class="sm:col-span-2 lg:col-span-1 flex items-end">
+                <button type="submit" id="btnSubmitQc" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
+                  Simpan Hasil Uji
+                </button>
+              </div>
+              <div class="sm:col-span-2 lg:col-span-5">
+                <input type="text" id="qcNotes" placeholder="Catatan pengujian (metode cawan petri, perlakuan perendaman, kondisi dormansi, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <h2 class="font-extrabold text-stone-800 text-base">Riwayat Log Uji Mutu</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Tanggal Uji</th>
+                    <th class="p-3">Kode Batch</th>
+                    <th class="p-3">Daya Kecambah</th>
+                    <th class="p-3">Kadar Air</th>
+                    <th class="p-3">Status Uji</th>
+                    <th class="p-3">Catatan</th>
+                  </tr>
+                </thead>
+                <tbody id="qcLogsTableBody" class="divide-y divide-stone-100">
+                  <tr>
+                    <td colspan="6" class="p-6 text-center text-stone-400">Belum ada riwayat uji mutu tersimpan.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. TAB MENU: KALENDER TANAM -->
+        <section id="tab-tanam" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+            <div class="border-b pb-3 mb-4">
+              <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
+              <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Simpan (Rak / Bins)</label>
-              <input type="text" id="storageLocation" placeholder="Rak A - Kotak 02" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <form id="plantingForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent) <span class="text-rose-500">*</span></label>
+                <select id="planParentBatch" required onchange="onSelectParentBatch(this.value)" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs">
+                  <option value="">-- Pilih Batch Induk --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Varietas Benih</label>
+                <input type="text" id="planVariety" readonly placeholder="Otomatis dari batch induk" class="w-full border border-stone-200 bg-stone-100 rounded-xl p-2.5 text-xs text-stone-500 outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Anakan <span class="text-emerald-700 font-bold">(Auto-Gen)</span></label>
+                <input type="text" id="planTargetBatch" required placeholder="BN-TOM-26-G2-001" class="w-full border border-emerald-300 bg-emerald-50/50 rounded-xl p-2.5 font-mono text-emerald-950 font-black focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Lahan / Plot Mitra</label>
+                <input type="text" id="planPlot" placeholder="Plot A1 / Kebun Mitra" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Tanam <span class="text-rose-500">*</span></label>
+                <input type="date" id="planPlantDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Estimasi Tanggal Panen <span class="text-rose-500">*</span></label>
+                <input type="date" id="planHarvestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Target Hasil Benih (Gram)</label>
+                <input type="number" id="planTargetYield" min="0" placeholder="Contoh: 1500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div class="flex items-end">
+                <button type="submit" id="btnSubmitPlan" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
+                  + Daftarkan Siklus Tanam
+                </button>
+              </div>
+              <div class="sm:col-span-2 lg:col-span-4">
+                <input type="text" id="planNotes" placeholder="Catatan musim tanam (isolasi jarak 200m, penggunaan pupuk organik cair, perlindungan serangga, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <h2 class="font-extrabold text-stone-800 text-base">Timeline Regenerasi Berjalan</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Calon Batch Anakan</th>
+                    <th class="p-3">Batch Induk</th>
+                    <th class="p-3">Varietas & Lahan</th>
+                    <th class="p-3">Tgl Tanam</th>
+                    <th class="p-3">Estimasi Panen</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-center">Tindakan Panen</th>
+                  </tr>
+                </thead>
+                <tbody id="plantingTableBody" class="divide-y divide-stone-100">
+                  <tr>
+                    <td colspan="7" class="p-6 text-center text-stone-400">Belum ada siklus penanaman aktif.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI -->
+        <section id="tab-pengaturan" class="space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+            <div class="flex items-center justify-between border-b pb-3 mb-4">
+              <div>
+                <h2 class="text-base font-extrabold text-stone-800">Tambah Koleksi Tanaman & Spesies Ilmiah</h2>
+                <p class="text-xs text-stone-400">Daftarkan tanaman baru agar otomatis terdeteksi saat input katalog benih.</p>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Panen <span class="text-rose-500">*</span></label>
-              <input type="date" id="harvestDate" required onchange="generateAutoBatchCode()" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <form id="masterPlantForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
+                <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Porang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
+                <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
+                <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+              </div>
+              <div class="sm:col-span-3 flex justify-end">
+                <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
+                  + Simpan ke Kamus Botani
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h2 class="font-extrabold text-stone-800 text-base">Daftar Kamus Botani Aktif</h2>
+                <p class="text-xs text-stone-400">Daftar tanaman bawaan sistem dan tanaman kustom yang telah tersimpan di memori.</p>
+              </div>
+              <input type="text" id="searchMasterBotanical" oninput="renderBotanicalTable()" placeholder="Cari tanaman atau nama latin..." class="border border-stone-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-64 focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Stok Awal (Gram) <span class="text-rose-500">*</span></label>
-              <input type="number" id="stockGrams" min="0" step="any" required placeholder="500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Batas Minimum Stok (Gr)</label>
-              <input type="number" id="minStock" min="0" step="any" value="50" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah Awal (%)</label>
-              <input type="number" id="germinationRate" min="0" max="100" value="85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
-              <input type="number" id="moistureContent" min="0" max="100" step="0.1" value="7.5" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-
-            <div class="flex items-end">
-              <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
-                + Simpan ke Katalog
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div class="flex items-center gap-2">
-              <button onclick="setKatalogFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white">Semua</button>
-              <button onclick="setKatalogFilter('urgent')" id="filter-urgent" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Perlu Regenerasi</button>
-              <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
-            </div>
-            <div class="w-full md:w-80">
-              <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, short-code (misal: T26-01)..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Nama Tanaman Umum</th>
+                    <th class="p-3">Nama Ilmiah (Spesies)</th>
+                    <th class="p-3">Famili / Taksonomi</th>
+                    <th class="p-3">Tipe Data</th>
+                    <th class="p-3 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="botanicalTableBody" class="divide-y divide-stone-100">
+                  <tr>
+                    <td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Kode Batch & Sachet Stamp</th>
-                  <th class="p-3">Varietas & Silsilah</th>
-                  <th class="p-3">Lokasi Simpan</th>
-                  <th class="p-3">Stok Tersedia</th>
-                  <th class="p-3">Daya Kecambah</th>
-                  <th class="p-3">Panen</th>
-                  <th class="p-3">Status</th>
-                  <th class="p-3 text-center">Aksi Cepat</th>
-                </tr>
-              </thead>
-              <tbody id="katalogTableBody" class="divide-y divide-stone-100">
-                <tr>
-                  <td colspan="8" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. TAB MENU: QC (UJI MUTU) -->
-      <section id="tab-qc" class="space-y-6 hidden">
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <div class="border-b pb-3 mb-4">
-            <h2 class="text-base font-extrabold text-stone-800">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
-            <p class="text-xs text-stone-400">Data hasil pengujian berkala otomatis memperbarui status viabilitas pada katalog batch.</p>
-          </div>
-
-          <form id="qcForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Pilih Batch <span class="text-rose-500">*</span></label>
-              <select id="qcBatchCode" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs">
-                <option value="">-- Pilih Batch --</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Uji <span class="text-rose-500">*</span></label>
-              <input type="date" id="qcTestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah (%) <span class="text-rose-500">*</span></label>
-              <input type="number" id="qcGermination" min="0" max="100" required placeholder="Misal: 85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
-              <input type="number" id="qcMoisture" min="0" max="100" step="0.1" placeholder="Misal: 7.2" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div class="sm:col-span-2 lg:col-span-1 flex items-end">
-              <button type="submit" id="btnSubmitQc" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
-                Simpan Hasil Uji
-              </button>
-            </div>
-            <div class="sm:col-span-2 lg:col-span-5">
-              <input type="text" id="qcNotes" placeholder="Catatan pengujian (metode cawan petri, perlakuan perendaman, kondisi dormansi, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
-            </div>
-          </form>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <h2 class="font-extrabold text-stone-800 text-base">Riwayat Log Uji Mutu</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Tanggal Uji</th>
-                  <th class="p-3">Kode Batch</th>
-                  <th class="p-3">Daya Kecambah</th>
-                  <th class="p-3">Kadar Air</th>
-                  <th class="p-3">Status Uji</th>
-                  <th class="p-3">Catatan</th>
-                </tr>
-              </thead>
-              <tbody id="qcLogsTableBody" class="divide-y divide-stone-100">
-                <tr>
-                  <td colspan="6" class="p-6 text-center text-stone-400">Belum ada riwayat uji mutu tersimpan.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. TAB MENU: KALENDER TANAM -->
-      <section id="tab-tanam" class="space-y-6 hidden">
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <div class="border-b pb-3 mb-4">
-            <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
-            <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
-          </div>
-
-          <form id="plantingForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent) <span class="text-rose-500">*</span></label>
-              <select id="planParentBatch" required onchange="onSelectParentBatch(this.value)" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs">
-                <option value="">-- Pilih Batch Induk --</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Varietas Benih</label>
-              <input type="text" id="planVariety" readonly placeholder="Otomatis dari batch induk" class="w-full border border-stone-200 bg-stone-100 rounded-xl p-2.5 text-xs text-stone-500 outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Anakan <span class="text-emerald-700 font-bold">(Auto-Gen)</span></label>
-              <input type="text" id="planTargetBatch" required placeholder="BN-TOM-26-G2-001" class="w-full border border-emerald-300 bg-emerald-50/50 rounded-xl p-2.5 font-mono text-emerald-950 font-black focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Lahan / Plot Mitra</label>
-              <input type="text" id="planPlot" placeholder="Plot A1 / Kebun Mitra" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Tanam <span class="text-rose-500">*</span></label>
-              <input type="date" id="planPlantDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Estimasi Tanggal Panen <span class="text-rose-500">*</span></label>
-              <input type="date" id="planHarvestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Target Hasil Benih (Gram)</label>
-              <input type="number" id="planTargetYield" min="0" placeholder="Contoh: 1500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div class="flex items-end">
-              <button type="submit" id="btnSubmitPlan" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
-                + Daftarkan Siklus Tanam
-              </button>
-            </div>
-            <div class="sm:col-span-2 lg:col-span-4">
-              <input type="text" id="planNotes" placeholder="Catatan musim tanam (isolasi jarak 200m, penggunaan pupuk organik cair, perlindungan serangga, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
-            </div>
-          </form>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <h2 class="font-extrabold text-stone-800 text-base">Timeline Regenerasi Berjalan</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Calon Batch Anakan</th>
-                  <th class="p-3">Batch Induk</th>
-                  <th class="p-3">Varietas & Lahan</th>
-                  <th class="p-3">Tgl Tanam</th>
-                  <th class="p-3">Estimasi Panen</th>
-                  <th class="p-3">Status</th>
-                  <th class="p-3 text-center">Tindakan Panen</th>
-                </tr>
-              </thead>
-              <tbody id="plantingTableBody" class="divide-y divide-stone-100">
-                <tr>
-                  <td colspan="7" class="p-6 text-center text-stone-400">Belum ada siklus penanaman aktif.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI -->
-      <section id="tab-pengaturan" class="space-y-6 hidden">
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <div class="flex items-center justify-between border-b pb-3 mb-4">
-            <div>
-              <h2 class="text-base font-extrabold text-stone-800">Tambah Koleksi Tanaman & Spesies Ilmiah</h2>
-              <p class="text-xs text-stone-400">Daftarkan tanaman baru agar otomatis terdeteksi saat input katalog benih.</p>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
-          </div>
-
-          <form id="masterPlantForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
-              <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Porang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
-              <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
-              <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-            </div>
-            <div class="sm:col-span-3 flex justify-end">
-              <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
-                + Simpan ke Kamus Botani
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div>
-              <h2 class="font-extrabold text-stone-800 text-base">Daftar Kamus Botani Aktif</h2>
-              <p class="text-xs text-stone-400">Daftar tanaman bawaan sistem dan tanaman kustom yang telah tersimpan di memori.</p>
-            </div>
-            <input type="text" id="searchMasterBotanical" oninput="renderBotanicalTable()" placeholder="Cari tanaman atau nama latin..." class="border border-stone-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-64 focus:ring-2 focus:ring-emerald-600 outline-none" />
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                  <th class="p-3">Nama Tanaman Umum</th>
-                  <th class="p-3">Nama Ilmiah (Spesies)</th>
-                  <th class="p-3">Famili / Taksonomi</th>
-                  <th class="p-3">Tipe Data</th>
-                  <th class="p-3 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="botanicalTableBody" class="divide-y divide-stone-100">
-                <tr>
-                  <td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-          <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu & Kodifikasi</h2>
-          <p class="text-xs text-stone-400 mb-4">Aturan ambang batas yang dipakai oleh Dashboard Regeneration Engine secara otomatis.</p>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-              <span class="text-stone-400 font-semibold block uppercase">Batas Minimum Viabilitas</span>
-              <p class="text-lg font-black text-rose-600 mt-1">&lt; 70%</p>
-              <span class="text-stone-500 text-[11px]">Memicu peringatan regenerasi jika daya kecambah drop di bawah 70%</span>
-            </div>
-            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-              <span class="text-stone-400 font-semibold block uppercase">Batas Maksimum Masa Simpan</span>
-              <p class="text-lg font-black text-amber-600 mt-1">&gt; 365 Hari (1 Thn)</p>
-              <span class="text-stone-500 text-[11px]">Memicu regenerasi agar benih tidak mengalami penuaan fisiologis</span>
-            </div>
-            <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-              <span class="text-stone-400 font-semibold block uppercase">Sachet Micro-Code (Stempel)</span>
-              <p class="text-lg font-black text-emerald-800 mt-1">[HURUF][YY]-[LOT]</p>
-              <span class="text-stone-500 text-[11px]">Kode pendek (misal: T26-01) untuk kemasan plastik klip kecil tanpa QR</span>
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
+            <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu & Kodifikasi</h2>
+            <p class="text-xs text-stone-400 mb-4">Aturan ambang batas yang dipakai oleh Dashboard Regeneration Engine secara otomatis.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                <span class="text-stone-400 font-semibold block uppercase">Batas Minimum Viabilitas</span>
+                <p class="text-lg font-black text-rose-600 mt-1">&lt; 70%</p>
+                <span class="text-stone-500 text-[11px]">Memicu peringatan regenerasi jika daya kecambah drop di bawah 70%</span>
+              </div>
+              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                <span class="text-stone-400 font-semibold block uppercase">Batas Maksimum Masa Simpan</span>
+                <p class="text-lg font-black text-amber-600 mt-1">&gt; 365 Hari (1 Thn)</p>
+                <span class="text-stone-500 text-[11px]">Memicu regenerasi agar benih tidak mengalami penuaan fisiologis</span>
+              </div>
+              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                <span class="text-stone-400 font-semibold block uppercase">Sachet Micro-Code (Stempel)</span>
+                <p class="text-lg font-black text-emerald-800 mt-1">[HURUF][YY]-[LOT]</p>
+                <span class="text-stone-500 text-[11px]">Kode pendek (misal: T26-01) untuk kemasan plastik klip kecil tanpa QR</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-    </main>
+      </main>
+    </div>
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL 1: SCANNER KAMERA QR DI DALAM APLIKASI (IN-APP SCANNER)  -->
+  <!-- MODAL 1: SCANNER KAMERA QR                                     -->
   <!-- ============================================================== -->
   <div id="cameraScannerModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-stone-200">
@@ -602,23 +625,21 @@
         </button>
       </div>
 
-      <!-- Kotak Kamera Scanner -->
       <div id="qrReaderBox" class="w-full bg-stone-900 rounded-2xl overflow-hidden aspect-square border border-stone-300"></div>
-
-      <p class="text-center text-[11px] text-stone-500">Mendukung kamera smartphone Android / iPhone & laptop.</p>
+      <p class="text-center text-[11px] text-stone-500">Mendukung kamera smartphone & laptop.</p>
     </div>
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL 2: CETAK LABEL PASPOR BENIH DENGAN QR CODE (REK. 1 & 4)  -->
+  <!-- MODAL 2: PRATINJAU LABEL QR CETAK                              -->
   <!-- ============================================================== -->
   <div id="labelModal" class="fixed inset-0 bg-stone-900/70 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-stone-200">
       
       <div class="flex items-center justify-between border-b pb-3">
         <div>
-          <h3 class="font-black text-stone-800 text-sm">Pratinjau Label Paspor Benih</h3>
-          <p class="text-[11px] text-stone-400">Siap dicetak untuk toples atau amplop benih</p>
+          <h3 class="font-black text-stone-800 text-sm">Label Paspor Benih Fisik</h3>
+          <p class="text-[11px] text-stone-400">Tersimpan di katalog web & siap dicetak</p>
         </div>
         <button onclick="closePrintLabel()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,7 +690,7 @@
 
       <div id="labelModalActions" class="flex gap-2 justify-end pt-2">
         <button onclick="closePrintLabel()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
-          Batal
+          Selesai
         </button>
         <button onclick="printSeedLabel()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
           <span>🖨️</span>
@@ -681,7 +702,7 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL 3: DIGITAL SEED PASSPORT POPUP (HASIL SCAN KAMERA HP)   -->
+  <!-- MODAL 3: DIGITAL SEED PASSPORT POPUP (READ-ONLY AMAN)          -->
   <!-- ============================================================== -->
   <div id="passportModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-stone-200">
@@ -691,7 +712,7 @@
           <span class="p-2 rounded-xl bg-emerald-100 text-emerald-800 text-base">🌱</span>
           <div>
             <h3 class="font-black text-stone-900 text-base">Paspor Digital Benih</h3>
-            <p class="text-[11px] text-stone-400">Data sertifikasi dan riwayat fisik terverifikasi</p>
+            <p id="passBadgeStatus" class="text-[10px] text-emerald-700 font-bold">Sertifikat Publik Terverifikasi (Read-Only)</p>
           </div>
         </div>
         <button onclick="closePassportModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
@@ -734,15 +755,22 @@
         </div>
       </div>
 
-      <!-- Action: Quick Stock Out Langsung dari Hasil Scan -->
-      <div class="pt-2 flex gap-2">
-        <button id="passQuickOutBtn" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-sm flex items-center justify-center gap-1.5">
-          <span>⚡</span>
-          <span>Ambil / Kurangi Stok</span>
-        </button>
-        <button onclick="closePassportModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
-          Tutup
-        </button>
+      <div class="pt-2 flex flex-col gap-2">
+        <div id="adminActionSection" class="hidden">
+          <button id="passQuickOutBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-sm flex items-center justify-center gap-1.5">
+            <span>⚡</span>
+            <span>Ambil / Kurangi Stok</span>
+          </button>
+        </div>
+
+        <div class="flex gap-2">
+          <button id="btnUnlockAdmin" onclick="unlockAdminAccess()" class="flex-1 text-[11px] text-stone-500 hover:text-emerald-800 font-bold py-2 px-3 rounded-xl border border-stone-200 hover:border-emerald-300 transition">
+            🔒 Mode Staf Gudang (PIN)
+          </button>
+          <button onclick="closePassportModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
+            Tutup
+          </button>
+        </div>
       </div>
 
     </div>
@@ -760,8 +788,51 @@
     let customPlantList = [];
     let currentFilter = 'all';
     let html5QrScanner = null;
+    let isAuthenticatedStaff = false;
 
-    // 1. SHORT-CODE GENERATOR (STEMPEL SACHET KLIP KECIL)
+    // GERBANG KEAMANAN PIN STAF (DEFAULT: 1234)
+    function checkInitialAuth() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isPassportView = urlParams.has('passport');
+
+      // Jika dari scan QR tamu luar, biarkan terbuka tanpa login tapi sembunyikan aplikasi
+      if (isPassportView) {
+        document.getElementById("authGateModal").classList.add("hidden");
+        document.getElementById("mainSidebar").classList.add("hidden");
+        const mainArea = document.querySelector("div.lg\\:ml-64");
+        if (mainArea) mainArea.classList.remove("lg:ml-64");
+        return;
+      }
+
+      // Jika membuka aplikasi internal, cek sesi
+      const sessionAuth = sessionStorage.getItem("seedvault_auth_token");
+      if (sessionAuth === "staff_authenticated") {
+        isAuthenticatedStaff = true;
+        document.getElementById("authGateModal").classList.add("hidden");
+      } else {
+        document.getElementById("authGateModal").classList.remove("hidden");
+      }
+    }
+
+    function handlePinSubmit(e) {
+      e.preventDefault();
+      const pin = document.getElementById("staffPinInput").value.trim();
+      if (pin === "1234") {
+        sessionStorage.setItem("seedvault_auth_token", "staff_authenticated");
+        isAuthenticatedStaff = true;
+        document.getElementById("authGateModal").classList.add("hidden");
+        showToast("Autentikasi staf berhasil. Selamat bekerja!");
+      } else {
+        alert("PIN salah! Akses internal dibatasi.");
+        document.getElementById("staffPinInput").value = "";
+      }
+    }
+
+    window.lockSystem = function() {
+      sessionStorage.removeItem("seedvault_auth_token");
+      window.location.href = window.location.href.split('?')[0];
+    };
+
     function generateShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
       const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
@@ -775,7 +846,6 @@
       return `${char}-${batchCode.slice(-4)}`;
     }
 
-    // 2. KAMUS BOTANI
     const BASE_BOTANICAL_DICTIONARY = [
       { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
       { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
@@ -811,17 +881,12 @@
     function autoDetectSpecies(varietyName) {
       if (!varietyName) return "";
       const lower = varietyName.trim().toLowerCase();
-
       const allEntries = getAllBotanicalEntries();
       for (const item of allEntries) {
-        if (lower.includes(item.common.toLowerCase())) {
-          return item.scientific;
-        }
+        if (lower.includes(item.common.toLowerCase())) return item.scientific;
       }
-
       const matchedBatch = allBatches.find(b => b.variety_name && b.variety_name.toLowerCase() === lower && b.species);
       if (matchedBatch) return matchedBatch.species;
-
       return "";
     }
 
@@ -838,11 +903,9 @@
       } else {
         speciesBadge.classList.add("hidden");
       }
-
       triggerAutoBatchSuggest();
     };
 
-    // 3. PENGATURAN KAMUS BOTANI KUSTOM
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -960,24 +1023,17 @@
       await loadCustomPlants();
     };
 
-    // 4. GENERATOR KODE BATCH
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
-      
       const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
       const prefix = cleanVar.length >= 3 ? cleanVar.substring(0, 3) : cleanVar.padEnd(3, 'X');
-      
       const d = harvestDateVal ? new Date(harvestDateVal) : new Date();
       const yy = String(d.getFullYear()).slice(-2);
 
       let genNum = 1;
       if (parentCode) {
         const parentMatch = parentCode.match(/-G(\d+)-/i);
-        if (parentMatch) {
-          genNum = parseInt(parentMatch[1], 10) + 1;
-        } else {
-          genNum = 2;
-        }
+        genNum = parentMatch ? parseInt(parentMatch[1], 10) + 1 : 2;
       }
       const genTag = `G${genNum}`;
 
@@ -1007,7 +1063,6 @@
         varietyInput.focus();
         return;
       }
-
       batchCodeInput.value = generateGenerationBatchCode(variety, harvestInput.value, parentInput.value.trim());
     };
 
@@ -1023,30 +1078,67 @@
       }
     };
 
-    // =============================================================
-    // 5. FITUR REKOMENDASI 1 & 4: CETAK LABEL DENGAN DIGITAL PASSPORT URL
-    // =============================================================
+    // SINGLE-ACTION: SIMPAN KE KATALOG & BUKA DIALOG CETAK SEKALIGUS
+    document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitBatch");
+      btn.disabled = true;
+      btn.textContent = "Menyimpan & Menyiapkan Label...";
+
+      const payload = {
+        batch_code: document.getElementById("batchCode").value.trim(),
+        variety_name: document.getElementById("varietyName").value.trim(),
+        species: document.getElementById("species").value.trim() || autoDetectSpecies(document.getElementById("varietyName").value),
+        parent_batch_code: document.getElementById("parentBatchCode").value.trim() || null,
+        provenance: document.getElementById("provenance").value.trim() || "Kebun Mandiri",
+        storage_location: document.getElementById("storageLocation").value.trim() || "Rak Masuk",
+        harvest_date: document.getElementById("harvestDate").value,
+        stock_grams: parseFloat(document.getElementById("stockGrams").value) || 0,
+        min_stock_alert: parseFloat(document.getElementById("minStock").value) || 50,
+        germination_rate: parseFloat(document.getElementById("germinationRate").value) || 85,
+        moisture_content: parseFloat(document.getElementById("moistureContent").value) || 7.5,
+      };
+
+      const { data, error } = await dbClient.from("seed_batches").insert([payload]).select();
+      btn.disabled = false;
+      btn.innerHTML = `<span>🖨️</span><span>Cetak Label & Simpan ke Katalog</span>`;
+
+      if (error) {
+        alert("Gagal menambahkan batch: " + error.message);
+      } else {
+        document.getElementById("seedForm").reset();
+        document.getElementById("speciesBadge").classList.add("hidden");
+        showToast("Batch sukses tersimpan di katalog!");
+        await loadAllData();
+
+        // Buka modal cetak label toples secara otomatis
+        renderLabelModalView(payload);
+      }
+    });
+
     window.openPrintLabel = function(batchId) {
       const batch = allBatches.find(b => b.id === batchId);
       if (!batch) return;
+      renderLabelModalView(batch);
+    };
 
-      const genMatch = batch.batch_code.match(/-G(\d+)-/i);
+    function renderLabelModalView(batchData) {
+      const genMatch = batchData.batch_code.match(/-G(\d+)-/i);
       const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
-      const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
+      const shortCode = generateShortCode(batchData.batch_code, batchData.variety_name);
 
       document.getElementById("lblGenTag").textContent = genLabel;
-      document.getElementById("lblBatchCode").textContent = batch.batch_code;
+      document.getElementById("lblBatchCode").textContent = batchData.batch_code;
       document.getElementById("lblShortCode").textContent = shortCode;
-      document.getElementById("lblVariety").textContent = batch.variety_name;
-      document.getElementById("lblSpecies").textContent = batch.species || "-";
-      document.getElementById("lblLineage").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Batch Induk Utama (G1)";
-      document.getElementById("lblHarvest").textContent = batch.harvest_date;
-      document.getElementById("lblLocation").textContent = batch.storage_location || "-";
-      document.getElementById("lblViability").textContent = `${batch.germination_rate}% Kecambah`;
+      document.getElementById("lblVariety").textContent = batchData.variety_name;
+      document.getElementById("lblSpecies").textContent = batchData.species || "-";
+      document.getElementById("lblLineage").textContent = batchData.parent_batch_code ? `Induk: ${batchData.parent_batch_code}` : "Batch Induk Utama (G1)";
+      document.getElementById("lblHarvest").textContent = batchData.harvest_date;
+      document.getElementById("lblLocation").textContent = batchData.storage_location || "-";
+      document.getElementById("lblViability").textContent = `${batchData.germination_rate}% Kecambah`;
 
-      // REKOMENDASI NO. 1: URL PASSPORT LANGSUNG
       const baseUrl = window.location.href.split('?')[0];
-      const passportUrl = `${baseUrl}?passport=${encodeURIComponent(batch.batch_code)}`;
+      const passportUrl = `${baseUrl}?passport=${encodeURIComponent(batchData.batch_code)}`;
 
       const qrBox = document.getElementById("labelQrCode");
       qrBox.innerHTML = "";
@@ -1060,7 +1152,7 @@
       });
 
       document.getElementById("labelModal").classList.remove("hidden");
-    };
+    }
 
     window.closePrintLabel = function() {
       document.getElementById("labelModal").classList.add("hidden");
@@ -1070,20 +1162,14 @@
       window.print();
     };
 
-    // =============================================================
-    // 6. FITUR REKOMENDASI 2: IN-APP CAMERA SCANNER
-    // =============================================================
+    // SCANNER KAMERA
     window.openCameraScanner = function() {
       document.getElementById("cameraScannerModal").classList.remove("hidden");
-      
       html5QrScanner = new Html5Qrcode("qrReaderBox");
       const config = { fps: 10, qrbox: { width: 220, height: 220 } };
 
       html5QrScanner.start({ facingMode: "environment" }, config, (decodedText) => {
-        // Berhasil Scan
         closeCameraScanner();
-
-        // Cek jika hasil scan adalah URL passport
         let targetCode = decodedText;
         if (decodedText.includes("?passport=")) {
           const urlParams = new URLSearchParams(decodedText.split('?')[1]);
@@ -1092,8 +1178,6 @@
           const parts = decodedText.split('|');
           targetCode = parts[1];
         }
-
-        // Buka Paspor Digital Benih
         showPassportModal(targetCode);
       }).catch(err => {
         console.warn("Gagal membuka kamera:", err);
@@ -1102,16 +1186,12 @@
 
     window.closeCameraScanner = function() {
       if (html5QrScanner) {
-        html5QrScanner.stop().then(() => {
-          html5QrScanner.clear();
-        }).catch(() => {});
+        html5QrScanner.stop().then(() => { html5QrScanner.clear(); }).catch(() => {});
       }
       document.getElementById("cameraScannerModal").classList.add("hidden");
     };
 
-    // =============================================================
-    // 7. FITUR DIGITAL PASSPORT MODAL & REKOMENDASI 3: QUICK STOCK-OUT
-    // =============================================================
+    // PASPOR DIGITAL READ-ONLY
     window.showPassportModal = function(batchCodeOrShort) {
       if (!batchCodeOrShort) return;
       const q = batchCodeOrShort.trim().toLowerCase();
@@ -1140,7 +1220,22 @@
       document.getElementById("passLineage").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Batch Induk (Perdana)";
       document.getElementById("passProvenance").textContent = `Asal: ${batch.provenance || '-'}`;
 
-      // Pasang Event Tombol Quick Stock Out
+      const adminSec = document.getElementById("adminActionSection");
+      const btnUnlock = document.getElementById("btnUnlockAdmin");
+      const badgeStatus = document.getElementById("passBadgeStatus");
+
+      if (isAuthenticatedStaff) {
+        adminSec.classList.remove("hidden");
+        btnUnlock.classList.add("hidden");
+        badgeStatus.textContent = "Mode Staf Gudang Terverifikasi";
+        badgeStatus.className = "text-[10px] text-amber-700 font-bold";
+      } else {
+        adminSec.classList.add("hidden");
+        btnUnlock.classList.remove("hidden");
+        badgeStatus.textContent = "Sertifikat Publik Terverifikasi (Read-Only)";
+        badgeStatus.className = "text-[10px] text-emerald-700 font-bold";
+      }
+
       const btn = document.getElementById("passQuickOutBtn");
       btn.onclick = () => {
         quickStockOut(batch.id, batch.batch_code, batch.stock_grams);
@@ -1153,8 +1248,32 @@
       document.getElementById("passportModal").classList.add("hidden");
     };
 
-    // REKOMENDASI NO. 3: QUICK STOCK-OUT
+    window.unlockAdminAccess = function() {
+      const pin = prompt("Masukkan PIN Staf Gudang untuk membuka akses edit:", "");
+      if (pin === "1234") {
+        isAuthenticatedStaff = true;
+        sessionStorage.setItem("seedvault_auth_token", "staff_authenticated");
+        document.getElementById("adminActionSection").classList.remove("hidden");
+        document.getElementById("btnUnlockAdmin").classList.add("hidden");
+        const badgeStatus = document.getElementById("passBadgeStatus");
+        badgeStatus.textContent = "Mode Staf Gudang Terverifikasi";
+        badgeStatus.className = "text-[10px] text-amber-700 font-bold";
+        alert("Akses staf dibuka. Tombol ambil stok aktif.");
+      } else if (pin !== null) {
+        alert("PIN salah! Akses tetap dibatasi sebagai pembaca (Read-Only).");
+      }
+    };
+
     window.quickStockOut = async function(batchId, batchCode, currentStock) {
+      if (!isAuthenticatedStaff) {
+        const pin = prompt("Konfirmasi PIN Staf Gudang untuk mengeluarkan stok:", "");
+        if (pin !== "1234") {
+          alert("Aksi dibatalkan. PIN salah.");
+          return;
+        }
+        isAuthenticatedStaff = true;
+      }
+
       const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik saat ini: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
       if (takeStr === null) return;
 
@@ -1169,7 +1288,7 @@
         return;
       }
 
-      const purpose = prompt("Tujuan pengambilan stok benih? (Misal: Sachet Petani Mitra / Uji Lab / Tanam Kebun):", "Sachet Plastik Klip Mitra");
+      const purpose = prompt("Tujuan pengambilan stok benih? (Misal: Sachet Plastik Klip Mitra / Uji Lab / Tanam Kebun):", "Sachet Plastik Klip Mitra");
       if (purpose === null) return;
 
       const newStock = currentStock - takeGrams;
@@ -1187,7 +1306,6 @@
       }
     };
 
-    // 8. TOGGLE SIDEBAR & NAVIGASI TAB
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -1298,7 +1416,7 @@
         renderQcLogs();
         renderPlanting();
 
-        // Cek URL params saat halaman dimuat (jika dibuka dari scan kamera HP luar)
+        // Cek jika halaman dibuka oleh orang luar via scan QR
         const urlParams = new URLSearchParams(window.location.search);
         const passportBatch = urlParams.get('passport');
         if (passportBatch) {
@@ -1585,39 +1703,6 @@
       document.getElementById("qcBatchCode").value = batchCode;
     };
 
-    // Form Inbound Batch Baru
-    document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("btnSubmitBatch");
-      btn.disabled = true;
-
-      const payload = {
-        batch_code: document.getElementById("batchCode").value.trim(),
-        variety_name: document.getElementById("varietyName").value.trim(),
-        species: document.getElementById("species").value.trim(),
-        parent_batch_code: document.getElementById("parentBatchCode").value.trim() || null,
-        provenance: document.getElementById("provenance").value.trim(),
-        storage_location: document.getElementById("storageLocation").value.trim(),
-        harvest_date: document.getElementById("harvestDate").value,
-        stock_grams: parseFloat(document.getElementById("stockGrams").value),
-        min_stock_alert: parseFloat(document.getElementById("minStock").value) || 0,
-        germination_rate: parseFloat(document.getElementById("germinationRate").value) || 0,
-        moisture_content: parseFloat(document.getElementById("moistureContent").value) || 0,
-      };
-
-      const { error } = await dbClient.from("seed_batches").insert([payload]);
-      btn.disabled = false;
-
-      if (error) {
-        alert("Gagal menambahkan batch: " + error.message);
-      } else {
-        document.getElementById("seedForm").reset();
-        document.getElementById("speciesBadge").classList.add("hidden");
-        showToast("Batch baru berhasil didaftarkan ke katalog!");
-        await loadAllData();
-      }
-    });
-
     // Form QC
     document.getElementById("qcForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -1683,7 +1768,6 @@
       }
     });
 
-    // Panen & Terbitkan Batch Anakan Baru
     window.completeHarvest = async function(scheduleId, targetBatchCode, parentBatchCode, varietyName) {
       const grams = prompt(`Hasil panen bersih benih baru untuk [${targetBatchCode}] (dalam gram):`, "1000");
       if (grams === null) return;
@@ -1733,6 +1817,7 @@
 
     // Inisialisasi awal saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
+      checkInitialAuth();
       const t1 = document.getElementById("qcTestDate");
       const t2 = document.getElementById("planPlantDate");
       const t3 = document.getElementById("harvestDate");

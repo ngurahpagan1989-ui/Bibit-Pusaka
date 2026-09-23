@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Manajemen & Regenerasi Benih</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased font-sans">
+  <div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-emerald-800">Seed Vault & Regeneration Tracker</h1>
+        <p class="text-sm text-stone-500">Pencatatan inventaris dan pengingat regenerasi benih otomatis</p>
+      </div>
+      <div id="alertSummary" class="text-sm font-semibold bg-stone-100 text-stone-600 px-3 py-1.5 rounded-lg border">
+        Memeriksa status batch...
+      </div>
+    </header>
+
+    <!-- Formulir Input Batch Baru -->
+    <section class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
+      <h2 class="text-lg font-semibold text-stone-700 mb-3">Registrasi Batch Benih Baru</h2>
+      <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Kode Batch</label>
+          <input type="text" id="batchCode" required placeholder="Contoh: BN-TOM-001" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Nama Varietas</label>
+          <input type="text" id="varietyName" required placeholder="Contoh: Tomat Rampai" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Spesies / Kategori</label>
+          <input type="text" id="species" placeholder="Solanum lycopersicum" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Asal Benih (Provenance)</label>
+          <input type="text" id="provenance" placeholder="Mitra Tani / Lahan Kebun" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Lokasi Rak Simpan</label>
+          <input type="text" id="storageLocation" placeholder="Rak A - Kotak 03" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Tanggal Panen</label>
+          <input type="date" id="harvestDate" required class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Stok Awal (Gram)</label>
+          <input type="number" id="stockGrams" min="0" step="any" required placeholder="500" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Batas Minimum Stok (Gram)</label>
+          <input type="number" id="minStock" min="0" step="any" value="50" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-stone-500 mb-1">Daya Kecambah Awal (%)</label>
+          <input type="number" id="germinationRate" min="0" max="100" value="85" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div class="sm:col-span-2 md:col-span-3 flex justify-end mt-2">
+          <button type="submit" id="btnSubmit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2 rounded-lg text-sm transition">
+            Simpan Batch Benih
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Tabel Daftar Batch & Status Regenerasi -->
+    <section class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <h2 class="text-lg font-semibold text-stone-700">Daftar Batch & Status Regenerasi</h2>
+        <button onclick="loadSeedBatches()" class="text-xs bg-stone-100 hover:bg-stone-200 border px-3 py-1.5 rounded-lg text-stone-600">
+          Muat Ulang Data
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b bg-stone-50 text-stone-600 text-xs uppercase">
+              <th class="p-3">Kode</th>
+              <th class="p-3">Varietas</th>
+              <th class="p-3">Lokasi</th>
+              <th class="p-3">Stok</th>
+              <th class="p-3">Daya Kecambah</th>
+              <th class="p-3">Panen</th>
+              <th class="p-3">Status Regenerasi</th>
+              <th class="p-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="batchTableBody" class="divide-y divide-stone-100">
+            <tr>
+              <td colspan="8" class="text-center p-4 text-stone-400">Memuat inventaris...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://acaarknxdetojywbdwdh.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function evaluateRegenerationStatus(batch) {
+      const now = new Date();
+      const harvest = new Date(batch.harvest_date);
+      const ageInDays = Math.floor((now - harvest) / (1000 * 60 * 60 * 24));
+
+      const reasons = [];
+      if (batch.germination_rate < 70) {
+        reasons.push("Viabilitas rendah (<70%)");
+      }
+      if (Number(batch.stock_grams) <= Number(batch.min_stock_alert)) {
+        reasons.push("Stok kritis/menipis");
+      }
+      if (ageInDays > 365) {
+        reasons.push("Umur simpan > 1 tahun");
+      }
+
+      if (reasons.length > 0) {
+        return {
+          needsRegeneration: true,
+          label: "Wajib Regenerasi",
+          badgeClass: "bg-red-100 text-red-800 border-red-200",
+          reasons: reasons.join(", ")
+        };
+      }
+
+      return {
+        needsRegeneration: false,
+        label: "Aman",
+        badgeClass: "bg-emerald-100 text-emerald-800 border-emerald-200",
+        reasons: "Kondisi optimal"
+      };
+    }
+
+    async function loadSeedBatches() {
+      const tbody = document.getElementById("batchTableBody");
+      const summary = document.getElementById("alertSummary");
+
+      const { data, error } = await supabase
+        .from("seed_batches")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500 p-4">Gagal memuat data: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-stone-400 p-4">Belum ada batch benih yang dicatat.</td></tr>`;
+        summary.textContent = "0 Batch Tersimpan";
+        summary.className = "text-sm font-semibold bg-stone-100 text-stone-600 px-3 py-1.5 rounded-lg border";
+        return;
+      }
+
+      let urgentCount = 0;
+      tbody.innerHTML = "";
+
+      data.forEach((batch) => {
+        const status = evaluateRegenerationStatus(batch);
+        if (status.needsRegeneration) urgentCount++;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-stone-50";
+        tr.innerHTML = `
+          <td class="p-3 font-semibold text-stone-700">${batch.batch_code}</td>
+          <td class="p-3">
+            <div class="font-medium">${batch.variety_name}</div>
+            <div class="text-xs text-stone-400">${batch.species || "-"}</div>
+          </td>
+          <td class="p-3 text-stone-600">${batch.storage_location || "-"}</td>
+          <td class="p-3 font-medium">${batch.stock_grams} gr</td>
+          <td class="p-3 font-semibold ${batch.germination_rate < 70 ? 'text-red-600' : 'text-emerald-700'}">${batch.germination_rate}%</td>
+          <td class="p-3 text-stone-500">${batch.harvest_date}</td>
+          <td class="p-3">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border ${status.badgeClass}">
+              ${status.label}
+            </span>
+            <div class="text-[11px] text-stone-400 mt-0.5">${status.reasons}</div>
+          </td>
+          <td class="p-3 text-center space-x-2">
+            <button onclick="updateViability('${batch.id}', ${batch.germination_rate})" class="text-xs text-blue-600 hover:underline">Update Uji</button>
+            <button onclick="deleteBatch('${batch.id}')" class="text-xs text-red-500 hover:underline">Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (urgentCount > 0) {
+        summary.textContent = `⚠️ ${urgentCount} Batch Perlu Diregenerasi Segera`;
+        summary.className = "text-sm font-semibold bg-red-100 text-red-800 px-3 py-1.5 rounded-lg border border-red-200";
+      } else {
+        summary.textContent = "✅ Semua Batch dalam Kondisi Aman";
+        summary.className = "text-sm font-semibold bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200";
+      }
+    }
+
+    document.getElementById("seedForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmit");
+      btn.disabled = true;
+      btn.textContent = "Menyimpan...";
+
+      const payload = {
+        batch_code: document.getElementById("batchCode").value.trim(),
+        variety_name: document.getElementById("varietyName").value.trim(),
+        species: document.getElementById("species").value.trim(),
+        provenance: document.getElementById("provenance").value.trim(),
+        storage_location: document.getElementById("storageLocation").value.trim(),
+        harvest_date: document.getElementById("harvestDate").value,
+        stock_grams: parseFloat(document.getElementById("stockGrams").value),
+        min_stock_alert: parseFloat(document.getElementById("minStock").value) || 0,
+        germination_rate: parseFloat(document.getElementById("germinationRate").value) || 0,
+      };
+
+      const { error } = await supabase.from("seed_batches").insert([payload]);
+
+      btn.disabled = false;
+      btn.textContent = "Simpan Batch Benih";
+
+      if (error) {
+        alert("Gagal menambahkan batch: " + error.message);
+      } else {
+        document.getElementById("seedForm").reset();
+        loadSeedBatches();
+      }
+    });
+
+    async function updateViability(id, currentRate) {
+      const newRate = prompt("Masukkan persentase daya kecambah terbaru (%):", currentRate);
+      if (newRate !== null) {
+        const parsed = parseFloat(newRate);
+        if (isNaN(parsed) || parsed < 0 || parsed > 100) {
+          alert("Input persentase harus antara 0 dan 100.");
+          return;
+        }
+
+        const { error } = await supabase
+          .from("seed_batches")
+          .update({ germination_rate: parsed })
+          .eq("id", id);
+
+        if (error) {
+          alert("Gagal memperbarui data: " + error.message);
+        } else {
+          loadSeedBatches();
+        }
+      }
+    }
+
+    async function deleteBatch(id) {
+      if (confirm("Apakah yakin ingin menghapus data batch ini?")) {
+        const { error } = await supabase.from("seed_batches").delete().eq("id", id);
+        if (error) {
+          alert("Gagal menghapus batch: " + error.message);
+        } else {
+          loadSeedBatches();
+        }
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadSeedBatches);
+  </script>
+</body>
+</html>

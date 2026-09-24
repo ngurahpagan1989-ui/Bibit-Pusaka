@@ -19,8 +19,8 @@
 
     @media print {
       body { background: white !important; margin: 0 !important; padding: 0 !important; }
-      body > *:not(#labelModal) { display: none !important; }
-      #labelModal {
+      body > *:not(#pedigreeModal):not(#labelModal) { display: none !important; }
+      #labelModal, #pedigreeModal {
         display: flex !important;
         position: static !important;
         background: transparent !important;
@@ -28,21 +28,20 @@
         width: 100% !important;
         height: auto !important;
       }
-      #labelModalContent {
+      #labelModalContent, #pedigreeModalContent {
         box-shadow: none !important;
         border: 2px solid #000 !important;
         margin: 0 auto !important;
-        width: 320px !important;
         max-width: 100% !important;
         page-break-inside: avoid;
       }
-      #labelModalActions { display: none !important; }
+      #labelModalActions, #pedigreeModalActions { display: none !important; }
     }
   </style>
 </head>
 <body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- ================= MODAL LOGIN SUPABASE AUTH RESMI ================= -->
+  <!-- MODAL LOGIN SUPABASE AUTH RESMI -->
   <div id="authGateModal" class="fixed inset-0 bg-stone-900/90 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
@@ -69,22 +68,18 @@
     </div>
   </div>
 
-  <!-- ================= BACKDROP OVERLAY (MOBILE) ================= -->
   <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-stone-900/60 z-40 hidden lg:hidden transition-opacity"></div>
 
-  <!-- ================= WRAPPER APLIKASI INTERNAL ================= -->
+  <!-- WRAPPER APLIKASI INTERNAL -->
   <div id="appContainer" class="flex min-h-screen w-full">
 
-    <!-- ================= SIDEBAR KIRI ================= -->
+    <!-- SIDEBAR KIRI -->
     <aside id="mainSidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-emerald-950 text-white z-50 flex flex-col justify-between border-r border-emerald-900 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
-      
       <div class="p-5 space-y-6">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
             <div class="w-10 h-10 rounded-xl bg-emerald-800/80 border border-emerald-700/60 flex items-center justify-center shadow-inner">
-              <svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+              🌱
             </div>
             <div>
               <h1 class="font-black text-base tracking-tight text-white flex items-center gap-1.5">
@@ -95,36 +90,25 @@
           </div>
 
           <button type="button" onclick="toggleSidebar()" class="lg:hidden p-1.5 rounded-lg text-emerald-300 hover:bg-emerald-900 transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ✕
           </button>
         </div>
 
         <nav class="space-y-1.5 text-sm font-semibold">
           <button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition bg-emerald-600 text-white shadow-sm text-left">
-            <span class="text-lg">📊</span>
-            <span>Dashboard</span>
+            <span>📊</span><span>Dashboard</span>
           </button>
-
           <button type="button" onclick="switchTab('katalog')" id="nav-katalog" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-            <span class="text-lg">🗂️</span>
-            <span>Katalog Batch</span>
+            <span>🗂️</span><span>Katalog Batch</span>
           </button>
-
           <button type="button" onclick="switchTab('qc')" id="nav-qc" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-            <span class="text-lg">🧪</span>
-            <span>Uji Mutu (QC)</span>
+            <span>🧪</span><span>Uji Mutu (QC)</span>
           </button>
-
           <button type="button" onclick="switchTab('tanam')" id="nav-tanam" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left">
-            <span class="text-lg">🗓️</span>
-            <span>Kalender Tanam</span>
+            <span>🗓️</span><span>Kalender Tanam</span>
           </button>
-
           <button type="button" onclick="switchTab('pengaturan')" id="nav-pengaturan" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-emerald-200 hover:text-white hover:bg-emerald-900/50 text-left border-t border-emerald-900/60 pt-3">
-            <span class="text-lg">⚙️</span>
-            <span>Pengaturan & Master</span>
+            <span>⚙️</span><span>Pengaturan & Master</span>
           </button>
         </nav>
       </div>
@@ -138,88 +122,63 @@
             </span>
             <span id="userEmailBadge" class="text-[11px] font-bold text-emerald-200 truncate max-w-[120px]">Staf Aktif</span>
           </div>
-          <button onclick="lockSystem()" title="Keluar Akun" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
+          <button onclick="lockSystem()" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
         </div>
       </div>
     </aside>
 
-    <!-- ================= KONTEN UTAMA (KANAN) ================= -->
+    <!-- KONTEN KANAN -->
     <div class="flex-1 flex flex-col min-w-0 lg:ml-64">
-
-      <!-- Top Bar Header -->
       <header class="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-3">
-          <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition focus:outline-none">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <button type="button" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
+            ☰
           </button>
-
           <div>
             <h2 id="pageTitle" class="text-base sm:text-lg font-black text-stone-800 tracking-tight leading-tight">Dashboard Ringkasan</h2>
             <p id="pageSubtitle" class="text-xs text-stone-400 hidden sm:block">Status kesehatan benih dan prioritas regenerasi</p>
           </div>
         </div>
-
         <div class="flex items-center gap-2">
           <button onclick="openCameraScanner()" class="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-3.5 py-1.5 rounded-xl shadow-sm transition">
-            <span>📷</span>
-            <span>Scan QR</span>
+            <span>📷</span><span>Scan QR</span>
           </button>
           <button onclick="loadAllData()" class="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl border border-stone-200 transition">
-            <span>🔄</span>
-            <span class="hidden sm:inline">Refresh</span>
+            <span>🔄</span><span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </header>
 
-      <!-- Konten Tab Body -->
       <main class="p-4 sm:p-6 flex-1 space-y-6">
-
         <div id="statusToast" class="hidden p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition"></div>
 
-        <!-- 1. TAB MENU: DASHBOARD -->
+        <!-- 1. DASHBOARD TAB -->
         <section id="tab-dashboard" class="space-y-6">
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Varietas</span>
-                  <span class="p-2 rounded-lg bg-emerald-50 text-emerald-700">🌱</span>
-                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Total Varietas</span>
                 <p id="dashTotalBatch" class="text-3xl font-black text-stone-800 mt-2">0</p>
               </div>
-              <span class="text-[11px] text-stone-400 mt-2">Batch terdaftar di gudang</span>
+              <span class="text-[11px] text-stone-400 mt-2">Batch terdaftar</span>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Cadangan Stok</span>
-                  <span class="p-2 rounded-lg bg-blue-50 text-blue-700">⚖️</span>
-                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Cadangan Stok</span>
                 <p id="dashTotalStock" class="text-3xl font-black text-emerald-800 mt-2">0 gr</p>
               </div>
-              <span class="text-[11px] text-stone-400 mt-2">Total berat fisik tersedia</span>
+              <span class="text-[11px] text-stone-400 mt-2">Total fisik tersedia</span>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Perlu Regenerasi</span>
-                  <span class="p-2 rounded-lg bg-rose-50 text-rose-700">⚠️</span>
-                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Perlu Regenerasi</span>
                 <p id="dashUrgentRegen" class="text-3xl font-black text-rose-600 mt-2">0</p>
               </div>
               <span class="text-[11px] text-rose-500 font-semibold mt-2">Viabilitas turun / stok kritis</span>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Sedang Ditanam</span>
-                  <span class="p-2 rounded-lg bg-amber-50 text-amber-700">🌾</span>
-                </div>
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Sedang Ditanam</span>
                 <p id="dashActivePlanting" class="text-3xl font-black text-stone-800 mt-2">0</p>
               </div>
               <span class="text-[11px] text-stone-400 mt-2">Proses regenerasi aktif</span>
@@ -228,24 +187,14 @@
 
           <div id="dashAlertBanner" class="p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-emerald-50 border-emerald-200 text-emerald-950">
             <div>
-              <h3 class="font-bold text-base flex items-center gap-2">
-                <span>✅</span> Status Inventaris Terkendali
-              </h3>
+              <h3 class="font-bold text-base flex items-center gap-2"><span>✅</span> Status Inventaris Terkendali</h3>
               <p class="text-xs text-emerald-800 mt-0.5">Semua lot benih berada di atas ambang batas viabilitas simpan.</p>
             </div>
-            <button onclick="switchTab('tanam')" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm">
-              + Rencanakan Tanam
-            </button>
+            <button onclick="switchTab('tanam')" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm">+ Rencanakan Tanam</button>
           </div>
 
           <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-            <div>
-              <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
-                <span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi
-              </h2>
-              <p class="text-xs text-stone-400">Dideteksi otomatis saat viabilitas &lt; 70%, stok menipis, atau umur simpan &gt; 1 tahun.</p>
-            </div>
-
+            <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2"><span class="text-rose-600">⚠️</span> Batch Prioritas Regenerasi</h2>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead>
@@ -259,94 +208,73 @@
                   </tr>
                 </thead>
                 <tbody id="dashUrgentTableBody" class="divide-y divide-stone-100">
-                  <tr>
-                    <td colspan="6" class="p-6 text-center text-stone-400">Memeriksa inventaris...</td>
-                  </tr>
+                  <tr><td colspan="6" class="p-6 text-center text-stone-400">Memeriksa inventaris...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- 2. TAB MENU: KATALOG BATCH -->
+        <!-- 2. KATALOG BATCH TAB -->
         <section id="tab-katalog" class="space-y-6 hidden">
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-            <div class="flex items-center justify-between border-b pb-3 mb-4">
-              <div>
-                <h2 class="text-base font-extrabold text-stone-800">Registrasi Batch & Cetak Sekaligus</h2>
-                <p class="text-xs text-stone-400">Ketik data benih, sistem otomatis menyinkronkan ke katalog dan langsung menyiapkan lembar label cetak.</p>
-              </div>
-              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Single-Action Print & Save</span>
-            </div>
+            <h2 class="text-base font-extrabold text-stone-800 mb-1">Registrasi Batch & Cetak Sekaligus</h2>
+            <p class="text-xs text-stone-400 mb-4">Ketik data benih, sistem otomatis menyinkronkan ke katalog dan langsung menyiapkan lembar label cetak.</p>
 
             <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
-                <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Cabai Rawit" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Kelor" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="block text-xs font-bold text-stone-600">Spesies (Nama Ilmiah)</label>
                   <span id="speciesBadge" class="text-[10px] text-emerald-700 font-semibold hidden">⚡ Otomatis</span>
                 </div>
-                <input type="text" id="species" placeholder="Otomatis terisi (misal: Solanum lycopersicum)" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                <input type="text" id="species" placeholder="Otomatis terisi" class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
-                  <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">
-                    ⚡ Buat Ulang
-                  </button>
+                  <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">⚡ Buat Ulang</button>
                 </div>
                 <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
                 <input type="text" id="parentBatchCode" onchange="generateAutoBatchCode()" placeholder="Kosongkan jika batch perdana (G1)" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Asal Benih (Provenance)</label>
                 <input type="text" id="provenance" placeholder="Mitra Karangasem / Kebun Sendiri" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Simpan (Rak / Bins)</label>
                 <input type="text" id="storageLocation" placeholder="Rak A - Kotak 02" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Tanggal Panen <span class="text-rose-500">*</span></label>
                 <input type="date" id="harvestDate" required onchange="generateAutoBatchCode()" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Stok Awal (Gram) <span class="text-rose-500">*</span></label>
                 <input type="number" id="stockGrams" min="0" step="any" required placeholder="500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Batas Minimum Stok (Gr)</label>
                 <input type="number" id="minStock" min="0" step="any" value="50" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Daya Kecambah Awal (%)</label>
                 <input type="number" id="germinationRate" min="0" max="100" value="85" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
                 <input type="number" id="moistureContent" min="0" max="100" step="0.1" value="7.5" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-
               <div class="flex items-end">
                 <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5">
-                  <span>🖨️</span>
-                  <span>Cetak Label & Simpan ke Katalog</span>
+                  <span>🖨️</span><span>Cetak Label & Simpan ke Katalog</span>
                 </button>
               </div>
             </form>
@@ -360,7 +288,7 @@
                 <button onclick="setKatalogFilter('safe')" id="filter-safe" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-stone-100 text-stone-600 hover:bg-stone-200">Kondisi Aman</button>
               </div>
               <div class="w-full md:w-80">
-                <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, short-code (misal: T26-01)..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+                <input type="text" id="katalogSearch" oninput="filterKatalog()" placeholder="Cari varietas, short-code, nomor silsilah..." class="w-full border border-stone-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
               </div>
             </div>
 
@@ -375,26 +303,22 @@
                     <th class="p-3">Daya Kecambah</th>
                     <th class="p-3">Panen</th>
                     <th class="p-3">Status</th>
-                    <th class="p-3 text-center">Aksi Cepat</th>
+                    <th class="p-3 text-center">Aksi & Silsilah</th>
                   </tr>
                 </thead>
                 <tbody id="katalogTableBody" class="divide-y divide-stone-100">
-                  <tr>
-                    <td colspan="8" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td>
-                  </tr>
+                  <tr><td colspan="8" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- 3. TAB MENU: QC (UJI MUTU) -->
+        <!-- 3. QC TAB -->
         <section id="tab-qc" class="space-y-6 hidden">
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-            <div class="border-b pb-3 mb-4">
-              <h2 class="text-base font-extrabold text-stone-800">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
-              <p class="text-xs text-stone-400">Data hasil pengujian berkala otomatis memperbarui status viabilitas pada katalog batch.</p>
-            </div>
+            <h2 class="text-base font-extrabold text-stone-800 mb-1">Pencatatan Hasil Uji Mutu & Viabilitas</h2>
+            <p class="text-xs text-stone-400 mb-4">Data hasil pengujian berkala otomatis memperbarui status viabilitas pada katalog batch.</p>
 
             <form id="qcForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
               <div>
@@ -416,9 +340,7 @@
                 <input type="number" id="qcMoisture" min="0" max="100" step="0.1" placeholder="Misal: 7.2" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div class="sm:col-span-2 lg:col-span-1 flex items-end">
-                <button type="submit" id="btnSubmitQc" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
-                  Simpan Hasil Uji
-                </button>
+                <button type="submit" id="btnSubmitQc" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">Simpan Hasil Uji</button>
               </div>
               <div class="sm:col-span-2 lg:col-span-5">
                 <input type="text" id="qcNotes" placeholder="Catatan pengujian (metode cawan petri, perlakuan perendaman, kondisi dormansi, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
@@ -441,22 +363,18 @@
                   </tr>
                 </thead>
                 <tbody id="qcLogsTableBody" class="divide-y divide-stone-100">
-                  <tr>
-                    <td colspan="6" class="p-6 text-center text-stone-400">Belum ada riwayat uji mutu tersimpan.</td>
-                  </tr>
+                  <tr><td colspan="6" class="p-6 text-center text-stone-400">Belum ada riwayat uji mutu tersimpan.</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- 4. TAB MENU: KALENDER TANAM -->
+        <!-- 4. KALENDER TANAM TAB -->
         <section id="tab-tanam" class="space-y-6 hidden">
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-            <div class="border-b pb-3 mb-4">
-              <h2 class="text-base font-extrabold text-stone-800">Jadwalkan Penanaman Regenerasi Benih</h2>
-              <p class="text-xs text-stone-400">Pilih batch induk, sistem otomatis menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
-            </div>
+            <h2 class="text-base font-extrabold text-stone-800 mb-1">Jadwalkan Penanaman Regenerasi Benih</h2>
+            <p class="text-xs text-stone-400 mb-4">Pilih batch induk, sistem otomatis menaikkan tingkat generasi (contoh: G1 &rarr; G2).</p>
 
             <form id="plantingForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
@@ -470,11 +388,11 @@
                 <input type="text" id="planVariety" readonly placeholder="Otomatis dari batch induk" class="w-full border border-stone-200 bg-stone-100 rounded-xl p-2.5 text-xs text-stone-500 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Anakan <span class="text-emerald-700 font-bold">(Auto-Gen)</span></label>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Calon Kode Batch Anakan</label>
                 <input type="text" id="planTargetBatch" required placeholder="BN-TOM-26-G2-001" class="w-full border border-emerald-300 bg-emerald-50/50 rounded-xl p-2.5 font-mono text-emerald-950 font-black focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Lahan / Plot Mitra</label>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Lokasi Lahan / Plot</label>
                 <input type="text" id="planPlot" placeholder="Plot A1 / Kebun Mitra" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div>
@@ -486,16 +404,14 @@
                 <input type="date" id="planHarvestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Target Hasil Benih (Gram)</label>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Target Hasil (Gram)</label>
                 <input type="number" id="planTargetYield" min="0" placeholder="Contoh: 1500" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div class="flex items-end">
-                <button type="submit" id="btnSubmitPlan" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
-                  + Daftarkan Siklus Tanam
-                </button>
+                <button type="submit" id="btnSubmitPlan" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">+ Daftarkan Siklus Tanam</button>
               </div>
               <div class="sm:col-span-2 lg:col-span-4">
-                <input type="text" id="planNotes" placeholder="Catatan musim tanam (isolasi jarak 200m, penggunaan pupuk organik cair, perlindungan serangga, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
+                <input type="text" id="planNotes" placeholder="Catatan musim tanam (isolasi jarak 200m, penggunaan pupuk organik cair, dll.)" class="w-full border border-stone-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-emerald-600 outline-none" />
               </div>
             </form>
           </div>
@@ -516,52 +432,83 @@
                   </tr>
                 </thead>
                 <tbody id="plantingTableBody" class="divide-y divide-stone-100">
-                  <tr>
-                    <td colspan="7" class="p-6 text-center text-stone-400">Belum ada siklus penanaman aktif.</td>
-                  </tr>
+                  <tr><td colspan="7" class="p-6 text-center text-stone-400">Belum ada siklus penanaman aktif.</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- 5. TAB MENU: PENGATURAN & MASTER DATA BOTANI -->
+        <!-- 5. PENGATURAN & MASTER DATA BOTANI (DILENGKAPI FORM INPUT 4 PILAR MANFAAT) -->
         <section id="tab-pengaturan" class="space-y-6 hidden">
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
             <div class="flex items-center justify-between border-b pb-3 mb-4">
               <div>
-                <h2 class="text-base font-extrabold text-stone-800">Tambah Koleksi Tanaman & Spesies Ilmiah</h2>
-                <p class="text-xs text-stone-400">Daftarkan tanaman baru agar otomatis terdeteksi saat input katalog benih.</p>
+                <h2 class="text-base font-extrabold text-stone-800">Master Tanaman & Ensiklopedia Manfaat Multisektoral</h2>
+                <p class="text-xs text-stone-400">Daftarkan tanaman baru beserta peranan 4 pilarnya agar otomatis muncul saat QR paspor di-scan publik.</p>
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Ethnobotany Master Editor</span>
             </div>
 
-            <form id="masterPlantForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-              <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
-                <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Porang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <form id="masterPlantForm" class="space-y-4 text-xs">
+              <!-- Baris Identitas Taksonomi -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-3 border-b border-stone-100">
+                <div>
+                  <label class="block font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
+                  <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Telang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                </div>
+                <div>
+                  <label class="block font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
+                  <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                </div>
+                <div>
+                  <label class="block font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
+                  <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                </div>
               </div>
+
+              <!-- Baris Input 4 Pilar Manfaat -->
               <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
-                <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                <h3 class="font-extrabold text-stone-800 mb-2 flex items-center gap-1.5 text-xs">
+                  <span>🌿</span> Input Manfaat & Peranan 4 Pilar Tanaman:
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
+                    <label class="block font-bold text-emerald-950 mb-1">🥗 1. Pangan & Ketahanan Gizi</label>
+                    <textarea id="masterFood" rows="2" placeholder="Kandungan vitamin, kalsium, zat besi, pencegahan stunting, pemanfaatan konsumsi..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-600"></textarea>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-blue-50/60 border border-blue-200/70">
+                    <label class="block font-bold text-blue-950 mb-1">🐝 2. Peran Agroekologi & Permakultur</label>
+                    <textarea id="masterEcology" rows="2" placeholder="Pengikat nitrogen, perangkap hama, pemikat lebah/penyerbuk, penahan erosi..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-600"></textarea>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-rose-50/60 border border-rose-200/70">
+                    <label class="block font-bold text-rose-950 mb-1">💊 3. Kesehatan & Herbal Alami</label>
+                    <textarea id="masterHealth" rows="2" placeholder="Khasiat farmakologis, antioksidan, relaksasi saraf, pengobatan tradisional..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-rose-600"></textarea>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/70">
+                    <label class="block font-bold text-amber-950 mb-1">💰 4. Potensi Ekonomi & Budaya</label>
+                    <textarea id="masterEconomy" rows="2" placeholder="Nilai ekspor/jual olahan, teh herbal, kerajinan, pewarna alami kain..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-amber-600"></textarea>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label class="block text-xs font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
-                <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
-              </div>
-              <div class="sm:col-span-3 flex justify-end">
+
+              <div class="flex justify-end pt-2">
                 <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
-                  + Simpan ke Kamus Botani
+                  + Simpan ke Kamus & Ensiklopedia Manfaat
                 </button>
               </div>
             </form>
           </div>
 
+          <!-- Daftar Kamus Botani & Manfaat -->
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <h2 class="font-extrabold text-stone-800 text-base">Daftar Kamus Botani Aktif</h2>
-                <p class="text-xs text-stone-400">Daftar tanaman bawaan sistem dan tanaman kustom yang telah tersimpan di memori.</p>
+                <h2 class="font-extrabold text-stone-800 text-base">Daftar Tanaman & Manfaat Terdaftar</h2>
+                <p class="text-xs text-stone-400">Data tanaman yang otomatis tersambung ke Paspor Digital Benih saat di-scan.</p>
               </div>
               <input type="text" id="searchMasterBotanical" oninput="renderBotanicalTable()" placeholder="Cari tanaman atau nama latin..." class="border border-stone-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-64 focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
@@ -570,42 +517,17 @@
               <table class="w-full text-left text-sm">
                 <thead>
                   <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                    <th class="p-3">Nama Tanaman Umum</th>
+                    <th class="p-3">Nama Tanaman</th>
                     <th class="p-3">Nama Ilmiah (Spesies)</th>
-                    <th class="p-3">Famili / Taksonomi</th>
-                    <th class="p-3">Tipe Data</th>
+                    <th class="p-3">Famili</th>
+                    <th class="p-3">Kelengkapan Manfaat</th>
                     <th class="p-3 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="botanicalTableBody" class="divide-y divide-stone-100">
-                  <tr>
-                    <td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td>
-                  </tr>
+                  <tr><td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td></tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-            <h2 class="font-extrabold text-stone-800 text-base mb-1">Parameter Standar Evaluasi Mutu & Kodifikasi</h2>
-            <p class="text-xs text-stone-400 mb-4">Aturan ambang batas yang dipakai oleh Dashboard Regeneration Engine secara otomatis.</p>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-                <span class="text-stone-400 font-semibold block uppercase">Batas Minimum Viabilitas</span>
-                <p class="text-lg font-black text-rose-600 mt-1">&lt; 70%</p>
-                <span class="text-stone-500 text-[11px]">Memicu peringatan regenerasi jika daya kecambah drop di bawah 70%</span>
-              </div>
-              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-                <span class="text-stone-400 font-semibold block uppercase">Batas Maksimum Masa Simpan</span>
-                <p class="text-lg font-black text-amber-600 mt-1">&gt; 365 Hari (1 Thn)</p>
-                <span class="text-stone-500 text-[11px]">Memicu regenerasi agar benih tidak mengalami penuaan fisiologis</span>
-              </div>
-              <div class="p-4 rounded-xl bg-stone-50 border border-stone-200">
-                <span class="text-stone-400 font-semibold block uppercase">Sachet Micro-Code (Stempel)</span>
-                <p class="text-lg font-black text-emerald-800 mt-1">[HURUF][YY]-[LOT]</p>
-                <span class="text-stone-500 text-[11px]">Kode pendek (misal: T26-01) untuk kemasan plastik klip kecil tanpa QR</span>
-              </div>
             </div>
           </div>
         </section>
@@ -614,46 +536,23 @@
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL 1: SCANNER KAMERA QR                                     -->
-  <!-- ============================================================== -->
+  <!-- MODAL 1: SCANNER KAMERA QR -->
   <div id="cameraScannerModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-stone-200">
       <div class="flex items-center justify-between border-b pb-3">
-        <div>
-          <h3 class="font-black text-stone-800 text-sm flex items-center gap-1.5">
-            <span>📷</span> Pemindai QR Paspor Benih
-          </h3>
-          <p class="text-[11px] text-stone-400">Arahkan kamera ke QR Code pada toples benih</p>
-        </div>
-        <button onclick="closeCameraScanner()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <h3 class="font-black text-stone-800 text-sm flex items-center gap-1.5"><span>📷</span> Pemindai QR Paspor Benih</h3>
+        <button onclick="closeCameraScanner()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
       </div>
-
       <div id="qrReaderBox" class="w-full bg-stone-900 rounded-2xl overflow-hidden aspect-square border border-stone-300"></div>
-      <p class="text-center text-[11px] text-stone-500">Mendukung kamera smartphone & laptop.</p>
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL 2: PRATINJAU LABEL QR CETAK (LINK KE PASPOR.HTML)        -->
-  <!-- ============================================================== -->
+  <!-- MODAL 2: PRATINJAU LABEL QR CETAK -->
   <div id="labelModal" class="fixed inset-0 bg-stone-900/70 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-stone-200">
-      
       <div class="flex items-center justify-between border-b pb-3">
-        <div>
-          <h3 class="font-black text-stone-800 text-sm">Label Paspor Benih Fisik</h3>
-          <p class="text-[11px] text-stone-400">Tersimpan di katalog web & siap dicetak</p>
-        </div>
-        <button onclick="closePrintLabel()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <h3 class="font-black text-stone-800 text-sm">Label Paspor Benih Fisik</h3>
+        <button onclick="closePrintLabel()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
       </div>
 
       <div id="labelModalContent" class="bg-stone-50 border-2 border-stone-800 p-4 rounded-xl text-stone-900 font-sans space-y-3">
@@ -667,7 +566,6 @@
 
         <div class="flex items-center gap-3">
           <div id="labelQrCode" class="p-1.5 bg-white border border-stone-300 rounded-lg shadow-2xs shrink-0 flex items-center justify-center"></div>
-          
           <div class="min-w-0 flex-1 space-y-1">
             <div id="lblBatchCode" class="font-mono font-black text-sm text-stone-900 leading-tight truncate">BN-TOM-26-G1-001</div>
             <div class="flex items-center gap-1.5">
@@ -697,19 +595,37 @@
       </div>
 
       <div id="labelModalActions" class="flex gap-2 justify-end pt-2">
-        <button onclick="closePrintLabel()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
-          Selesai
-        </button>
+        <button onclick="closePrintLabel()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">Selesai</button>
         <button onclick="printSeedLabel()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
-          <span>🖨️</span>
-          <span>Cetak Sekarang</span>
+          <span>🖨️</span><span>Cetak Sekarang</span>
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- ================= JAVASCRIPT ================= -->
+  <!-- MODAL 3: POHON SILSILAH GENERASI -->
+  <div id="pedigreeModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="p-2 rounded-xl bg-emerald-100 text-emerald-800 text-base">🧬</span>
+          <div>
+            <h3 class="font-black text-stone-900 text-base">Pohon Silsilah Generasi Benih</h3>
+            <p id="pedigreeSubtitle" class="text-[11px] text-stone-400">Jejak regenerasi dari tetua pusaka hingga batch aktif</p>
+          </div>
+        </div>
+        <button onclick="closePedigreeModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
+      </div>
+
+      <div id="pedigreeTimelineBox" class="overflow-y-auto flex-1 pr-1 space-y-4 text-xs"></div>
+
+      <div id="pedigreeModalActions" class="border-t pt-3 flex items-center justify-between shrink-0">
+        <span id="pedigreeDepthInfo" class="text-[11px] font-semibold text-emerald-800">Total: 4 Siklus Generasi</span>
+        <button onclick="closePedigreeModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
     const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
@@ -723,9 +639,7 @@
     let html5QrScanner = null;
     let isAuthenticatedStaff = false;
 
-    // =============================================================
-    // SUPABASE AUTH RESMI
-    // =============================================================
+    // 1. SUPABASE AUTH RESMI
     async function checkSupabaseSession() {
       const { data: { session } } = await dbClient.auth.getSession();
 
@@ -783,21 +697,16 @@
       }
     });
 
-    // Kodifikasi Sachet Stempel
     function generateShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
       const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
       if (match) {
-        const letter = match[1].charAt(0);
-        const yy = match[2];
-        const lot = String(parseInt(match[3], 10)).padStart(2, '0');
-        return `${letter}${yy}-${lot}`;
+        return `${match[1].charAt(0)}${match[2]}-${String(parseInt(match[3], 10)).padStart(2, '0')}`;
       }
-      const char = (varietyName ? varietyName.charAt(0) : 'B').toUpperCase();
-      return `${char}-${batchCode.slice(-4)}`;
+      return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
-    // Kamus Botani Bawaan
+    // 2. KAMUS BOTANI BAWAAN
     const BASE_BOTANICAL_DICTIONARY = [
       { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
       { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
@@ -814,16 +723,9 @@
       { common: "Jagung", scientific: "Zea mays", family: "Poaceae" },
       { common: "Padi", scientific: "Oryza sativa", family: "Poaceae" },
       { common: "Kemangi", scientific: "Ocimum basilicum", family: "Lamiaceae" },
-      { common: "Daun Bawang", scientific: "Allium fistulosum", family: "Amaryllidaceae" },
-      { common: "Bawang Merah", scientific: "Allium cepa", family: "Amaryllidaceae" },
-      { common: "Semangka", scientific: "Citrullus lanatus", family: "Cucurbitaceae" },
-      { common: "Melon", scientific: "Cucumis melo", family: "Cucurbitaceae" },
-      { common: "Labu Kuning", scientific: "Cucurbita moschata", family: "Cucurbitaceae" },
-      { common: "Pare", scientific: "Momordica charantia", family: "Cucurbitaceae" },
-      { common: "Wortel", scientific: "Daucus carota", family: "Apiaceae" },
-      { common: "Seledri", scientific: "Apium graveolens", family: "Apiaceae" },
-      { common: "Okra", scientific: "Abelmoschus esculentus", family: "Malvaceae" },
-      { common: "Kacang Tanah", scientific: "Arachis hypogaea", family: "Fabaceae" }
+      { common: "Kelor", scientific: "Moringa oleifera", family: "Moringaceae" },
+      { common: "Kenikir", scientific: "Cosmos caudatus", family: "Asteraceae" },
+      { common: "Telang", scientific: "Clitoria ternatea", family: "Fabaceae" }
     ];
 
     function getAllBotanicalEntries() {
@@ -858,6 +760,7 @@
       triggerAutoBatchSuggest();
     };
 
+    // 3. MASTER DATA PENGATURAN (LOAD & SAVE DENGAN 4 PILAR MANFAAT)
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -867,6 +770,10 @@
             common: d.common_name,
             scientific: d.scientific_name,
             family: d.family || "-",
+            food: d.benefit_food || "",
+            ecology: d.benefit_ecology || "",
+            health: d.benefit_health || "",
+            economy: d.benefit_economy || "",
             isCustom: true
           }));
           renderBotanicalTable();
@@ -901,6 +808,7 @@
 
       tbody.innerHTML = "";
       filtered.forEach(item => {
+        const hasBenefit = item.food || item.ecology || item.health || item.economy;
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
         tr.innerHTML = `
@@ -908,15 +816,13 @@
           <td class="p-3 italic text-emerald-900 font-semibold">${item.scientific}</td>
           <td class="p-3 text-stone-500 text-xs">${item.family || "-"}</td>
           <td class="p-3">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.isCustom ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-stone-100 text-stone-600'}">
-              ${item.isCustom ? 'Kustom' : 'Bawaan'}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${hasBenefit ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-stone-100 text-stone-500'}">
+              ${hasBenefit ? '✅ 4 Pilar Terisi' : 'Standard Bawaan'}
             </span>
           </td>
           <td class="p-3 text-center">
             ${item.isCustom ? `
-              <button onclick="deleteCustomPlant('${item.id || item.common}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">
-                Hapus
-              </button>
+              <button onclick="deleteCustomPlant('${item.id || item.common}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">Hapus</button>
             ` : `<span class="text-[11px] text-stone-300">-</span>`}
           </td>
         `;
@@ -924,39 +830,56 @@
       });
     }
 
+    // FORM SIMPAN MASTER TANAMAN & MANFAAT 4 PILAR
     document.getElementById("masterPlantForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitMasterPlant");
       btn.disabled = true;
+      btn.textContent = "Menyimpan ke ensiklopedia...";
 
       const common = document.getElementById("masterCommonName").value.trim();
       const scientific = document.getElementById("masterScientificName").value.trim();
       const family = document.getElementById("masterFamily").value.trim();
 
-      const exists = getAllBotanicalEntries().some(item => item.common.toLowerCase() === common.toLowerCase());
-      if (exists) {
-        alert(`Tanaman "${common}" sudah ada di dalam kamus botani!`);
-        btn.disabled = false;
-        return;
-      }
+      const food = document.getElementById("masterFood").value.trim();
+      const ecology = document.getElementById("masterEcology").value.trim();
+      const health = document.getElementById("masterHealth").value.trim();
+      const economy = document.getElementById("masterEconomy").value.trim();
 
-      const newEntry = { common, scientific, family, isCustom: true };
+      const newEntry = { 
+        common, 
+        scientific, 
+        family, 
+        food, 
+        ecology, 
+        health, 
+        economy, 
+        isCustom: true 
+      };
 
+      // 1. Simpan ke Supabase (jika kolom sudah ada)
       try {
         await dbClient.from("plant_species").insert([{
           common_name: common,
           scientific_name: scientific,
-          family: family
+          family: family,
+          benefit_food: food,
+          benefit_ecology: ecology,
+          benefit_health: health,
+          benefit_economy: economy
         }]);
       } catch (err) {}
 
+      // 2. Simpan juga ke LocalStorage agar langsung aktif seketika
       const currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
-      currentLocal.push(newEntry);
-      localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
+      const filteredLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
+      filteredLocal.push(newEntry);
+      localStorage.setItem("seedvault_custom_plants", JSON.stringify(filteredLocal));
 
       document.getElementById("masterPlantForm").reset();
       btn.disabled = false;
-      showToast(`Koleksi tanaman "${common}" berhasil ditambahkan!`);
+      btn.textContent = "+ Simpan ke Kamus & Ensiklopedia Manfaat";
+      showToast(`Tanaman "${common}" dan peranan 4 pilarnya berhasil disimpan!`);
       await loadCustomPlants();
     });
 
@@ -975,6 +898,7 @@
       await loadCustomPlants();
     };
 
+    // Silsilah Generasi
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
       const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
@@ -1030,7 +954,130 @@
       }
     };
 
-    // SINGLE-ACTION: SIMPAN KE SUPABASE & BUKA DIALOG CETAK SEKALIGUS
+    function traceLineageChain(startBatch) {
+      const chain = [startBatch];
+      let curr = startBatch;
+      let depthLimit = 30;
+
+      while (curr && curr.parent_batch_code && depthLimit > 0) {
+        depthLimit--;
+        const parent = allBatches.find(b => b.batch_code === curr.parent_batch_code);
+        if (parent) {
+          chain.push(parent);
+          curr = parent;
+        } else {
+          chain.push({
+            batch_code: curr.parent_batch_code,
+            variety_name: curr.variety_name,
+            harvest_date: "Panen Terdahulu",
+            isExternalParent: true
+          });
+          break;
+        }
+      }
+      return chain;
+    }
+
+    function generateLineageBreadcrumb(batch) {
+      const chain = traceLineageChain(batch);
+      const reversed = [...chain].reverse();
+
+      if (reversed.length === 1) {
+        return `<span class="inline-flex items-center gap-1 text-[10px] text-stone-500 font-mono font-bold bg-stone-100 px-2 py-0.5 rounded border border-stone-200">🌱 Batch Perdana (G1)</span>`;
+      }
+
+      let tagsHtml = "";
+      if (reversed.length <= 4) {
+        tagsHtml = reversed.map((b, idx) => {
+          const m = b.batch_code.match(/-G(\d+)-/i);
+          const g = m ? `G${m[1]}` : `Tahap ${idx+1}`;
+          const isCurrent = (idx === reversed.length - 1);
+          return isCurrent
+            ? `<span class="px-1.5 py-0.2 rounded bg-emerald-700 text-white font-mono font-black text-[10px] shadow-2xs">${g}</span>`
+            : `<span class="px-1.5 py-0.2 rounded bg-stone-200 text-stone-700 font-mono font-bold text-[10px]">${g}</span>`;
+        }).join('<span class="text-stone-300 font-black text-[9px]">&rarr;</span>');
+      } else {
+        const root = reversed[0].batch_code.match(/-G(\d+)-/i)?.[0]?.replace(/-/g,'') || 'G1';
+        const latest = reversed[reversed.length - 1].batch_code.match(/-G(\d+)-/i)?.[0]?.replace(/-/g,'') || 'G';
+        const hiddenCount = reversed.length - 2;
+
+        tagsHtml = `
+          <span class="px-1.5 py-0.2 rounded bg-stone-200 text-stone-700 font-mono font-bold text-[10px]">${root}</span>
+          <span class="text-stone-300 font-black text-[9px]">&rarr;</span>
+          <span class="px-1.5 py-0.2 rounded bg-stone-100 text-stone-500 font-mono text-[9px] border border-dashed border-stone-300">+${hiddenCount} Gen</span>
+          <span class="text-stone-300 font-black text-[9px]">&rarr;</span>
+          <span class="px-1.5 py-0.2 rounded bg-emerald-700 text-white font-mono font-black text-[10px] shadow-2xs">${latest}</span>
+        `;
+      }
+
+      return `
+        <div class="flex items-center gap-1 mt-1 flex-wrap">
+          <span class="text-[9px] font-bold text-stone-400">Silsilah:</span>
+          ${tagsHtml}
+        </div>
+      `;
+    }
+
+    window.openPedigreeModal = function(batchId) {
+      const batch = allBatches.find(b => b.id === batchId);
+      if (!batch) return;
+
+      const chain = traceLineageChain(batch);
+      const totalGen = chain.length;
+
+      document.getElementById("pedigreeSubtitle").textContent = `Garis keturunan varietas: ${batch.variety_name} (${batch.species || 'Botani'})`;
+      document.getElementById("pedigreeDepthInfo").textContent = `Terlacak ${totalGen} Siklus Regenerasi`;
+
+      const box = document.getElementById("pedigreeTimelineBox");
+      box.innerHTML = "";
+
+      chain.forEach((item, index) => {
+        const isCurrent = (index === 0);
+        const genMatch = item.batch_code.match(/-G(\d+)-/i);
+        const genLabel = genMatch ? `G${genMatch[1]}` : (item.parent_batch_code ? 'Regen' : 'G1');
+
+        const card = document.createElement("div");
+        card.className = `relative pl-6 pb-4 border-l-2 ${isCurrent ? 'border-emerald-600' : 'border-stone-300'}`;
+        
+        card.innerHTML = `
+          <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 ${isCurrent ? 'bg-emerald-600 border-white ring-2 ring-emerald-600' : 'bg-stone-300 border-white'} flex items-center justify-center"></div>
+
+          <div class="p-3.5 rounded-2xl border ${isCurrent ? 'bg-emerald-50/80 border-emerald-300 shadow-sm' : 'bg-stone-50 border-stone-200'} space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-black text-xs ${isCurrent ? 'text-emerald-950' : 'text-stone-800'}">${item.batch_code}</span>
+                <span class="px-2 py-0.2 rounded font-mono font-black text-[10px] ${isCurrent ? 'bg-emerald-800 text-white' : 'bg-stone-200 text-stone-700'}">${genLabel}</span>
+              </div>
+              <span class="text-[10px] font-bold ${isCurrent ? 'text-emerald-700' : 'text-stone-400'}">${isCurrent ? '⭐ Batch Aktif' : 'Batch Leluhur'}</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-[10px] pt-1 text-stone-600">
+              <div>
+                <span class="text-stone-400 block font-semibold">PANEN</span>
+                <span class="font-bold text-stone-800">${item.harvest_date || '-'}</span>
+              </div>
+              <div>
+                <span class="text-stone-400 block font-semibold">VIABILITAS</span>
+                <span class="font-black ${item.germination_rate < 70 ? 'text-rose-600' : 'text-emerald-700'}">${item.germination_rate ? item.germination_rate + '%' : '-'}</span>
+              </div>
+              <div>
+                <span class="text-stone-400 block font-semibold">ASAL / LAHAN</span>
+                <span class="font-bold text-stone-800 truncate block">${item.provenance || item.storage_location || '-'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+
+      document.getElementById("pedigreeModal").classList.remove("hidden");
+    };
+
+    window.closePedigreeModal = function() {
+      document.getElementById("pedigreeModal").classList.add("hidden");
+    };
+
+    // 4. SIMPAN BATCH & CETAK LABEL
     document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitBatch");
@@ -1062,8 +1109,6 @@
         document.getElementById("speciesBadge").classList.add("hidden");
         showToast("Batch sukses tersimpan di katalog!");
         await loadAllData();
-
-        // Tampilkan modal cetak label
         renderLabelModalView(payload);
       }
     });
@@ -1089,7 +1134,6 @@
       document.getElementById("lblLocation").textContent = batchData.storage_location || "-";
       document.getElementById("lblViability").textContent = `${batchData.germination_rate}% Kecambah`;
 
-      // Menautkan QR Code ke file publik terpisah: paspor.html
       const currentUrl = window.location.href.split('?')[0];
       const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
       const passportUrl = `${baseUrl}paspor.html?batch=${encodeURIComponent(batchData.batch_code)}`;
@@ -1116,7 +1160,7 @@
       window.print();
     };
 
-    // SCANNER KAMERA INTERNAL
+    // Scanner Kamera
     window.openCameraScanner = function() {
       document.getElementById("cameraScannerModal").classList.remove("hidden");
       html5QrScanner = new Html5Qrcode("qrReaderBox");
@@ -1126,23 +1170,17 @@
         closeCameraScanner();
         let targetCode = decodedText;
         if (decodedText.includes("?batch=")) {
-          const urlParams = new URLSearchParams(decodedText.split('?')[1]);
-          targetCode = urlParams.get("batch");
-        } else if (decodedText.includes("?passport=")) {
-          const urlParams = new URLSearchParams(decodedText.split('?')[1]);
-          targetCode = urlParams.get("passport");
+          targetCode = new URLSearchParams(decodedText.split('?')[1]).get("batch");
         } else if (decodedText.startsWith("SEEDVAULT|")) {
-          const parts = decodedText.split('|');
-          targetCode = parts[1];
+          targetCode = decodedText.split('|')[1];
         }
 
-        // Buka pencarian katalog otomatis untuk batch yang dipindai
         switchTab('katalog');
         const searchInput = document.getElementById("katalogSearch");
         if (searchInput) {
           searchInput.value = targetCode;
           filterKatalog();
-          showToast(`Menemukan batch dari scan: ${targetCode}`);
+          showToast(`Menemukan batch: ${targetCode}`);
         }
       }).catch(err => {
         console.warn("Gagal membuka kamera:", err);
@@ -1156,23 +1194,17 @@
       document.getElementById("cameraScannerModal").classList.add("hidden");
     };
 
-    // Ambil Sebagian Stok (Quick Stock-Out)
     window.quickStockOut = async function(batchId, batchCode, currentStock) {
-      const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik saat ini: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
+      const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
       if (takeStr === null) return;
 
       const takeGrams = parseFloat(takeStr);
-      if (isNaN(takeGrams) || takeGrams <= 0) {
-        alert("Harap masukkan angka gram yang valid.");
+      if (isNaN(takeGrams) || takeGrams <= 0 || takeGrams > currentStock) {
+        alert("Jumlah gram tidak valid!");
         return;
       }
 
-      if (takeGrams > currentStock) {
-        alert("Jumlah yang diambil melebihi sisa stok fisik yang ada!");
-        return;
-      }
-
-      const purpose = prompt("Tujuan pengambilan stok benih? (Misal: Sachet Plastik Klip Mitra / Uji Lab / Tanam Kebun):", "Sachet Plastik Klip Mitra");
+      const purpose = prompt("Tujuan pengambilan? (Misal: Sachet Plastik Klip Mitra / Uji Lab):", "Sachet Plastik Klip Mitra");
       if (purpose === null) return;
 
       const newStock = currentStock - takeGrams;
@@ -1184,12 +1216,11 @@
       if (error) {
         alert("Gagal memotong stok: " + error.message);
       } else {
-        alert(`Berhasil mengeluarkan ${takeGrams} gram benih [${batchCode}].\nSisa stok di toples sekarang: ${newStock} gram.`);
+        alert(`Berhasil mengeluarkan ${takeGrams} gram benih [${batchCode}].\nSisa stok sekarang: ${newStock} gram.`);
         await loadAllData();
       }
     };
 
-    // Navigasi & Tampilan
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -1206,7 +1237,7 @@
 
     const tabMetadata = {
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
-      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan stempel sachet micro-code" },
+      katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan jejak silsilah generasi" },
       qc: { title: "Kontrol Mutu & Viabilitas (QC)", subtitle: "Pencatatan uji daya berkecambah dan kadar air benih" },
       tanam: { title: "Kalender Tanam & Regenerasi", subtitle: "Perencanaan musim tanam dengan regenerasi nomor serial otomatis" },
       pengaturan: { title: "Pengaturan & Master Data", subtitle: "Kelola kamus botani spesies tanaman dan parameter evaluasi" }
@@ -1326,20 +1357,16 @@
         banner.className = "p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-rose-50 border-rose-200 text-rose-950";
         banner.innerHTML = `
           <div>
-            <h3 class="font-bold text-base flex items-center gap-2">
-              <span class="text-rose-600">🚨</span> Perhatian: Ada ${urgentList.length} Batch Benih Kritis!
-            </h3>
-            <p class="text-xs text-rose-800 mt-0.5">Viabilitas telah menurun atau stok fisik telah mendekati batas minimum.</p>
+            <h3 class="font-bold text-base flex items-center gap-2"><span class="text-rose-600">🚨</span> Ada ${urgentList.length} Batch Benih Kritis!</h3>
+            <p class="text-xs text-rose-800 mt-0.5">Viabilitas menurun atau stok fisik telah mendekati batas minimum.</p>
           </div>
-          <button onclick="switchTab('tanam')" class="text-xs bg-rose-700 hover:bg-rose-800 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm whitespace-nowrap">
-            Jadwalkan Tanam Segera
-          </button>
+          <button onclick="switchTab('tanam')" class="text-xs bg-rose-700 hover:bg-rose-800 text-white font-bold px-4 py-2 rounded-xl transition shadow-sm whitespace-nowrap">Jadwalkan Tanam Segera</button>
         `;
       }
 
       const tbody = document.getElementById("dashUrgentTableBody");
       if (urgentList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-stone-400">Semua batch saat ini berada dalam kondisi viabilitas dan stok optimal.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-stone-400">Semua batch dalam kondisi optimal.</td></tr>`;
         return;
       }
 
@@ -1354,9 +1381,7 @@
           <td class="p-3 font-black text-rose-600">${batch.germination_rate}%</td>
           <td class="p-3 text-xs text-rose-700 font-medium">${status.reasons}</td>
           <td class="p-3 text-center">
-            <button onclick="prefillPlanting('${batch.batch_code}', '${batch.variety_name}')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm transition">
-              Regenerasikan
-            </button>
+            <button onclick="prefillPlanting('${batch.batch_code}', '${batch.variety_name}')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold shadow-sm transition">Regenerasikan</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1376,6 +1401,7 @@
           return b.batch_code.toLowerCase().includes(q) || 
             b.variety_name.toLowerCase().includes(q) ||
             sc.includes(q) ||
+            (b.parent_batch_code && b.parent_batch_code.toLowerCase().includes(q)) ||
             (b.species && b.species.toLowerCase().includes(q)) ||
             (b.storage_location && b.storage_location.toLowerCase().includes(q));
         });
@@ -1383,7 +1409,7 @@
 
       const tbody = document.getElementById("katalogTableBody");
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada batch yang cocok dengan kriteria pencarian/filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada batch yang cocok.</td></tr>`;
         return;
       }
 
@@ -1396,6 +1422,8 @@
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
         const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
 
+        const lineageBreadcrumbHtml = generateLineageBreadcrumb(batch);
+
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
         tr.innerHTML = `
@@ -1406,17 +1434,13 @@
             </div>
             <div class="mt-1 flex items-center gap-1">
               <span class="text-[9px] text-stone-400 font-semibold">Stempel:</span>
-              <span class="font-mono text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-50 text-amber-900 border border-amber-200">
-                ${shortCode}
-              </span>
+              <span class="font-mono text-[10px] font-black px-1.5 py-0.2 rounded bg-amber-50 text-amber-900 border border-amber-200">${shortCode}</span>
             </div>
           </td>
           <td class="p-3">
-            <div class="font-bold text-stone-900">${batch.variety_name}</div>
-            <div class="text-[11px] text-stone-400">
-              <span class="italic text-emerald-900">${batch.species || ''}</span> 
-              ${batch.parent_batch_code ? `• Induk: <span class="font-mono text-emerald-800 font-semibold">${batch.parent_batch_code}</span>` : ''}
-            </div>
+            <div class="font-bold text-stone-900 text-sm">${batch.variety_name}</div>
+            <div class="text-[11px] text-stone-400 italic text-emerald-900 font-medium">${batch.species || 'Spesies belum dicatat'}</div>
+            ${lineageBreadcrumbHtml}
           </td>
           <td class="p-3 text-stone-600 text-xs">${batch.storage_location || "-"}</td>
           <td class="p-3 font-bold text-stone-800">${batch.stock_grams} gr</td>
@@ -1430,18 +1454,11 @@
             <span class="text-[10px] text-stone-400">Air: ${batch.moisture_content || 0}%</span>
           </td>
           <td class="p-3 text-xs text-stone-500">${batch.harvest_date}</td>
-          <td class="p-3">
-            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${st.badge}">
-              ${st.label}
-            </span>
-          </td>
+          <td class="p-3"><span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${st.badge}">${st.label}</span></td>
           <td class="p-3 text-center space-x-1 whitespace-nowrap">
-            <button onclick="openPrintLabel('${batch.id}')" title="Cetak Label QR Paspor" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition shadow-2xs">
-              🏷️ Label
-            </button>
-            <button onclick="quickStockOut('${batch.id}', '${batch.batch_code}', ${batch.stock_grams})" title="Ambil Cepat Sebagian Stok" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">
-              ⚡ Ambil
-            </button>
+            <button onclick="openPedigreeModal('${batch.id}')" title="Lihat Silsilah" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-lg border border-emerald-300 transition shadow-2xs">🧬 Silsilah</button>
+            <button onclick="openPrintLabel('${batch.id}')" title="Cetak Label" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition shadow-2xs">🏷️ Label</button>
+            <button onclick="quickStockOut('${batch.id}', '${batch.batch_code}', ${batch.stock_grams})" title="Ambil Stok" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">⚡ Ambil</button>
             <button onclick="prefillQc('${batch.batch_code}')" class="text-xs text-emerald-700 hover:text-emerald-900 font-bold hover:underline">QC</button>
             <button onclick="deleteBatch('${batch.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">Hapus</button>
           </td>
@@ -1461,9 +1478,7 @@
       renderKatalog();
     };
 
-    window.filterKatalog = function() {
-      renderKatalog();
-    };
+    window.filterKatalog = function() { renderKatalog(); };
 
     function populateDropdowns() {
       const qcSelect = document.getElementById("qcBatchCode");
@@ -1507,11 +1522,7 @@
           <td class="p-3 font-mono font-bold text-stone-800">${log.batch_code}</td>
           <td class="p-3 font-black ${isPass ? 'text-emerald-700' : 'text-rose-600'}">${log.germination_rate}%</td>
           <td class="p-3 text-stone-600 text-xs">${log.moisture_content ? log.moisture_content + '%' : '-'}</td>
-          <td class="p-3">
-            <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isPass ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-rose-100 text-rose-800 border border-rose-200'}">
-              ${isPass ? 'Memenuhi Standar' : 'Perlu Regenerasi'}
-            </span>
-          </td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${isPass ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-rose-100 text-rose-800 border border-rose-200'}">${isPass ? 'Memenuhi Standar' : 'Perlu Regenerasi'}</span></td>
           <td class="p-3 text-xs text-stone-500">${log.notes || "-"}</td>
         `;
         tbody.appendChild(tr);
@@ -1529,10 +1540,7 @@
       allPlantingSchedules.forEach(item => {
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
-
-        let badge = "bg-stone-100 text-stone-700";
-        if (item.status === 'Sedang Tumbuh') badge = "bg-blue-100 text-blue-800 font-bold border border-blue-200";
-        if (item.status === 'Selesai Panen') badge = "bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
+        let badge = (item.status === 'Sedang Tumbuh') ? "bg-blue-100 text-blue-800 font-bold border border-blue-200" : "bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
 
         tr.innerHTML = `
           <td class="p-3 font-mono font-black text-emerald-900">${item.target_batch_code}</td>
@@ -1543,14 +1551,10 @@
           </td>
           <td class="p-3 text-xs text-stone-600">${item.plant_date}</td>
           <td class="p-3 text-xs font-bold text-stone-700">${item.est_harvest_date}</td>
-          <td class="p-3">
-            <span class="px-2.5 py-1 rounded-full text-xs ${badge}">${item.status}</span>
-          </td>
+          <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs ${badge}">${item.status}</span></td>
           <td class="p-3 text-center">
             ${item.status !== 'Selesai Panen' ? `
-              <button onclick="completeHarvest('${item.id}', '${item.target_batch_code}', '${item.parent_batch_code}', '${item.variety_name}')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm transition">
-                Panen & Daftarkan Batch Baru
-              </button>
+              <button onclick="completeHarvest('${item.id}', '${item.target_batch_code}', '${item.parent_batch_code}', '${item.variety_name}')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm transition">Panen & Daftarkan Batch</button>
             ` : `<span class="text-xs text-stone-400 italic">Sudah Panen</span>`}
           </td>
         `;
@@ -1580,7 +1584,6 @@
       document.getElementById("qcBatchCode").value = batchCode;
     };
 
-    // Form QC
     document.getElementById("qcForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitQc");
@@ -1607,15 +1610,14 @@
       btn.disabled = false;
 
       if (logErr || batchErr) {
-        alert("Gagal menyimpan hasil QC: " + (logErr?.message || batchErr?.message));
+        alert("Gagal menyimpan QC: " + (logErr?.message || batchErr?.message));
       } else {
         document.getElementById("qcForm").reset();
-        showToast("Hasil uji mutu tersimpan dan viabilitas batch diperbarui!");
+        showToast("Hasil uji mutu tersimpan!");
         await loadAllData();
       }
     });
 
-    // Form Jadwal Tanam
     document.getElementById("plantingForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitPlan");
@@ -1679,8 +1681,7 @@
       }
 
       await dbClient.from("planting_calendar").update({ status: 'Selesai Panen' }).eq("id", scheduleId);
-
-      alert(`Sukses! Batch baru [${targetBatchCode}] resmi masuk katalog sebagai generasi penerus dari [${parentBatchCode}].`);
+      alert(`Sukses! Batch [${targetBatchCode}] resmi masuk katalog.`);
       await loadAllData();
       switchTab('katalog');
     };
@@ -1692,7 +1693,6 @@
       }
     };
 
-    // Inisialisasi awal saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
       checkSupabaseSession();
       const t1 = document.getElementById("qcTestDate");

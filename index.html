@@ -4,13 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SeedVault Pro - Manajemen & Regenerasi Benih</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Library QR Code Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Library In-App QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -444,10 +440,10 @@
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm transition-all">
             <div class="flex items-center justify-between border-b pb-3 mb-4">
               <div>
-                <h2 class="text-base font-extrabold text-stone-800">Master Tanaman & Ensiklopedia Manfaat Multisektoral</h2>
-                <p class="text-xs text-stone-400">Daftarkan tanaman baru beserta peranan 4 pilarnya agar otomatis muncul saat QR paspor di-scan publik.</p>
+                <h2 class="text-base font-extrabold text-stone-800">Master Tanaman, Agronomi Budidaya & Manfaat</h2>
+                <p class="text-xs text-stone-400">Daftarkan profil taksonomi, panduan jadwal tanam, serta 4 pilar manfaat.</p>
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Agro-Taxonomy Editor</span>
             </div>
 
             <form id="masterPlantForm" class="space-y-4 text-xs">
@@ -455,15 +451,60 @@
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-3 border-b border-stone-100">
                 <div>
                   <label class="block font-bold text-stone-600 mb-1">Nama Tanaman Umum <span class="text-rose-500">*</span></label>
-                  <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Telang, Kenikir" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                  <input type="text" id="masterCommonName" required placeholder="Contoh: Kelor, Telang, Tomat" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
                 </div>
                 <div>
                   <label class="block font-bold text-stone-600 mb-1">Nama Spesies (Latin / Ilmiah) <span class="text-rose-500">*</span></label>
-                  <input type="text" id="masterScientificName" required placeholder="Contoh: Moringa oleifera" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                  <input type="text" id="masterScientificName" required placeholder="Contoh: Solanum lycopersicum" class="w-full border border-stone-200 rounded-xl p-2.5 italic focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
                 </div>
                 <div>
                   <label class="block font-bold text-stone-600 mb-1">Famili Botani (Opsional)</label>
-                  <input type="text" id="masterFamily" placeholder="Contoh: Moringaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                  <input type="text" id="masterFamily" placeholder="Contoh: Solanaceae, Fabaceae" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                </div>
+              </div>
+
+              <!-- LAYER INFORMASI AGRONOMI & KALENDER BUDIDAYA -->
+              <div class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                <h3 class="font-extrabold text-stone-800 flex items-center gap-1.5 text-xs">
+                  <span>🌾</span> Panduan Kondisi Tanam & Karakteristik Agronomi:
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Musim Tanam</label>
+                    <input type="text" id="masterSeason" placeholder="Kemarau / Hujan / Sepanjang Tahun" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Range Bulan</label>
+                    <input type="text" id="masterMonthRange" placeholder="Contoh: April - September" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Daerah / Ketinggian</label>
+                    <input type="text" id="masterRegion" placeholder="Dataran Rendah / Tinggi (0-800 mdpl)" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Suhu Optimal (°C)</label>
+                    <input type="text" id="masterTempRange" placeholder="Contoh: 24 - 30°C" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Panen Konsumsi (HST)*</label>
+                    <input type="text" id="masterHarvestFood" placeholder="Contoh: 60 - 75 HST" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Panen Benih (HST)*</label>
+                    <input type="text" id="masterHarvestSeed" placeholder="Contoh: 90 - 110 HST" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Penyiraman</label>
+                    <input type="text" id="masterWatering" placeholder="1x sehari / 2 hari sekali" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-stone-600 mb-1">Kebutuhan Matahari</label>
+                    <input type="text" id="masterSunlight" placeholder="Penuh (Full Sun) / Naungan 30%" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
+                  <div class="col-span-2 sm:col-span-4">
+                    <label class="block font-semibold text-stone-600 mb-1">Pemupukan Biochar & Organik</label>
+                    <input type="text" id="masterBiochar" placeholder="Campuran biochar sekam 10% + pupuk kandang matang/kompos 2:1 saat olah bedengan" class="w-full border border-stone-200 bg-white rounded-xl p-2 focus:ring-1 focus:ring-emerald-600 outline-none text-xs" />
+                  </div>
                 </div>
               </div>
 
@@ -475,57 +516,58 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
                     <label class="block font-bold text-emerald-950 mb-1">🥗 1. Pangan & Ketahanan Gizi</label>
-                    <textarea id="masterFood" rows="2" placeholder="Kandungan vitamin, kalsium, zat besi, pencegahan stunting, pemanfaatan konsumsi..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-600"></textarea>
+                    <textarea id="masterFood" rows="2" placeholder="Kandungan vitamin, kalsium, zat besi..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-600"></textarea>
                   </div>
-
                   <div class="p-3 rounded-xl bg-blue-50/60 border border-blue-200/70">
                     <label class="block font-bold text-blue-950 mb-1">🐝 2. Peran Agroekologi & Permakultur</label>
-                    <textarea id="masterEcology" rows="2" placeholder="Pengikat nitrogen, perangkap hama, pemikat lebah/penyerbuk, penahan erosi..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-600"></textarea>
+                    <textarea id="masterEcology" rows="2" placeholder="Pengikat nitrogen, perangkap hama..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-600"></textarea>
                   </div>
-
                   <div class="p-3 rounded-xl bg-rose-50/60 border border-rose-200/70">
                     <label class="block font-bold text-rose-950 mb-1">💊 3. Kesehatan & Herbal Alami</label>
-                    <textarea id="masterHealth" rows="2" placeholder="Khasiat farmakologis, antioksidan, relaksasi saraf, pengobatan tradisional..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-rose-600"></textarea>
+                    <textarea id="masterHealth" rows="2" placeholder="Khasiat farmakologis, antioksidan..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-rose-600"></textarea>
                   </div>
-
                   <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/70">
                     <label class="block font-bold text-amber-950 mb-1">💰 4. Potensi Ekonomi & Budaya</label>
-                    <textarea id="masterEconomy" rows="2" placeholder="Nilai ekspor/jual olahan, teh herbal, kerajinan, pewarna alami kain..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-amber-600"></textarea>
+                    <textarea id="masterEconomy" rows="2" placeholder="Nilai ekspor/jual olahan, teh herbal..." class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-amber-600"></textarea>
                   </div>
                 </div>
               </div>
 
               <div class="flex items-center justify-end pt-2">
                 <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
-                  + Simpan ke Kamus & Ensiklopedia Manfaat
+                  + Simpan ke Kamus Botani & Agronomi
                 </button>
               </div>
             </form>
           </div>
 
-          <!-- Daftar Kamus Botani & Manfaat -->
+          <!-- TABEL MASTER TANAMAN LENGKAP -->
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <h2 class="font-extrabold text-stone-800 text-base">Daftar Tanaman & Manfaat Terdaftar</h2>
-                <p class="text-xs text-stone-400">Data tanaman yang otomatis tersambung ke Paspor Digital Benih saat di-scan.</p>
+                <h2 class="font-extrabold text-stone-800 text-base">Katalog Tanaman, Budidaya & Manfaat Terdaftar</h2>
+                <p class="text-xs text-stone-400">Data agronomi lengkap yang otomatis tersambung ke Paspor Digital Benih saat di-scan.</p>
               </div>
               <input type="text" id="searchMasterBotanical" oninput="renderBotanicalTable()" placeholder="Cari tanaman atau nama latin..." class="border border-stone-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-64 focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
 
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm">
+              <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead>
                   <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                    <th class="p-3">Nama Tanaman</th>
-                    <th class="p-3">Nama Ilmiah (Spesies)</th>
-                    <th class="p-3">Famili</th>
-                    <th class="p-3">Kelengkapan Manfaat</th>
+                    <th class="p-3">No</th>
+                    <th class="p-3">Nama Benih</th>
+                    <th class="p-3">Musim & Bulan</th>
+                    <th class="p-3">Daerah & Suhu</th>
+                    <th class="p-3">Panen Konsumsi*</th>
+                    <th class="p-3">Panen Benih*</th>
+                    <th class="p-3">Penyiraman & Sinar</th>
+                    <th class="p-3">Pemupukan Biochar</th>
                     <th class="p-3 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="botanicalTableBody" class="divide-y divide-stone-100">
-                  <tr><td colspan="5" class="p-6 text-center text-stone-400">Memuat kamus botani...</td></tr>
+                  <tr><td colspan="9" class="p-6 text-center text-stone-400">Memuat kamus botani...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -537,24 +579,25 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL DIALOG EDIT TANAMAN & MANFAAT (POP-UP)                   -->
+  <!-- MODAL DIALOG EDIT TANAMAN & MANFAAT (POP-UP LENGKAP AGRONOMI) -->
   <!-- ============================================================== -->
   <div id="editPlantModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b pb-3 shrink-0">
         <div class="flex items-center gap-2">
           <span class="p-2 rounded-xl bg-amber-100 text-amber-800 text-base">✏️</span>
           <div>
-            <h3 id="editDialogTitle" class="font-black text-stone-900 text-base">Edit Data Tanaman & Manfaat</h3>
-            <p class="text-[11px] text-stone-400">Perbarui informasi taksonomi dan peran 4 pilar</p>
+            <h3 id="editDialogTitle" class="font-black text-stone-900 text-base">Edit Data Tanaman & Agronomi</h3>
+            <p class="text-[11px] text-stone-400">Perbarui panduan budidaya dan uraian 4 pilar manfaat</p>
           </div>
         </div>
         <button onclick="closeEditPlantModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
       </div>
 
-      <form id="editPlantModalForm" onsubmit="handleSaveEditModal(event)" class="overflow-y-auto flex-1 pr-1 space-y-3.5 text-xs">
+      <form id="editPlantModalForm" onsubmit="handleSaveEditModal(event)" class="overflow-y-auto flex-1 pr-1 space-y-4 text-xs">
         <input type="hidden" id="modalEditId" value="" />
 
+        <!-- Identitas -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-3 border-b border-stone-100">
           <div>
             <label class="block font-bold text-stone-600 mb-1">Nama Umum</label>
@@ -570,6 +613,50 @@
           </div>
         </div>
 
+        <!-- Agronomi Budidaya -->
+        <div class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+          <span class="font-bold text-stone-800 block text-xs">🌾 Parameter Agronomi & Penanaman:</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Musim</label>
+              <input type="text" id="modalEditSeason" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Range Bulan</label>
+              <input type="text" id="modalEditMonthRange" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Daerah</label>
+              <input type="text" id="modalEditRegion" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Suhu (°C)</label>
+              <input type="text" id="modalEditTempRange" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Panen Konsumsi*</label>
+              <input type="text" id="modalEditHarvestFood" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Panen Benih*</label>
+              <input type="text" id="modalEditHarvestSeed" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Penyiraman</label>
+              <input type="text" id="modalEditWatering" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-stone-600 mb-1">Matahari</label>
+              <input type="text" id="modalEditSunlight" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+            <div class="col-span-2 sm:col-span-4">
+              <label class="block font-semibold text-stone-600 mb-1">Pemupukan Biochar</label>
+              <input type="text" id="modalEditBiochar" class="w-full border border-stone-200 bg-white rounded-xl p-2 text-xs outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Pilar Manfaat -->
         <div class="space-y-3">
           <div class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
             <label class="block font-bold text-emerald-950 mb-1">🥗 1. Pangan & Ketahanan Gizi</label>
@@ -704,7 +791,7 @@
     let html5QrScanner = null;
     let isAuthenticatedStaff = false;
 
-    // 1. SUPABASE AUTH RESMI
+    // 1. SUPABASE AUTH
     async function checkSupabaseSession() {
       const { data: { session } } = await dbClient.auth.getSession();
 
@@ -771,26 +858,38 @@
       return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
-    // 2. KAMUS BOTANI BAWAAN
+    // 2. KAMUS BOTANI & AGRONOMI BAWAAN
     const BASE_BOTANICAL_DICTIONARY = [
-      { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
-      { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
-      { common: "Cabai Merah", scientific: "Capsicum annuum", family: "Solanaceae" },
-      { common: "Terong", scientific: "Solanum melongena", family: "Solanaceae" },
-      { common: "Kangkung", scientific: "Ipomoea aquatica", family: "Convolvulaceae" },
-      { common: "Bayam", scientific: "Amaranthus tricolor", family: "Amaranthaceae" },
-      { common: "Pakcoy", scientific: "Brassica rapa subsp. chinensis", family: "Brassicaceae" },
-      { common: "Caisim", scientific: "Brassica rapa subsp. parachinensis", family: "Brassicaceae" },
-      { common: "Selada", scientific: "Lactuca sativa", family: "Asteraceae" },
-      { common: "Kacang Panjang", scientific: "Vigna unguiculata subsp. sesquipedalis", family: "Fabaceae" },
-      { common: "Buncis", scientific: "Phaseolus vulgaris", family: "Fabaceae" },
-      { common: "Mentimun", scientific: "Cucumis sativus", family: "Cucurbitaceae" },
-      { common: "Jagung", scientific: "Zea mays", family: "Poaceae" },
-      { common: "Padi", scientific: "Oryza sativa", family: "Poaceae" },
-      { common: "Kemangi", scientific: "Ocimum basilicum", family: "Lamiaceae" },
-      { common: "Kelor", scientific: "Moringa oleifera", family: "Moringaceae" },
-      { common: "Kenikir", scientific: "Cosmos caudatus", family: "Asteraceae" },
-      { common: "Telang", scientific: "Clitoria ternatea", family: "Fabaceae" }
+      { 
+        common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae",
+        season: "Kemarau / Awal Hujan", month_range: "Mei - Agustus", region: "Dataran Menengah - Tinggi (300-1000 mdpl)", temp_range: "22 - 28°C",
+        harvest_food_hst: "65 - 75 HST", harvest_seed_hst: "90 - 100 HST", watering: "1x sehari (pagi)", sunlight: "Penuh (Full Sun)",
+        biochar: "Campuran 10% biochar sekam padi + pupuk kandang sapi matang 2:1"
+      },
+      { 
+        common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae",
+        season: "Kemarau", month_range: "April - Juli", region: "Dataran Rendah - Menengah (0-500 mdpl)", temp_range: "25 - 32°C",
+        harvest_food_hst: "75 - 85 HST", harvest_seed_hst: "100 - 120 HST", watering: "2 hari sekali", sunlight: "Penuh",
+        biochar: "Aplikasi biochar bambu 150 gr/lubang tanam + kompos cacing"
+      },
+      { 
+        common: "Kelor", scientific: "Moringa oleifera", family: "Moringaceae",
+        season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Dataran Rendah Kering (0-600 mdpl)", temp_range: "25 - 35°C",
+        harvest_food_hst: "45 - 60 HST (Daun)", harvest_seed_hst: "180 - 210 HST (Polong)", watering: "Tahan kering (3 hari sekali)", sunlight: "Penuh",
+        biochar: "Biochar kayu keras 20% pada lubang tanam bibit"
+      },
+      { 
+        common: "Kenikir", scientific: "Cosmos caudatus", family: "Asteraceae",
+        season: "Sepanjang Tahun", month_range: "Maret - Oktober", region: "Semua Ketinggian (0-1200 mdpl)", temp_range: "20 - 30°C",
+        harvest_food_hst: "30 - 40 HST", harvest_seed_hst: "65 - 75 HST", watering: "1x sehari", sunlight: "Penuh - Sedang",
+        biochar: "Biochar sekam 5% dicampur kompos daun matang"
+      },
+      { 
+        common: "Telang", scientific: "Clitoria ternatea", family: "Fabaceae",
+        season: "Kemarau & Pancaroba", month_range: "Februari - September", region: "Dataran Rendah (0-700 mdpl)", temp_range: "24 - 32°C",
+        harvest_food_hst: "45 - 55 HST (Bunga)", harvest_seed_hst: "90 - 110 HST (Polong)", watering: "1x sehari secukupnya", sunlight: "Penuh (merambat)",
+        biochar: "Biochar kelapa + inokulan rhizobium pengikat nitrogen"
+      }
     ];
 
     function getAllBotanicalEntries() {
@@ -825,7 +924,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // 3. MASTER DATA PENGATURAN (LOAD & RENDER DENGAN TOMBOL DIALOG EDIT)
+    // 3. MASTER DATA PENGATURAN (LOAD, RENDER DENGAN 10 PARAMETER AGRONOMI)
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -835,6 +934,15 @@
             common: d.common_name,
             scientific: d.scientific_name,
             family: d.family || "-",
+            season: d.season || "-",
+            month_range: d.month_range || "-",
+            region: d.region || "-",
+            temp_range: d.temp_range || "-",
+            harvest_food_hst: d.harvest_food_hst || "-",
+            harvest_seed_hst: d.harvest_seed_hst || "-",
+            watering: d.watering || "-",
+            sunlight: d.sunlight || "-",
+            biochar: d.biochar_fertilizer || "-",
             food: d.benefit_food || "",
             ecology: d.benefit_ecology || "",
             health: d.benefit_health || "",
@@ -867,25 +975,38 @@
       );
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-stone-400">Tidak ada koleksi tanaman yang cocok.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-stone-400">Tidak ada koleksi tanaman yang cocok.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = "";
-      filtered.forEach(item => {
-        const hasBenefit = item.food || item.ecology || item.health || item.economy;
+      filtered.forEach((item, idx) => {
         const safeCommon = item.common.replace(/'/g, "\\'");
         
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-stone-50 transition";
+        tr.className = "hover:bg-stone-50 transition text-xs";
         tr.innerHTML = `
-          <td class="p-3 font-bold text-stone-800">${item.common}</td>
-          <td class="p-3 italic text-emerald-900 font-semibold">${item.scientific}</td>
-          <td class="p-3 text-stone-500 text-xs">${item.family || "-"}</td>
+          <td class="p-3 text-stone-400 font-mono">${idx + 1}</td>
           <td class="p-3">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${hasBenefit ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-stone-100 text-stone-500'}">
-              ${hasBenefit ? '✅ 4 Pilar Terisi' : 'Standard Bawaan'}
-            </span>
+            <div class="font-bold text-stone-800 text-sm">${item.common}</div>
+            <div class="italic text-emerald-800 text-[11px]">${item.scientific}</div>
+          </td>
+          <td class="p-3">
+            <span class="font-semibold text-stone-700 block">${item.season || '-'}</span>
+            <span class="text-[10px] text-stone-400">${item.month_range || '-'}</span>
+          </td>
+          <td class="p-3">
+            <span class="text-stone-800 font-semibold block">${item.region || '-'}</span>
+            <span class="text-[10px] text-amber-800 font-bold">${item.temp_range || '-'}</span>
+          </td>
+          <td class="p-3 font-bold text-emerald-800">${item.harvest_food_hst || '-'}</td>
+          <td class="p-3 font-bold text-amber-900">${item.harvest_seed_hst || '-'}</td>
+          <td class="p-3">
+            <span class="block font-medium text-stone-700">${item.watering || '-'}</span>
+            <span class="text-[10px] text-stone-400">${item.sunlight || '-'}</span>
+          </td>
+          <td class="p-3 text-[11px] text-stone-600 max-w-xs truncate" title="${item.biochar || '-'}">
+            ${item.biochar || '-'}
           </td>
           <td class="p-3 text-center space-x-2 whitespace-nowrap">
             <button onclick="openEditPlantModal('${safeCommon}')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg border border-amber-300 transition shadow-2xs">
@@ -900,9 +1021,7 @@
       });
     }
 
-    // ==============================================================
-    // FUNGSI KOTAK DIALOG EDIT POP-UP
-    // ==============================================================
+    // FUNGSI DIALOG POP-UP EDIT
     window.openEditPlantModal = function(commonName) {
       const allList = getAllBotanicalEntries();
       const target = allList.find(x => x.common.toLowerCase() === commonName.toLowerCase());
@@ -912,12 +1031,23 @@
       document.getElementById("modalEditCommon").value = target.common;
       document.getElementById("modalEditScientific").value = target.scientific;
       document.getElementById("modalEditFamily").value = target.family === '-' ? '' : target.family;
+
+      document.getElementById("modalEditSeason").value = target.season === '-' ? '' : (target.season || '');
+      document.getElementById("modalEditMonthRange").value = target.month_range === '-' ? '' : (target.month_range || '');
+      document.getElementById("modalEditRegion").value = target.region === '-' ? '' : (target.region || '');
+      document.getElementById("modalEditTempRange").value = target.temp_range === '-' ? '' : (target.temp_range || '');
+      document.getElementById("modalEditHarvestFood").value = target.harvest_food_hst === '-' ? '' : (target.harvest_food_hst || '');
+      document.getElementById("modalEditHarvestSeed").value = target.harvest_seed_hst === '-' ? '' : (target.harvest_seed_hst || '');
+      document.getElementById("modalEditWatering").value = target.watering === '-' ? '' : (target.watering || '');
+      document.getElementById("modalEditSunlight").value = target.sunlight === '-' ? '' : (target.sunlight || '');
+      document.getElementById("modalEditBiochar").value = target.biochar === '-' ? '' : (target.biochar || '');
+
       document.getElementById("modalEditFood").value = target.food || '';
       document.getElementById("modalEditEcology").value = target.ecology || '';
       document.getElementById("modalEditHealth").value = target.health || '';
       document.getElementById("modalEditEconomy").value = target.economy || '';
 
-      document.getElementById("editDialogTitle").textContent = `Edit Tanaman: ${target.common}`;
+      document.getElementById("editDialogTitle").textContent = `Edit Budidaya: ${target.common}`;
       document.getElementById("editPlantModal").classList.remove("hidden");
     };
 
@@ -937,19 +1067,26 @@
       const scientific = document.getElementById("modalEditScientific").value.trim();
       const family = document.getElementById("modalEditFamily").value.trim();
 
+      const season = document.getElementById("modalEditSeason").value.trim();
+      const month_range = document.getElementById("modalEditMonthRange").value.trim();
+      const region = document.getElementById("modalEditRegion").value.trim();
+      const temp_range = document.getElementById("modalEditTempRange").value.trim();
+      const harvest_food_hst = document.getElementById("modalEditHarvestFood").value.trim();
+      const harvest_seed_hst = document.getElementById("modalEditHarvestSeed").value.trim();
+      const watering = document.getElementById("modalEditWatering").value.trim();
+      const sunlight = document.getElementById("modalEditSunlight").value.trim();
+      const biochar = document.getElementById("modalEditBiochar").value.trim();
+
       const food = document.getElementById("modalEditFood").value.trim();
       const ecology = document.getElementById("modalEditEcology").value.trim();
       const health = document.getElementById("modalEditHealth").value.trim();
       const economy = document.getElementById("modalEditEconomy").value.trim();
 
       const entryPayload = { 
-        common_name: common, 
-        scientific_name: scientific, 
-        family: family, 
-        benefit_food: food, 
-        benefit_ecology: ecology, 
-        benefit_health: health, 
-        benefit_economy: economy 
+        common_name: common, scientific_name: scientific, family: family,
+        season, month_range, region, temp_range, harvest_food_hst, harvest_seed_hst,
+        watering, sunlight, biochar_fertilizer: biochar,
+        benefit_food: food, benefit_ecology: ecology, benefit_health: health, benefit_economy: economy 
       };
 
       try {
@@ -963,28 +1100,39 @@
       let currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
       currentLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
       currentLocal.push({
-        id: editId,
-        common, scientific, family, food, ecology, health, economy, isCustom: true
+        id: editId, common, scientific, family, season, month_range, region, temp_range,
+        harvest_food_hst, harvest_seed_hst, watering, sunlight, biochar,
+        food, ecology, health, economy, isCustom: true
       });
       localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
 
       btn.disabled = false;
       btn.textContent = "💾 Simpan Perubahan";
       closeEditPlantModal();
-      showToast(`Perubahan data tanaman "${common}" berhasil disimpan!`);
+      showToast(`Data budidaya "${common}" berhasil diperbarui!`);
       await loadCustomPlants();
     };
 
-    // Form Tambah Baru
+    // FORM TAMBAH BARU DI MENU PENGATURAN
     document.getElementById("masterPlantForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitMasterPlant");
       btn.disabled = true;
-      btn.textContent = "Menyimpan ke ensiklopedia...";
+      btn.textContent = "Menyimpan ke katalog...";
 
       const common = document.getElementById("masterCommonName").value.trim();
       const scientific = document.getElementById("masterScientificName").value.trim();
       const family = document.getElementById("masterFamily").value.trim();
+
+      const season = document.getElementById("masterSeason").value.trim();
+      const month_range = document.getElementById("masterMonthRange").value.trim();
+      const region = document.getElementById("masterRegion").value.trim();
+      const temp_range = document.getElementById("masterTempRange").value.trim();
+      const harvest_food_hst = document.getElementById("masterHarvestFood").value.trim();
+      const harvest_seed_hst = document.getElementById("masterHarvestSeed").value.trim();
+      const watering = document.getElementById("masterWatering").value.trim();
+      const sunlight = document.getElementById("masterSunlight").value.trim();
+      const biochar = document.getElementById("masterBiochar").value.trim();
 
       const food = document.getElementById("masterFood").value.trim();
       const ecology = document.getElementById("masterEcology").value.trim();
@@ -992,13 +1140,10 @@
       const economy = document.getElementById("masterEconomy").value.trim();
 
       const entryPayload = { 
-        common_name: common, 
-        scientific_name: scientific, 
-        family: family, 
-        benefit_food: food, 
-        benefit_ecology: ecology, 
-        benefit_health: health, 
-        benefit_economy: economy 
+        common_name: common, scientific_name: scientific, family: family,
+        season, month_range, region, temp_range, harvest_food_hst, harvest_seed_hst,
+        watering, sunlight, biochar_fertilizer: biochar,
+        benefit_food: food, benefit_ecology: ecology, benefit_health: health, benefit_economy: economy 
       };
 
       try {
@@ -1008,14 +1153,16 @@
       const currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
       const filteredLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
       filteredLocal.push({
-        common, scientific, family, food, ecology, health, economy, isCustom: true
+        common, scientific, family, season, month_range, region, temp_range,
+        harvest_food_hst, harvest_seed_hst, watering, sunlight, biochar,
+        food, ecology, health, economy, isCustom: true
       });
       localStorage.setItem("seedvault_custom_plants", JSON.stringify(filteredLocal));
 
       document.getElementById("masterPlantForm").reset();
       btn.disabled = false;
-      btn.textContent = "+ Simpan ke Kamus & Ensiklopedia Manfaat";
-      showToast(`Tanaman "${common}" berhasil ditambahkan!`);
+      btn.textContent = "+ Simpan ke Kamus Botani & Agronomi";
+      showToast(`Data budidaya "${common}" berhasil ditambahkan!`);
       await loadCustomPlants();
     });
 

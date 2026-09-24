@@ -42,20 +42,28 @@
 </head>
 <body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- ================= GERBANG KUNCI PIN STAFF (GUARD LAYER) ================= -->
+  <!-- ================= MODAL LOGIN SUPABASE AUTH RESMI ================= -->
   <div id="authGateModal" class="fixed inset-0 bg-stone-900/90 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl border border-stone-200 text-center space-y-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
-        🔒
+        🔐
       </div>
-      <div>
-        <h3 class="font-black text-stone-900 text-base">Autentikasi Staf Gudang</h3>
-        <p class="text-xs text-stone-400 mt-1">Masukkan PIN untuk mengelola inventaris internal bank benih</p>
+      <div class="text-center">
+        <h3 class="font-black text-stone-900 text-base">Login Staf SeedVault</h3>
+        <p class="text-xs text-stone-400 mt-1">Masuk dengan akun Supabase untuk mengelola bank benih</p>
       </div>
-      <form id="pinAuthForm" onsubmit="handlePinSubmit(event)" class="space-y-3">
-        <input type="password" id="staffPinInput" maxlength="6" autofocus placeholder="Default: 1234" class="w-full text-center tracking-widest text-lg font-black py-2.5 px-4 border-2 border-stone-200 rounded-xl focus:border-emerald-600 outline-none transition" />
-        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
-          Buka Katalog Internal
+
+      <form id="supabaseAuthForm" onsubmit="handleSupabaseLogin(event)" class="space-y-3 text-left text-xs">
+        <div>
+          <label class="block font-bold text-stone-600 mb-1">Email Akun</label>
+          <input type="email" id="authEmail" required placeholder="admin@seedvault.org" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+        </div>
+        <div>
+          <label class="block font-bold text-stone-600 mb-1">Password</label>
+          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+        </div>
+        <button type="submit" id="btnLoginSubmit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
+          Masuk ke Sistem
         </button>
       </form>
     </div>
@@ -128,9 +136,9 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span class="text-[11px] font-bold text-emerald-200">Mode Staf Terkunci</span>
+            <span id="userEmailBadge" class="text-[11px] font-bold text-emerald-200 truncate max-w-[120px]">Staf Aktif</span>
           </div>
-          <button onclick="lockSystem()" title="Kunci Kembali" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
+          <button onclick="lockSystem()" title="Keluar Akun" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
         </div>
       </div>
     </aside>
@@ -765,7 +773,7 @@
 
         <div class="flex gap-2">
           <button id="btnUnlockAdmin" onclick="unlockAdminAccess()" class="flex-1 text-[11px] text-stone-500 hover:text-emerald-800 font-bold py-2 px-3 rounded-xl border border-stone-200 hover:border-emerald-300 transition">
-            🔒 Mode Staf Gudang (PIN)
+            🔒 Mode Staf Gudang (Login)
           </button>
           <button onclick="closePassportModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
             Tutup
@@ -790,12 +798,14 @@
     let html5QrScanner = null;
     let isAuthenticatedStaff = false;
 
-    // GERBANG KEAMANAN PIN STAF (DEFAULT: 1234)
-    function checkInitialAuth() {
+    // =============================================================
+    // SUPABASE AUTH RESMI (SESSION & LOGIN ENGINE)
+    // =============================================================
+    async function checkSupabaseSession() {
       const urlParams = new URLSearchParams(window.location.search);
       const isPassportView = urlParams.has('passport');
 
-      // Jika dari scan QR tamu luar, biarkan terbuka tanpa login tapi sembunyikan aplikasi
+      // 1. Jika URL dibuka dari Scan QR publik, isolasi tampilan
       if (isPassportView) {
         document.getElementById("authGateModal").classList.add("hidden");
         document.getElementById("mainSidebar").classList.add("hidden");
@@ -804,34 +814,61 @@
         return;
       }
 
-      // Jika membuka aplikasi internal, cek sesi
-      const sessionAuth = sessionStorage.getItem("seedvault_auth_token");
-      if (sessionAuth === "staff_authenticated") {
+      // 2. Cek sesi token aktif dari Supabase
+      const { data: { session } } = await dbClient.auth.getSession();
+
+      if (session) {
         isAuthenticatedStaff = true;
         document.getElementById("authGateModal").classList.add("hidden");
+        document.getElementById("userEmailBadge").textContent = session.user.email.split('@')[0];
       } else {
+        isAuthenticatedStaff = false;
         document.getElementById("authGateModal").classList.remove("hidden");
       }
     }
 
-    function handlePinSubmit(e) {
+    async function handleSupabaseLogin(e) {
       e.preventDefault();
-      const pin = document.getElementById("staffPinInput").value.trim();
-      if (pin === "1234") {
-        sessionStorage.setItem("seedvault_auth_token", "staff_authenticated");
+      const btn = document.getElementById("btnLoginSubmit");
+      btn.disabled = true;
+      btn.textContent = "Memverifikasi Akun...";
+
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value.trim();
+
+      const { data, error } = await dbClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Masuk ke Sistem";
+
+      if (error) {
+        alert("Gagal login: " + error.message);
+      } else {
         isAuthenticatedStaff = true;
         document.getElementById("authGateModal").classList.add("hidden");
-        showToast("Autentikasi staf berhasil. Selamat bekerja!");
-      } else {
-        alert("PIN salah! Akses internal dibatasi.");
-        document.getElementById("staffPinInput").value = "";
+        document.getElementById("userEmailBadge").textContent = data.user.email.split('@')[0];
+        showToast(`Selamat datang kembali!`);
+        await loadAllData();
       }
     }
 
-    window.lockSystem = function() {
-      sessionStorage.removeItem("seedvault_auth_token");
+    window.lockSystem = async function() {
+      await dbClient.auth.signOut();
       window.location.href = window.location.href.split('?')[0];
     };
+
+    dbClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        isAuthenticatedStaff = false;
+        document.getElementById("authGateModal").classList.remove("hidden");
+      } else if (event === 'SIGNED_IN') {
+        isAuthenticatedStaff = true;
+        document.getElementById("authGateModal").classList.add("hidden");
+      }
+    });
 
     function generateShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
@@ -1078,7 +1115,7 @@
       }
     };
 
-    // SINGLE-ACTION: SIMPAN KE KATALOG & BUKA DIALOG CETAK SEKALIGUS
+    // SINGLE-ACTION: SIMPAN KE KATALOG & BUKA CETAK LABEL
     document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitBatch");
@@ -1110,8 +1147,6 @@
         document.getElementById("speciesBadge").classList.add("hidden");
         showToast("Batch sukses tersimpan di katalog!");
         await loadAllData();
-
-        // Buka modal cetak label toples secara otomatis
         renderLabelModalView(payload);
       }
     });
@@ -1249,29 +1284,16 @@
     };
 
     window.unlockAdminAccess = function() {
-      const pin = prompt("Masukkan PIN Staf Gudang untuk membuka akses edit:", "");
-      if (pin === "1234") {
-        isAuthenticatedStaff = true;
-        sessionStorage.setItem("seedvault_auth_token", "staff_authenticated");
-        document.getElementById("adminActionSection").classList.remove("hidden");
-        document.getElementById("btnUnlockAdmin").classList.add("hidden");
-        const badgeStatus = document.getElementById("passBadgeStatus");
-        badgeStatus.textContent = "Mode Staf Gudang Terverifikasi";
-        badgeStatus.className = "text-[10px] text-amber-700 font-bold";
-        alert("Akses staf dibuka. Tombol ambil stok aktif.");
-      } else if (pin !== null) {
-        alert("PIN salah! Akses tetap dibatasi sebagai pembaca (Read-Only).");
+      if (!isAuthenticatedStaff) {
+        document.getElementById("authGateModal").classList.remove("hidden");
       }
     };
 
     window.quickStockOut = async function(batchId, batchCode, currentStock) {
       if (!isAuthenticatedStaff) {
-        const pin = prompt("Konfirmasi PIN Staf Gudang untuk mengeluarkan stok:", "");
-        if (pin !== "1234") {
-          alert("Aksi dibatalkan. PIN salah.");
-          return;
-        }
-        isAuthenticatedStaff = true;
+        alert("Akses dibatasi. Silakan login akun staf terlebih dahulu.");
+        document.getElementById("authGateModal").classList.remove("hidden");
+        return;
       }
 
       const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik saat ini: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
@@ -1416,7 +1438,6 @@
         renderQcLogs();
         renderPlanting();
 
-        // Cek jika halaman dibuka oleh orang luar via scan QR
         const urlParams = new URLSearchParams(window.location.search);
         const passportBatch = urlParams.get('passport');
         if (passportBatch) {
@@ -1703,7 +1724,6 @@
       document.getElementById("qcBatchCode").value = batchCode;
     };
 
-    // Form QC
     document.getElementById("qcForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitQc");
@@ -1738,7 +1758,6 @@
       }
     });
 
-    // Form Jadwal Tanam
     document.getElementById("plantingForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitPlan");
@@ -1817,7 +1836,7 @@
 
     // Inisialisasi awal saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
-      checkInitialAuth();
+      checkSupabaseSession();
       const t1 = document.getElementById("qcTestDate");
       const t2 = document.getElementById("planPlantDate");
       const t3 = document.getElementById("harvestDate");

@@ -639,7 +639,7 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL 2: PRATINJAU LABEL QR CETAK                              -->
+  <!-- MODAL 2: PRATINJAU LABEL QR CETAK (LINK KE PASPOR.HTML)        -->
   <!-- ============================================================== -->
   <div id="labelModal" class="fixed inset-0 bg-stone-900/70 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-stone-200">
@@ -709,81 +709,6 @@
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- MODAL 3: DIGITAL SEED PASSPORT POPUP (READ-ONLY AMAN)          -->
-  <!-- ============================================================== -->
-  <div id="passportModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-stone-200">
-      
-      <div class="flex items-center justify-between border-b pb-3">
-        <div class="flex items-center gap-2">
-          <span class="p-2 rounded-xl bg-emerald-100 text-emerald-800 text-base">🌱</span>
-          <div>
-            <h3 class="font-black text-stone-900 text-base">Paspor Digital Benih</h3>
-            <p id="passBadgeStatus" class="text-[10px] text-emerald-700 font-bold">Sertifikat Publik Terverifikasi (Read-Only)</p>
-          </div>
-        </div>
-        <button onclick="closePassportModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="space-y-3 text-sm">
-        <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl flex items-center justify-between">
-          <div>
-            <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Kode Batch Terdaftar</span>
-            <p id="passBatchCode" class="text-base font-black font-mono text-emerald-950">BN-TOM-26-G1-001</p>
-          </div>
-          <span id="passGenTag" class="px-2.5 py-1 rounded-xl bg-emerald-800 text-white font-mono font-bold text-xs">G1</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <span class="text-stone-400 font-semibold block">Varietas</span>
-            <p id="passVariety" class="font-bold text-stone-900 text-sm mt-0.5">-</p>
-            <p id="passSpecies" class="text-[11px] italic text-emerald-900">-</p>
-          </div>
-          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <span class="text-stone-400 font-semibold block">Sisa Stok Fisik</span>
-            <p id="passStock" class="font-black text-emerald-800 text-sm mt-0.5">-</p>
-            <p id="passLocation" class="text-[11px] text-stone-500 truncate">-</p>
-          </div>
-          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <span class="text-stone-400 font-semibold block">Daya Kecambah (QC)</span>
-            <p id="passGermination" class="font-black text-emerald-700 text-sm mt-0.5">-</p>
-            <p id="passMoisture" class="text-[11px] text-stone-500">Air: -</p>
-          </div>
-          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <span class="text-stone-400 font-semibold block">Silsilah & Asal</span>
-            <p id="passLineage" class="font-bold text-stone-800 text-xs mt-0.5 truncate">-</p>
-            <p id="passProvenance" class="text-[11px] text-stone-500 truncate">-</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-2 flex flex-col gap-2">
-        <div id="adminActionSection" class="hidden">
-          <button id="passQuickOutBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-sm flex items-center justify-center gap-1.5">
-            <span>⚡</span>
-            <span>Ambil / Kurangi Stok</span>
-          </button>
-        </div>
-
-        <div class="flex gap-2">
-          <button id="btnUnlockAdmin" onclick="unlockAdminAccess()" class="flex-1 text-[11px] text-stone-500 hover:text-emerald-800 font-bold py-2 px-3 rounded-xl border border-stone-200 hover:border-emerald-300 transition">
-            🔒 Mode Staf Gudang (Login)
-          </button>
-          <button onclick="closePassportModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
-            Tutup
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- ================= JAVASCRIPT ================= -->
   <script>
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
@@ -799,28 +724,16 @@
     let isAuthenticatedStaff = false;
 
     // =============================================================
-    // SUPABASE AUTH RESMI (SESSION & LOGIN ENGINE)
+    // SUPABASE AUTH RESMI
     // =============================================================
     async function checkSupabaseSession() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isPassportView = urlParams.has('passport');
-
-      // 1. Jika URL dibuka dari Scan QR publik, isolasi tampilan
-      if (isPassportView) {
-        document.getElementById("authGateModal").classList.add("hidden");
-        document.getElementById("mainSidebar").classList.add("hidden");
-        const mainArea = document.querySelector("div.lg\\:ml-64");
-        if (mainArea) mainArea.classList.remove("lg:ml-64");
-        return;
-      }
-
-      // 2. Cek sesi token aktif dari Supabase
       const { data: { session } } = await dbClient.auth.getSession();
 
       if (session) {
         isAuthenticatedStaff = true;
         document.getElementById("authGateModal").classList.add("hidden");
         document.getElementById("userEmailBadge").textContent = session.user.email.split('@')[0];
+        await loadAllData();
       } else {
         isAuthenticatedStaff = false;
         document.getElementById("authGateModal").classList.remove("hidden");
@@ -850,14 +763,14 @@
         isAuthenticatedStaff = true;
         document.getElementById("authGateModal").classList.add("hidden");
         document.getElementById("userEmailBadge").textContent = data.user.email.split('@')[0];
-        showToast(`Selamat datang kembali!`);
+        showToast("Autentikasi berhasil! Selamat bekerja.");
         await loadAllData();
       }
     }
 
     window.lockSystem = async function() {
       await dbClient.auth.signOut();
-      window.location.href = window.location.href.split('?')[0];
+      window.location.reload();
     };
 
     dbClient.auth.onAuthStateChange((event, session) => {
@@ -870,6 +783,7 @@
       }
     });
 
+    // Kodifikasi Sachet Stempel
     function generateShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
       const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
@@ -883,6 +797,7 @@
       return `${char}-${batchCode.slice(-4)}`;
     }
 
+    // Kamus Botani Bawaan
     const BASE_BOTANICAL_DICTIONARY = [
       { common: "Tomat", scientific: "Solanum lycopersicum", family: "Solanaceae" },
       { common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae" },
@@ -1115,7 +1030,7 @@
       }
     };
 
-    // SINGLE-ACTION: SIMPAN KE KATALOG & BUKA CETAK LABEL
+    // SINGLE-ACTION: SIMPAN KE SUPABASE & BUKA DIALOG CETAK SEKALIGUS
     document.getElementById("seedForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitBatch");
@@ -1147,6 +1062,8 @@
         document.getElementById("speciesBadge").classList.add("hidden");
         showToast("Batch sukses tersimpan di katalog!");
         await loadAllData();
+
+        // Tampilkan modal cetak label
         renderLabelModalView(payload);
       }
     });
@@ -1172,8 +1089,10 @@
       document.getElementById("lblLocation").textContent = batchData.storage_location || "-";
       document.getElementById("lblViability").textContent = `${batchData.germination_rate}% Kecambah`;
 
-      const baseUrl = window.location.href.split('?')[0];
-      const passportUrl = `${baseUrl}?passport=${encodeURIComponent(batchData.batch_code)}`;
+      // Menautkan QR Code ke file publik terpisah: paspor.html
+      const currentUrl = window.location.href.split('?')[0];
+      const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+      const passportUrl = `${baseUrl}paspor.html?batch=${encodeURIComponent(batchData.batch_code)}`;
 
       const qrBox = document.getElementById("labelQrCode");
       qrBox.innerHTML = "";
@@ -1197,7 +1116,7 @@
       window.print();
     };
 
-    // SCANNER KAMERA
+    // SCANNER KAMERA INTERNAL
     window.openCameraScanner = function() {
       document.getElementById("cameraScannerModal").classList.remove("hidden");
       html5QrScanner = new Html5Qrcode("qrReaderBox");
@@ -1206,14 +1125,25 @@
       html5QrScanner.start({ facingMode: "environment" }, config, (decodedText) => {
         closeCameraScanner();
         let targetCode = decodedText;
-        if (decodedText.includes("?passport=")) {
+        if (decodedText.includes("?batch=")) {
+          const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+          targetCode = urlParams.get("batch");
+        } else if (decodedText.includes("?passport=")) {
           const urlParams = new URLSearchParams(decodedText.split('?')[1]);
           targetCode = urlParams.get("passport");
         } else if (decodedText.startsWith("SEEDVAULT|")) {
           const parts = decodedText.split('|');
           targetCode = parts[1];
         }
-        showPassportModal(targetCode);
+
+        // Buka pencarian katalog otomatis untuk batch yang dipindai
+        switchTab('katalog');
+        const searchInput = document.getElementById("katalogSearch");
+        if (searchInput) {
+          searchInput.value = targetCode;
+          filterKatalog();
+          showToast(`Menemukan batch dari scan: ${targetCode}`);
+        }
       }).catch(err => {
         console.warn("Gagal membuka kamera:", err);
       });
@@ -1226,76 +1156,8 @@
       document.getElementById("cameraScannerModal").classList.add("hidden");
     };
 
-    // PASPOR DIGITAL READ-ONLY
-    window.showPassportModal = function(batchCodeOrShort) {
-      if (!batchCodeOrShort) return;
-      const q = batchCodeOrShort.trim().toLowerCase();
-
-      const batch = allBatches.find(b => 
-        b.batch_code.toLowerCase() === q || 
-        generateShortCode(b.batch_code, b.variety_name).toLowerCase() === q
-      );
-
-      if (!batch) {
-        alert(`Batch benih dengan kode [${batchCodeOrShort}] tidak ditemukan di database.`);
-        return;
-      }
-
-      const genMatch = batch.batch_code.match(/-G(\d+)-/i);
-      const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
-
-      document.getElementById("passBatchCode").textContent = batch.batch_code;
-      document.getElementById("passGenTag").textContent = genLabel;
-      document.getElementById("passVariety").textContent = batch.variety_name;
-      document.getElementById("passSpecies").textContent = batch.species || "Spesies belum dicatat";
-      document.getElementById("passStock").textContent = `${batch.stock_grams} Gram`;
-      document.getElementById("passLocation").textContent = `Lokasi: ${batch.storage_location || '-'}`;
-      document.getElementById("passGermination").textContent = `${batch.germination_rate}% Viabel`;
-      document.getElementById("passMoisture").textContent = `Air: ${batch.moisture_content || 0}%`;
-      document.getElementById("passLineage").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Batch Induk (Perdana)";
-      document.getElementById("passProvenance").textContent = `Asal: ${batch.provenance || '-'}`;
-
-      const adminSec = document.getElementById("adminActionSection");
-      const btnUnlock = document.getElementById("btnUnlockAdmin");
-      const badgeStatus = document.getElementById("passBadgeStatus");
-
-      if (isAuthenticatedStaff) {
-        adminSec.classList.remove("hidden");
-        btnUnlock.classList.add("hidden");
-        badgeStatus.textContent = "Mode Staf Gudang Terverifikasi";
-        badgeStatus.className = "text-[10px] text-amber-700 font-bold";
-      } else {
-        adminSec.classList.add("hidden");
-        btnUnlock.classList.remove("hidden");
-        badgeStatus.textContent = "Sertifikat Publik Terverifikasi (Read-Only)";
-        badgeStatus.className = "text-[10px] text-emerald-700 font-bold";
-      }
-
-      const btn = document.getElementById("passQuickOutBtn");
-      btn.onclick = () => {
-        quickStockOut(batch.id, batch.batch_code, batch.stock_grams);
-      };
-
-      document.getElementById("passportModal").classList.remove("hidden");
-    };
-
-    window.closePassportModal = function() {
-      document.getElementById("passportModal").classList.add("hidden");
-    };
-
-    window.unlockAdminAccess = function() {
-      if (!isAuthenticatedStaff) {
-        document.getElementById("authGateModal").classList.remove("hidden");
-      }
-    };
-
+    // Ambil Sebagian Stok (Quick Stock-Out)
     window.quickStockOut = async function(batchId, batchCode, currentStock) {
-      if (!isAuthenticatedStaff) {
-        alert("Akses dibatasi. Silakan login akun staf terlebih dahulu.");
-        document.getElementById("authGateModal").classList.remove("hidden");
-        return;
-      }
-
       const takeStr = prompt(`Pengambilan Stok untuk [${batchCode}]:\nSisa stok fisik saat ini: ${currentStock} gram.\n\nBerapa gram yang dikeluarkan? (Misal: 25)`, "25");
       if (takeStr === null) return;
 
@@ -1323,11 +1185,11 @@
         alert("Gagal memotong stok: " + error.message);
       } else {
         alert(`Berhasil mengeluarkan ${takeGrams} gram benih [${batchCode}].\nSisa stok di toples sekarang: ${newStock} gram.`);
-        closePassportModal();
         await loadAllData();
       }
     };
 
+    // Navigasi & Tampilan
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("mainSidebar");
       const backdrop = document.getElementById("sidebarBackdrop");
@@ -1437,12 +1299,6 @@
         populateDropdowns();
         renderQcLogs();
         renderPlanting();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const passportBatch = urlParams.get('passport');
-        if (passportBatch) {
-          showPassportModal(passportBatch);
-        }
       } catch (err) {
         console.error("Gagal sinkron data:", err);
       }
@@ -1724,6 +1580,7 @@
       document.getElementById("qcBatchCode").value = batchCode;
     };
 
+    // Form QC
     document.getElementById("qcForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitQc");
@@ -1758,6 +1615,7 @@
       }
     });
 
+    // Form Jadwal Tanam
     document.getElementById("plantingForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitPlan");
@@ -1844,7 +1702,6 @@
       if (t1) t1.valueAsDate = today;
       if (t2) t2.valueAsDate = today;
       if (t3) t3.valueAsDate = today;
-      loadAllData();
     });
   </script>
 </body>

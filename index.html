@@ -439,20 +439,18 @@
           </div>
         </section>
 
-        <!-- 5. PENGATURAN & MASTER DATA BOTANI (DILENGKAPI FITUR EDIT & 4 PILAR MANFAAT) -->
+        <!-- 5. PENGATURAN & MASTER DATA BOTANI -->
         <section id="tab-pengaturan" class="space-y-6 hidden">
-          <div id="masterFormCard" class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm transition-all">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm transition-all">
             <div class="flex items-center justify-between border-b pb-3 mb-4">
               <div>
-                <h2 id="masterFormHeading" class="text-base font-extrabold text-stone-800">Master Tanaman & Ensiklopedia Manfaat Multisektoral</h2>
-                <p id="masterFormSubheading" class="text-xs text-stone-400">Daftarkan tanaman baru beserta peranan 4 pilarnya agar otomatis muncul saat QR paspor di-scan publik.</p>
+                <h2 class="text-base font-extrabold text-stone-800">Master Tanaman & Ensiklopedia Manfaat Multisektoral</h2>
+                <p class="text-xs text-stone-400">Daftarkan tanaman baru beserta peranan 4 pilarnya agar otomatis muncul saat QR paspor di-scan publik.</p>
               </div>
-              <span id="masterFormModeBadge" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Mode Tambah Baru</span>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg">Master Taxonomy Editor</span>
             </div>
 
             <form id="masterPlantForm" class="space-y-4 text-xs">
-              <input type="hidden" id="masterEditId" value="" />
-
               <!-- Baris Identitas Taksonomi -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-3 border-b border-stone-100">
                 <div>
@@ -497,10 +495,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-end gap-2 pt-2">
-                <button type="button" id="btnCancelEditMaster" onclick="cancelEditMasterPlant()" class="hidden px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
-                  Batal Edit
-                </button>
+              <div class="flex items-center justify-end pt-2">
                 <button type="submit" id="btnSubmitMasterPlant" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
                   + Simpan ke Kamus & Ensiklopedia Manfaat
                 </button>
@@ -538,6 +533,71 @@
         </section>
 
       </main>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL DIALOG EDIT TANAMAN & MANFAAT (POP-UP)                   -->
+  <!-- ============================================================== -->
+  <div id="editPlantModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="p-2 rounded-xl bg-amber-100 text-amber-800 text-base">✏️</span>
+          <div>
+            <h3 id="editDialogTitle" class="font-black text-stone-900 text-base">Edit Data Tanaman & Manfaat</h3>
+            <p class="text-[11px] text-stone-400">Perbarui informasi taksonomi dan peran 4 pilar</p>
+          </div>
+        </div>
+        <button onclick="closeEditPlantModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
+      </div>
+
+      <form id="editPlantModalForm" onsubmit="handleSaveEditModal(event)" class="overflow-y-auto flex-1 pr-1 space-y-3.5 text-xs">
+        <input type="hidden" id="modalEditId" value="" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-3 border-b border-stone-100">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Nama Umum</label>
+            <input type="text" id="modalEditCommon" required class="w-full border border-stone-200 rounded-xl p-2.5 font-bold text-stone-800 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Nama Spesies (Latin)</label>
+            <input type="text" id="modalEditScientific" required class="w-full border border-stone-200 rounded-xl p-2.5 italic text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Famili</label>
+            <input type="text" id="modalEditFamily" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/70">
+            <label class="block font-bold text-emerald-950 mb-1">🥗 1. Pangan & Ketahanan Gizi</label>
+            <textarea id="modalEditFood" rows="2" class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-600"></textarea>
+          </div>
+          <div class="p-3 rounded-xl bg-blue-50/60 border border-blue-200/70">
+            <label class="block font-bold text-blue-950 mb-1">🐝 2. Peran Agroekologi & Permakultur</label>
+            <textarea id="modalEditEcology" rows="2" class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-600"></textarea>
+          </div>
+          <div class="p-3 rounded-xl bg-rose-50/60 border border-rose-200/70">
+            <label class="block font-bold text-rose-950 mb-1">💊 3. Kesehatan & Herbal Alami</label>
+            <textarea id="modalEditHealth" rows="2" class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-rose-600"></textarea>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/70">
+            <label class="block font-bold text-amber-950 mb-1">💰 4. Potensi Ekonomi & Budaya</label>
+            <textarea id="modalEditEconomy" rows="2" class="w-full border border-stone-200 bg-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-amber-600"></textarea>
+          </div>
+        </div>
+
+        <div class="border-t pt-3 flex items-center justify-end gap-2 shrink-0">
+          <button type="button" onclick="closeEditPlantModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
+            Batal
+          </button>
+          <button type="submit" id="btnSaveModalEdit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md">
+            💾 Simpan Perubahan
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -765,7 +825,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // 3. MASTER DATA PENGATURAN (LOAD, EDIT & SAVE DENGAN 4 PILAR MANFAAT)
+    // 3. MASTER DATA PENGATURAN (LOAD & RENDER DENGAN TOMBOL DIALOG EDIT)
     async function loadCustomPlants() {
       try {
         const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
@@ -828,7 +888,7 @@
             </span>
           </td>
           <td class="p-3 text-center space-x-2 whitespace-nowrap">
-            <button onclick="editMasterPlant('${safeCommon}')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">
+            <button onclick="openEditPlantModal('${safeCommon}')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg border border-amber-300 transition shadow-2xs">
               ✏️ Edit
             </button>
             ${item.isCustom ? `
@@ -840,57 +900,88 @@
       });
     }
 
-    // FUNGSI MEMULAI EDIT TANAMAN & MANFAAT
-    window.editMasterPlant = function(commonName) {
+    // ==============================================================
+    // FUNGSI KOTAK DIALOG EDIT POP-UP
+    // ==============================================================
+    window.openEditPlantModal = function(commonName) {
       const allList = getAllBotanicalEntries();
       const target = allList.find(x => x.common.toLowerCase() === commonName.toLowerCase());
       if (!target) return;
 
-      document.getElementById("masterEditId").value = target.id || target.common;
-      document.getElementById("masterCommonName").value = target.common;
-      document.getElementById("masterScientificName").value = target.scientific;
-      document.getElementById("masterFamily").value = target.family === '-' ? '' : target.family;
-      document.getElementById("masterFood").value = target.food || '';
-      document.getElementById("masterEcology").value = target.ecology || '';
-      document.getElementById("masterHealth").value = target.health || '';
-      document.getElementById("masterEconomy").value = target.economy || '';
+      document.getElementById("modalEditId").value = target.id || target.common;
+      document.getElementById("modalEditCommon").value = target.common;
+      document.getElementById("modalEditScientific").value = target.scientific;
+      document.getElementById("modalEditFamily").value = target.family === '-' ? '' : target.family;
+      document.getElementById("modalEditFood").value = target.food || '';
+      document.getElementById("modalEditEcology").value = target.ecology || '';
+      document.getElementById("modalEditHealth").value = target.health || '';
+      document.getElementById("modalEditEconomy").value = target.economy || '';
 
-      document.getElementById("masterFormHeading").textContent = `Edit Data Tanaman: ${target.common}`;
-      document.getElementById("masterFormSubheading").textContent = "Perbarui nama ilmiah, famili, dan uraian 4 pilar manfaatnya.";
-      document.getElementById("masterFormModeBadge").textContent = "Mode Edit Aktif";
-      document.getElementById("masterFormModeBadge").className = "text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-lg";
-      
-      const submitBtn = document.getElementById("btnSubmitMasterPlant");
-      submitBtn.textContent = "💾 Simpan Perubahan Data Tanaman";
-      submitBtn.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md";
-
-      document.getElementById("btnCancelEditMaster").classList.remove("hidden");
-      document.getElementById("masterFormCard").scrollIntoView({ behavior: 'smooth' });
+      document.getElementById("editDialogTitle").textContent = `Edit Tanaman: ${target.common}`;
+      document.getElementById("editPlantModal").classList.remove("hidden");
     };
 
-    window.cancelEditMasterPlant = function() {
-      document.getElementById("masterPlantForm").reset();
-      document.getElementById("masterEditId").value = "";
-
-      document.getElementById("masterFormHeading").textContent = "Master Tanaman & Ensiklopedia Manfaat Multisektoral";
-      document.getElementById("masterFormSubheading").textContent = "Daftarkan tanaman baru beserta peranan 4 pilarnya agar otomatis muncul saat QR paspor di-scan publik.";
-      document.getElementById("masterFormModeBadge").textContent = "Mode Tambah Baru";
-      document.getElementById("masterFormModeBadge").className = "text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg";
-
-      const submitBtn = document.getElementById("btnSubmitMasterPlant");
-      submitBtn.textContent = "+ Simpan ke Kamus & Ensiklopedia Manfaat";
-      submitBtn.className = "bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-6 rounded-xl transition text-xs shadow-md";
-
-      document.getElementById("btnCancelEditMaster").classList.add("hidden");
+    window.closeEditPlantModal = function() {
+      document.getElementById("editPlantModal").classList.add("hidden");
+      document.getElementById("editPlantModalForm").reset();
     };
 
-    // FORM SIMPAN / PERBARUI MASTER TANAMAN & MANFAAT
+    window.handleSaveEditModal = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSaveModalEdit");
+      btn.disabled = true;
+      btn.textContent = "Menyimpan...";
+
+      const editId = document.getElementById("modalEditId").value.trim();
+      const common = document.getElementById("modalEditCommon").value.trim();
+      const scientific = document.getElementById("modalEditScientific").value.trim();
+      const family = document.getElementById("modalEditFamily").value.trim();
+
+      const food = document.getElementById("modalEditFood").value.trim();
+      const ecology = document.getElementById("modalEditEcology").value.trim();
+      const health = document.getElementById("modalEditHealth").value.trim();
+      const economy = document.getElementById("modalEditEconomy").value.trim();
+
+      const entryPayload = { 
+        common_name: common, 
+        scientific_name: scientific, 
+        family: family, 
+        benefit_food: food, 
+        benefit_ecology: ecology, 
+        benefit_health: health, 
+        benefit_economy: economy 
+      };
+
+      try {
+        if (editId.includes("-") && editId.length > 20) {
+          await dbClient.from("plant_species").update(entryPayload).eq("id", editId);
+        } else {
+          await dbClient.from("plant_species").update(entryPayload).ilike("common_name", common);
+        }
+      } catch (err) {}
+
+      let currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
+      currentLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
+      currentLocal.push({
+        id: editId,
+        common, scientific, family, food, ecology, health, economy, isCustom: true
+      });
+      localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
+
+      btn.disabled = false;
+      btn.textContent = "💾 Simpan Perubahan";
+      closeEditPlantModal();
+      showToast(`Perubahan data tanaman "${common}" berhasil disimpan!`);
+      await loadCustomPlants();
+    };
+
+    // Form Tambah Baru
     document.getElementById("masterPlantForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitMasterPlant");
       btn.disabled = true;
+      btn.textContent = "Menyimpan ke ensiklopedia...";
 
-      const editId = document.getElementById("masterEditId").value.trim();
       const common = document.getElementById("masterCommonName").value.trim();
       const scientific = document.getElementById("masterScientificName").value.trim();
       const family = document.getElementById("masterFamily").value.trim();
@@ -910,46 +1001,21 @@
         benefit_economy: economy 
       };
 
-      if (editId) {
-        btn.textContent = "Menyimpan perubahan...";
+      try {
+        await dbClient.from("plant_species").insert([entryPayload]);
+      } catch (err) {}
 
-        try {
-          if (editId.includes("-") && editId.length > 20) {
-            await dbClient.from("plant_species").update(entryPayload).eq("id", editId);
-          } else {
-            await dbClient.from("plant_species").update(entryPayload).ilike("common_name", common);
-          }
-        } catch (err) {}
+      const currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
+      const filteredLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
+      filteredLocal.push({
+        common, scientific, family, food, ecology, health, economy, isCustom: true
+      });
+      localStorage.setItem("seedvault_custom_plants", JSON.stringify(filteredLocal));
 
-        let currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
-        currentLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
-        currentLocal.push({
-          id: editId,
-          common, scientific, family, food, ecology, health, economy, isCustom: true
-        });
-        localStorage.setItem("seedvault_custom_plants", JSON.stringify(currentLocal));
-
-        showToast(`Perubahan data tanaman "${common}" berhasil disimpan!`);
-        cancelEditMasterPlant();
-      } else {
-        btn.textContent = "Menyimpan ke ensiklopedia...";
-
-        try {
-          await dbClient.from("plant_species").insert([entryPayload]);
-        } catch (err) {}
-
-        const currentLocal = JSON.parse(localStorage.getItem("seedvault_custom_plants") || "[]");
-        const filteredLocal = currentLocal.filter(x => x.common.toLowerCase() !== common.toLowerCase());
-        filteredLocal.push({
-          common, scientific, family, food, ecology, health, economy, isCustom: true
-        });
-        localStorage.setItem("seedvault_custom_plants", JSON.stringify(filteredLocal));
-
-        document.getElementById("masterPlantForm").reset();
-        showToast(`Tanaman "${common}" dan peranan 4 pilarnya berhasil disimpan!`);
-      }
-
+      document.getElementById("masterPlantForm").reset();
       btn.disabled = false;
+      btn.textContent = "+ Simpan ke Kamus & Ensiklopedia Manfaat";
+      showToast(`Tanaman "${common}" berhasil ditambahkan!`);
       await loadCustomPlants();
     });
 

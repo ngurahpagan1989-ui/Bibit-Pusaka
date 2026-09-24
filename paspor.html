@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paspor Digital Benih Pusaka</title>
+  <title>Paspor Digital Benih Pusaka - SeedVault</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
 </head>
 <body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col justify-between p-4 sm:p-6">
 
-  <!-- Header Publik -->
+  <!-- Header Publik Paspor -->
   <header class="max-w-md w-full mx-auto flex items-center justify-between py-2 border-b border-stone-200">
     <div class="flex items-center gap-2.5">
       <div class="w-8 h-8 rounded-xl bg-emerald-800 flex items-center justify-center text-white text-base shadow-sm">
@@ -22,7 +26,7 @@
         <p class="text-[10px] text-stone-400 font-medium tracking-wide uppercase">Verifikasi Plasma Nutfah Terbuka</p>
       </div>
     </div>
-    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 flex items-center gap-1">
+    <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 flex items-center gap-1.5 shadow-2xs">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
       Terverifikasi
     </span>
@@ -53,9 +57,18 @@
       </div>
 
       <!-- Nama Varietas & Taksonomi -->
-      <div class="space-y-1">
-        <h3 id="viewVariety" class="text-xl font-black text-stone-900 leading-snug">-</h3>
-        <p id="viewSpecies" class="text-xs italic text-emerald-800 font-medium">-</p>
+      <div class="space-y-1.5">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h3 id="viewVariety" class="text-xl font-black text-stone-900 leading-snug">-</h3>
+            <p id="viewSpecies" class="text-xs italic text-emerald-800 font-semibold">-</p>
+          </div>
+          <!-- Tombol Manfaat -->
+          <button onclick="triggerOpenBenefitModal()" class="shrink-0 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer">
+            <span>🌿</span>
+            <span>Manfaat</span>
+          </button>
+        </div>
       </div>
 
       <!-- Grid Data Mutu & Agronomi -->
@@ -91,6 +104,18 @@
         <p id="viewProvenance" class="font-semibold text-emerald-950 mt-0.5">-</p>
       </div>
 
+      <!-- Card Banner Ajakan Mengetahui Manfaat -->
+      <div onclick="triggerOpenBenefitModal()" class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 flex items-center justify-between cursor-pointer hover:bg-amber-100/80 transition shadow-2xs">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">💡</span>
+          <div>
+            <p class="font-bold text-amber-950 text-xs leading-tight">Pelajari Peran & Manfaat Varietas Ini</p>
+            <p class="text-[10px] text-amber-800/80">Khasiat gizi, kesehatan, fungsi tanah, dan potensi ekonomi</p>
+          </div>
+        </div>
+        <span class="text-amber-700 font-bold text-xs">&rarr;</span>
+      </div>
+
       <div class="text-center pt-1">
         <p class="text-[11px] text-stone-400">Sertifikat ini diterbitkan otomatis oleh sistem desentralisasi bank benih terdaftar.</p>
       </div>
@@ -108,7 +133,75 @@
 
   </main>
 
-  <!-- Footer -->
+  <!-- ============================================================== -->
+  <!-- MODAL POPUP: PROFIL MANFAAT & PERAN MULTISEKTORAL             -->
+  <!-- ============================================================== -->
+  <div id="benefitModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
+      
+      <div class="flex items-center justify-between border-b pb-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 rounded-2xl bg-amber-100 text-amber-900 text-xl shadow-inner">🌿</span>
+          <div>
+            <h3 id="benefitPlantTitle" class="font-black text-stone-900 text-base">Manfaat & Peran Multisektoral</h3>
+            <p id="benefitSpeciesSubtitle" class="text-xs italic text-emerald-800 font-semibold">-</p>
+          </div>
+        </div>
+        <button onclick="closeBenefitModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Konten Grid 4 Pilar Manfaat -->
+      <div class="overflow-y-auto flex-1 pr-1 space-y-3 text-xs">
+        
+        <!-- 1. Gizi & Pangan -->
+        <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-1">
+          <h4 class="font-extrabold text-emerald-950 flex items-center gap-1.5 text-xs">
+            <span>🥗</span> Pangan & Ketahanan Gizi Keluarga
+          </h4>
+          <p id="benefitFood" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+        </div>
+
+        <!-- 2. Agroekologi & Permakultur -->
+        <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 space-y-1">
+          <h4 class="font-extrabold text-blue-950 flex items-center gap-1.5 text-xs">
+            <span>🐝</span> Peran Agroekologi & Permakultur Kebun
+          </h4>
+          <p id="benefitEcology" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+        </div>
+
+        <!-- 3. Kesehatan & Herbal -->
+        <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/80 space-y-1">
+          <h4 class="font-extrabold text-rose-950 flex items-center gap-1.5 text-xs">
+            <span>💊</span> Kesehatan & Farmakologi / Obat Tradisional
+          </h4>
+          <p id="benefitHealth" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+        </div>
+
+        <!-- 4. Ekonomi & Pemanfaatan Lokal -->
+        <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1">
+          <h4 class="font-extrabold text-amber-950 flex items-center gap-1.5 text-xs">
+            <span>💰</span> Potensi Ekonomi, Kerajinan & Budaya Lokal
+          </h4>
+          <p id="benefitEconomy" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+        </div>
+
+      </div>
+
+      <div class="border-t pt-3 flex justify-between items-center shrink-0">
+        <span class="text-[10px] text-stone-400">Database Etnobotani • SeedVault</span>
+        <button onclick="closeBenefitModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
+          Tutup Informasi
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer Publik -->
   <footer class="max-w-md w-full mx-auto text-center py-2 border-t border-stone-200">
     <p class="text-[10px] text-stone-400">© 2026 SeedVault Foundation • Menjaga Keanekaragaman Hayati</p>
   </footer>
@@ -117,6 +210,66 @@
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
     const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
     const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
+
+    let activeBatchData = null;
+
+    // Database Bawaan Etnobotani (Fallback Cerdas)
+    const BASE_BENEFIT_ENCYCLOPEDIA = {
+      "tomat": {
+        food: "Kaya vitamin C, vitamin K, kalium, dan antioksidan likopen tinggi untuk perlindungan sel tubuh.",
+        ecology: "Tanaman pendamping ideal untuk asparagus dan basil. Bunganya aktif memikat serangga penyerbuk.",
+        health: "Likopen terbukti menjaga elastisitas pembuluh darah kardiovaskular dan menurunkan risiko inflamasi.",
+        economy: "Bernilai jual segar tinggi, bahan saus artisan, pasta tomat organik, dan olahan kuliner nusantara."
+      },
+      "kelor": {
+        food: "Superfood kaya zat besi, kalsium, vitamin A, dan asam amino esensial lengkap untuk pencegahan stunting.",
+        ecology: "Pohon pionir tahan kekeringan, daun rontok menjadi biomasa pupuk hijau kaya hara, dan menahan erosi tanah.",
+        health: "Antioksidan kuat, antiinflamasi alami, membantu regulasi gula darah, dan melancarkan ASI (galaktagogum).",
+        economy: "Bubuk daun kelor bernilai ekspor tinggi, bahan sabun herbal, kapsul nutrasetika, dan teh kesehatan."
+      },
+      "kenikir": {
+        food: "Sayur lalapan segar kaya vitamin C, antioksidan polifenol, dan beta-karoten yang menyegarkan selera makan.",
+        ecology: "Sangat ampuh sebagai tanaman perangkap (trap crop) hama dan pengusir nematoda akar berkat eksudat akarnya.",
+        health: "Melancarkan sirkulasi darah, meningkatkan nafsu makan, dan memperkuat daya tahan tubuh alami.",
+        economy: "Komoditas pasar organik dan restoran kuliner tradisional yang mudah dibudidayakan secara regeneratif."
+      },
+      "telang": {
+        food: "Penghasil antosianin alami pekat untuk teh biru herbal, pewarna alami nasi uduk ungu/biru, dan minuman artisan.",
+        ecology: "Tanaman legum merambat yang mengikat nitrogen bebas di udara untuk menyuburkan struktur tanah bedengan.",
+        health: "Meningkatkan fungsi kognitif/memori (nootropik), meredakan stres, menjaga kesehatan mata, dan menenangkan saraf.",
+        economy: "Bunga kering bernilai jual tinggi per gram, bahan dasar sirup mocktail, kue kekinian, dan kosmetik organik."
+      },
+      "cabai": {
+        food: "Pemberi cita rasa pedas khas penambah selera makan, kaya akan vitamin A dan vitamin C tinggi.",
+        ecology: "Ekstrak cabai merupakan bahan pestisida nabati alami paling efektif untuk mengusir serangga hama daun dan ulat.",
+        health: "Kandungan kapsaisin merangsang hormon endorfin, melancarkan metabolisme tubuh, dan melegakan pernapasan.",
+        economy: "Komoditas pangan strategis bernilai ekonomi tinggi, bahan baku aneka sambal kemasan dan bubuk cabai."
+      },
+      "terong": {
+        food: "Kaya serat pangan larut, rendah kalori, dan mengandung nasunin (antioksidan pelindung sel otak pada kulit ungu terong).",
+        ecology: "Perakaran dalam membantu aerasi dan drainase tanah bedengan serta memikat lebah liar saat berbunga.",
+        health: "Membantu menstabilkan kadar kolesterol jahat (LDL) dan menjaga keseimbangan glukosa darah.",
+        economy: "Sayur konsumsi harian favorit masyarakat luas dengan kontinuitas panen yang stabil."
+      },
+      "kangkung": {
+        food: "Sayuran hijau cepat panen kaya zat besi, fosfor, dan serat yang mendukung kesehatan pencernaan.",
+        ecology: "Dapat dibudidayakan di lahan basah maupun sistem aquaponik, efektif menyerap kelebihan nutrisi air.",
+        health: "Mengandung senyawa fitonutrien sedatif alami ringan yang membantu relaksasi dan kenyamanan tidur.",
+        economy: "Perputaran modal harian paling cepat bagi petani skala kecil dengan siklus panen 20–25 hari."
+      },
+      "jagung": {
+        food: "Sumber karbohidrat kompleks bebas gluten, kaya lutein dan zeaxanthin untuk kesehatan retina mata.",
+        ecology: "Batang kokoh berfungsi sebagai penopang alami bagi tanaman merambat dalam sistem tumpangsari agroekologi.",
+        health: "Mengandung asam folat penting dan serat tidak larut yang memelihara mikrobioma usus besar.",
+        economy: "Pemanfaatan multisektor: bulir pangan pokok, tepung maizena, brangkasan pakan sapi, hingga kerajinan klobot."
+      },
+      "kemangi": {
+        food: "Aroma sitral dan eugenol khas yang menyegarkan aneka olahan pepes, lalapan, dan hidangan tradisional.",
+        ecology: "Tanaman penolak hama (repellent alami) bagi serangga penghisap daun dan pemikat utama lebah madu.",
+        health: "Membantu mengatasi bau mulut, bersifat antibakteri alami, dan menenangkan gangguan lambung.",
+        economy: "Bahan penyulingan minyak atsiri aromaterapi, campuran sabun natural, dan pasokan rutin pasar lokal."
+      }
+    };
 
     function getShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
@@ -127,6 +280,88 @@
       return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
+    // Mengambil data manfaat dari Supabase (plant_species) -> LocalStorage -> Kamus Bawaan
+    async function getPlantBenefitData(varietyName) {
+      const q = (varietyName || "").toLowerCase();
+
+      // 1. Cek dari database Supabase (tabel plant_species)
+      try {
+        const { data } = await dbClient.from("plant_species").select("*");
+        if (data && data.length > 0) {
+          const found = data.find(p => q.includes(p.common_name.toLowerCase()) || p.common_name.toLowerCase().includes(q));
+          if (found && (found.benefit_food || found.benefit_ecology || found.benefit_health || found.benefit_economy)) {
+            return {
+              food: found.benefit_food || "Kandungan pangan alami berkualitas.",
+              ecology: found.benefit_ecology || "Mendukung keseimbangan ekologis lahan.",
+              health: found.benefit_health || "Bermanfaat bagi kebugaran tubuh.",
+              economy: found.benefit_economy || "Memiliki potensi nilai tambah ekonomi lokal."
+            };
+          }
+        }
+      } catch(e) {}
+
+      // 2. Cek dari LocalStorage browser
+      const local = localStorage.getItem("seedvault_custom_plants");
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          const found = parsed.find(p => q.includes(p.common.toLowerCase()) || p.common.toLowerCase().includes(q));
+          if (found && (found.food || found.ecology || found.health || found.economy)) {
+            return {
+              food: found.food,
+              ecology: found.ecology,
+              health: found.health,
+              economy: found.economy
+            };
+          }
+        } catch(e) {}
+      }
+
+      // 3. Cek dari Kamus Bawaan
+      for (const [key, val] of Object.entries(BASE_BENEFIT_ENCYCLOPEDIA)) {
+        if (q.includes(key)) {
+          return val;
+        }
+      }
+
+      // 4. Default deskripsi adaptif jika tanaman lokal baru belum sempat diinput
+      return {
+        food: "Varietas pangan bergizi tinggi yang kaya mikronutrien, serat nabati, dan bioaktif alami pendukung ketahanan pangan keluarga.",
+        ecology: "Mendukung keanekaragaman hayati agroekosistem, memperkaya mikroorganisme tanah, dan memelihara rantai makanan kebun.",
+        health: "Mengandung senyawa metabolit sekunder alami yang bermanfaat bagi imunitas tubuh dan pemeliharaan kesehatan holistik.",
+        economy: "Memiliki potensi pasar pangan lokal berkelanjutan, benih pusaka berdaya adaptasi tinggi, dan produk olahan bernilai tambah."
+      };
+    }
+
+    window.triggerOpenBenefitModal = async function() {
+      if (!activeBatchData) return;
+
+      const variety = activeBatchData.variety_name;
+      const species = activeBatchData.species || "Taksonomi Botani Terdaftar";
+
+      document.getElementById("benefitPlantTitle").textContent = variety;
+      document.getElementById("benefitSpeciesSubtitle").textContent = species;
+
+      // Loading teks sesaat sebelum sinkron data Supabase
+      document.getElementById("benefitFood").textContent = "Memuat data etnobotani...";
+      document.getElementById("benefitEcology").textContent = "Memuat data etnobotani...";
+      document.getElementById("benefitHealth").textContent = "Memuat data etnobotani...";
+      document.getElementById("benefitEconomy").textContent = "Memuat data etnobotani...";
+      document.getElementById("benefitModal").classList.remove("hidden");
+
+      const benefit = await getPlantBenefitData(variety);
+
+      document.getElementById("benefitFood").textContent = benefit.food;
+      document.getElementById("benefitEcology").textContent = benefit.ecology;
+      document.getElementById("benefitHealth").textContent = benefit.health;
+      document.getElementById("benefitEconomy").textContent = benefit.economy;
+    };
+
+    window.closeBenefitModal = function() {
+      document.getElementById("benefitModal").classList.add("hidden");
+    };
+
+    // Fungsi Utama: Membaca Paspor Digital dari Parameter URL (?batch=... atau ?passport=...)
     async function loadPassport() {
       const urlParams = new URLSearchParams(window.location.search);
       const batchCode = urlParams.get('batch') || urlParams.get('passport');
@@ -151,7 +386,9 @@
           return;
         }
 
-        // Render Data Publik
+        activeBatchData = data;
+
+        // Render Data ke Sertifikat Paspor Digital
         const genMatch = data.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
 

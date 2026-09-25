@@ -439,9 +439,49 @@
         </section>
 
         <!-- ============================================================== -->
-        <!-- 5. MEMBER & CRM TANAM TAB (FITUR BARU)                          -->
+        <!-- 5. MEMBER & CRM TANAM TAB (DENGAN PIPELINE KANBAN & WA BRAND)   -->
         <!-- ============================================================== -->
         <section id="tab-crm" class="space-y-6 hidden">
+          
+          <!-- PIPELINE KANBAN SUMMARY CRM -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 block">Penyemaian (1-14 HST)</span>
+                <p id="crmCountSemai" class="text-2xl font-black text-stone-800 mt-1">0</p>
+                <span class="text-[10px] text-stone-400">Petani semai</span>
+              </div>
+              <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-base">🌱</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 block">Vegetatif / Rawat</span>
+                <p id="crmCountVegetatif" class="text-2xl font-black text-stone-800 mt-1">0</p>
+                <span class="text-[10px] text-stone-400">Biochar & pupuk</span>
+              </div>
+              <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-base">🌿</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 block">Panen Konsumsi</span>
+                <p id="crmCountKonsumsi" class="text-2xl font-black text-stone-800 mt-1">0</p>
+                <span class="text-[10px] text-stone-400">Siap petik sayur</span>
+              </div>
+              <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-base">🥗</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 block">Panen Benih (Kembalikan)</span>
+                <p id="crmCountKembalikan" class="text-2xl font-black text-purple-900 mt-1">0</p>
+                <span class="text-[10px] text-purple-600 font-bold">Target Seed Return</span>
+              </div>
+              <span class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold text-base">🌾</span>
+            </div>
+          </div>
+
           <!-- Form Tambah Anggota & Adopsi Benih -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Form 1: Pendaftaran Anggota -->
@@ -524,7 +564,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <h2 class="font-extrabold text-stone-800 text-base flex items-center gap-2">
-                  <span>🌾</span> Dashboard Monitoring & Follow-Up Siklus Tanam
+                  <span>🌾</span> Monitoring & Follow-Up Siklus Tanam Petani
                 </h2>
                 <p class="text-xs text-stone-400">Pantau umur tanaman dan kirimkan pengingat WhatsApp otomatis sesuai fase pertumbuhan.</p>
               </div>
@@ -854,7 +894,6 @@
       return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
-    // 2. DATA BOTANI & AGRONOMI BAWAAN
     const BASE_BOTANICAL_DICTIONARY = [
       { 
         common: "Tomat", local_bali: "Ranti / Tomat", common_en: "Tomato", scientific: "Solanum lycopersicum", family: "Solanaceae",
@@ -940,9 +979,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // ==============================================================
-    // 3. LOGIKA MEMBER & CRM BUDIDAYA (FOLLOW-UP SIKLUS TANAM)
-    // ==============================================================
+    // CRM DATA LOAD & PIPELINE REFRESH
     async function loadCrmData() {
       try {
         const [resMem, resAdopt] = await Promise.allSettled([
@@ -953,10 +990,24 @@
         if (resMem.status === 'fulfilled' && resMem.value.data) allMembers = resMem.value.data;
         if (resAdopt.status === 'fulfilled' && resAdopt.value.data) allAdoptions = resAdopt.value.data;
 
+        // Hitung Pipeline Kanban
+        let cSemai = 0, cVeg = 0, cKonsumsi = 0, cKembalikan = 0;
+        allAdoptions.forEach(a => {
+          if (a.current_stage === 'Penyemaian') cSemai++;
+          else if (a.current_stage === 'Vegetatif/Rawat') cVeg++;
+          else if (a.current_stage === 'Panen Konsumsi') cKonsumsi++;
+          else if (a.current_stage === 'Panen Benih/Kembalikan') cKembalikan++;
+        });
+
+        document.getElementById("crmCountSemai").textContent = cSemai;
+        document.getElementById("crmCountVegetatif").textContent = cVeg;
+        document.getElementById("crmCountKonsumsi").textContent = cKonsumsi;
+        document.getElementById("crmCountKembalikan").textContent = cKembalikan;
+
         populateCrmDropdowns();
         renderCrmTable();
       } catch (err) {
-        console.warn("Gagal memuat data CRM:", err);
+        console.warn("Gagal memuat CRM:", err);
       }
     }
 
@@ -986,7 +1037,6 @@
       }
     }
 
-    // FORM REGISTRASI ANGGOTA
     document.getElementById("memberForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitMember");
@@ -999,7 +1049,7 @@
         member_type: document.getElementById("memType").value
       };
 
-      const { data, error } = await dbClient.from("seed_members").insert([payload]).select();
+      const { error } = await dbClient.from("seed_members").insert([payload]);
       btn.disabled = false;
 
       if (error) {
@@ -1011,7 +1061,6 @@
       }
     });
 
-    // FORM ADOPSI / DISTRIBUSI BENIH
     document.getElementById("adoptionForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = document.getElementById("btnSubmitAdopt");
@@ -1106,8 +1155,9 @@
             </select>
           </td>
           <td class="p-3 text-center">
-            <button onclick="sendWhatsappFollowup('${member.full_name}', '${member.phone_whatsapp}', '${adopt.variety_name}', '${adopt.current_stage}', ${days})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl transition text-[11px] flex items-center gap-1.5 mx-auto shadow-2xs">
-              <span>💬</span><span>Kirim WA</span>
+            <button onclick="sendWhatsappFollowup('${member.full_name}', '${member.phone_whatsapp}', '${adopt.variety_name}', '${adopt.current_stage}', ${days})" class="bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold px-3 py-1.5 rounded-xl transition text-[11px] flex items-center gap-1.5 mx-auto shadow-sm">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              <span>Kirim WA</span>
             </button>
           </td>
         `;
@@ -1115,7 +1165,6 @@
       });
     }
 
-    // UPDATE TAHAPAN SIKLUS TANAM
     window.updateAdoptionStage = async function(adoptionId, newStage) {
       const today = new Date().toISOString().split('T')[0];
       const { error } = await dbClient.from("member_seed_adoptions")
@@ -1128,14 +1177,12 @@
       }
     };
 
-    // GENERATOR PESAN WHATSAPP OTOMATIS BERDASARKAN TAHAPAN
     window.sendWhatsappFollowup = function(name, phone, variety, stage, days) {
       if (!phone) {
         alert("Nomor WhatsApp anggota belum tercatat!");
         return;
       }
 
-      // Bersihkan format nomor ke kode 62
       let cleanPhone = phone.replace(/[^0-9]/g, '');
       if (cleanPhone.startsWith('0')) {
         cleanPhone = '62' + cleanPhone.slice(1);
@@ -1156,9 +1203,7 @@
       window.open(waUrl, '_blank');
     };
 
-    // ==============================================================
-    // 4. SISTEM TAB & LOGIKA LAINNYA
-    // ==============================================================
+    // TAB NAVIGASI
     const tabMetadata = {
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
       katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan jejak silsilah generasi" },
@@ -1344,6 +1389,10 @@
       filtered.forEach(batch => {
         const st = evaluateRegenStatus(batch);
         const germRate = Number(batch.germination_rate || 0);
+
+        let germBadgeColor = "text-emerald-700 bg-emerald-500";
+        if (germRate < 50) germBadgeColor = "text-rose-600 bg-rose-500";
+        else if (germRate < 70) germBadgeColor = "text-amber-600 bg-amber-500";
 
         const genMatch = batch.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
@@ -1701,6 +1750,220 @@
         sidebar.classList.add("-translate-x-full");
         backdrop.classList.add("hidden");
       }
+    };
+
+    // Silsilah Generasi Auto-code
+    function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
+      if (!varietyName) return "";
+      const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
+      const prefix = cleanVar.length >= 3 ? cleanVar.substring(0, 3) : cleanVar.padEnd(3, 'X');
+      const d = harvestDateVal ? new Date(harvestDateVal) : new Date();
+      const yy = String(d.getFullYear()).slice(-2);
+
+      let genNum = 1;
+      if (parentCode) {
+        const parentMatch = parentCode.match(/-G(\d+)-/i);
+        genNum = parentMatch ? parseInt(parentMatch[1], 10) + 1 : 2;
+      }
+      const genTag = `G${genNum}`;
+
+      const regex = new RegExp(`^BN-${prefix}-${yy}-${genTag}-(\\d{3})$`);
+      const usedNums = [];
+
+      [...allBatches.map(b => b.batch_code), ...allPlantingSchedules.map(p => p.target_batch_code)].forEach(code => {
+        if (code) {
+          const m = code.match(regex);
+          if (m) usedNums.push(parseInt(m[1], 10));
+        }
+      });
+
+      const nextSeq = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 1;
+      return `BN-${prefix}-${yy}-${genTag}-${String(nextSeq).padStart(3, '0')}`;
+    }
+
+    window.generateAutoBatchCode = function() {
+      const varietyInput = document.getElementById("varietyName");
+      const harvestInput = document.getElementById("harvestDate");
+      const parentInput = document.getElementById("parentBatchCode");
+      const batchCodeInput = document.getElementById("batchCode");
+
+      const variety = varietyInput.value.trim();
+      if (!variety) {
+        alert("Harap ketik Nama Varietas terlebih dahulu!");
+        varietyInput.focus();
+        return;
+      }
+      batchCodeInput.value = generateGenerationBatchCode(variety, harvestInput.value, parentInput.value.trim());
+    };
+
+    window.triggerAutoBatchSuggest = function() {
+      const batchCodeInput = document.getElementById("batchCode");
+      if (!batchCodeInput.value.trim()) {
+        const variety = document.getElementById("varietyName").value.trim();
+        const harvest = document.getElementById("harvestDate").value;
+        const parent = document.getElementById("parentBatchCode").value.trim();
+        if (variety.length >= 3) {
+          batchCodeInput.value = generateGenerationBatchCode(variety, harvest, parent);
+        }
+      }
+    };
+
+    async function loadCustomPlants() {
+      try {
+        const { data, error } = await dbClient.from("plant_species").select("*").order("common_name", { ascending: true });
+        if (!error && data) {
+          customPlantList = data.map(d => ({
+            id: d.id,
+            common: d.common_name,
+            local_bali: d.local_name_bali || "-",
+            common_en: d.common_name_en || "-",
+            scientific: d.scientific_name,
+            family: d.family || "-",
+            season: d.season || "-",
+            month_range: d.month_range || "-",
+            region: d.region || "-",
+            temp_range: d.temp_range || "-",
+            harvest_food_hst: d.harvest_food_hst || "-",
+            harvest_seed_hst: d.harvest_seed_hst || "-",
+            watering: d.watering || "-",
+            sunlight: d.sunlight || "-",
+            biochar: d.biochar_fertilizer || "-",
+            culture: d.benefit_culture || "-",
+            health: d.benefit_health || "-",
+            food: d.benefit_food || "",
+            ecology: d.benefit_ecology || "",
+            economy: d.benefit_economy || "",
+            isCustom: true
+          }));
+          renderBotanicalTable();
+        }
+      } catch (e) {}
+    }
+
+    function renderBotanicalTable() {
+      const tbody = document.getElementById("botanicalTableBody");
+      if (!tbody) return;
+
+      const q = (document.getElementById("searchMasterBotanical")?.value || "").toLowerCase();
+      const allList = getAllBotanicalEntries();
+
+      const filtered = allList.filter(item => 
+        item.common.toLowerCase().includes(q) || 
+        (item.local_bali && item.local_bali.toLowerCase().includes(q)) ||
+        (item.common_en && item.common_en.toLowerCase().includes(q)) ||
+        item.scientific.toLowerCase().includes(q) ||
+        (item.family && item.family.toLowerCase().includes(q))
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada koleksi tanaman yang cocok.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      filtered.forEach((item, idx) => {
+        const safeCommon = item.common.replace(/'/g, "\\'");
+        
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-stone-50 transition text-xs";
+        tr.innerHTML = `
+          <td class="p-3 text-stone-400 font-mono">${idx + 1}</td>
+          <td class="p-3">
+            <div class="font-bold text-stone-900 text-sm">${item.common}</div>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 font-semibold text-[10px]">
+                🌴 ${item.local_bali || '-'}
+              </span>
+              <span class="px-1.5 py-0.2 rounded bg-blue-50 text-blue-900 font-medium text-[10px]">
+                🌐 ${item.common_en || '-'}
+              </span>
+            </div>
+          </td>
+          <td class="p-3">
+            <div class="italic text-emerald-950 font-bold">${item.scientific}</div>
+            <div class="text-[10px] text-stone-400">${item.family || '-'}</div>
+          </td>
+          <td class="p-3">
+            <span class="font-semibold text-stone-700 block">${item.season || '-'}</span>
+            <span class="text-[10px] text-stone-400">${item.month_range || '-'}</span>
+          </td>
+          <td class="p-3">
+            <span class="text-stone-800 font-semibold block">${item.region || '-'}</span>
+            <span class="text-[10px] text-amber-800 font-bold">${item.temp_range || '-'}</span>
+          </td>
+          <td class="p-3">
+            <span class="font-bold text-emerald-800 block">${item.harvest_food_hst || '-'}</span>
+            <span class="font-bold text-amber-900 text-[10px] block">Benih: ${item.harvest_seed_hst || '-'}</span>
+          </td>
+          <td class="p-3 max-w-xs truncate" title="Budaya: ${item.culture || '-'} | Kesehatan: ${item.health || '-'}">
+            <div class="text-[11px] text-purple-900 font-semibold truncate">🕉️ ${item.culture || '-'}</div>
+            <div class="text-[10px] text-rose-800 truncate">💊 ${item.health || '-'}</div>
+          </td>
+          <td class="p-3 text-center space-x-2 whitespace-nowrap">
+            ${item.isCustom ? `
+              <button onclick="deleteCustomPlant('${item.id || item.common}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">Hapus</button>
+            ` : `<span class="text-[11px] text-stone-300">-</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("masterPlantForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitMasterPlant");
+      btn.disabled = true;
+
+      const common = document.getElementById("masterCommonName").value.trim();
+      const local_bali = document.getElementById("masterLocalBali").value.trim();
+      const common_en = document.getElementById("masterCommonEn").value.trim();
+      const scientific = document.getElementById("masterScientificName").value.trim();
+      const family = document.getElementById("masterFamily").value.trim();
+
+      const season = document.getElementById("masterSeason").value.trim();
+      const month_range = document.getElementById("masterMonthRange").value.trim();
+      const region = document.getElementById("masterRegion").value.trim();
+      const temp_range = document.getElementById("masterTempRange").value.trim();
+      const harvest_food_hst = document.getElementById("masterHarvestFood").value.trim();
+      const harvest_seed_hst = document.getElementById("masterHarvestSeed").value.trim();
+      const watering = document.getElementById("masterWatering").value.trim();
+      const sunlight = document.getElementById("masterSunlight").value.trim();
+      const biochar = document.getElementById("masterBiochar").value.trim();
+
+      const culture = document.getElementById("masterCulture").value.trim();
+      const health = document.getElementById("masterHealth").value.trim();
+      const food = document.getElementById("masterFood").value.trim();
+      const ecology = document.getElementById("masterEcology").value.trim();
+      const economy = document.getElementById("masterEconomy").value.trim();
+
+      const entryPayload = { 
+        common_name: common, local_name_bali: local_bali, common_name_en: common_en,
+        scientific_name: scientific, family: family,
+        season, month_range, region, temp_range, harvest_food_hst, harvest_seed_hst,
+        watering, sunlight, biochar_fertilizer: biochar,
+        benefit_culture: culture, benefit_health: health,
+        benefit_food: food, benefit_ecology: ecology, benefit_economy: economy 
+      };
+
+      try {
+        await dbClient.from("plant_species").insert([entryPayload]);
+      } catch (err) {}
+
+      document.getElementById("masterPlantForm").reset();
+      btn.disabled = false;
+      showToast(`Data "${common}" berhasil disimpan!`);
+      await loadCustomPlants();
+    });
+
+    window.deleteCustomPlant = async function(identifier) {
+      if (!confirm("Hapus tanaman ini dari database kustom?")) return;
+      try {
+        await dbClient.from("plant_species").delete().eq("id", identifier);
+        await dbClient.from("plant_species").delete().eq("common_name", identifier);
+      } catch (e) {}
+
+      showToast("Tanaman berhasil dihapus.");
+      await loadCustomPlants();
     };
 
     window.addEventListener("DOMContentLoaded", () => {

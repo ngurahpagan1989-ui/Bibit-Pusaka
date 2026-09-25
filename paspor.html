@@ -3,869 +3,387 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sertifikat Paspor Digital Benih - SeedVault Pro</title>
+  <title>Paspor Digital Benih Pusaka - SeedVault</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
-    
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-
-    @media print {
-      body { background: white !important; margin: 0 !important; padding: 0 !important; }
-      header, footer, #searchBatchBar, #actionButtons, #cameraScannerModal, #modalBudidaya { display: none !important; }
-      #passportCard {
-        box-shadow: none !important;
-        border: 2px solid #064e3b !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        page-break-inside: avoid;
-      }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+    .bg-cert-pattern {
+      background-color: #fafaf9;
+      background-image: radial-gradient(#e7e5e4 0.75px, transparent 0.75px);
+      background-size: 16px 16px;
     }
   </style>
 </head>
-<body class="bg-stone-100 text-stone-800 antialiased min-h-screen flex flex-col selection:bg-emerald-200 selection:text-emerald-900">
+<body class="bg-stone-200 text-stone-800 antialiased font-sans min-h-screen flex flex-col justify-between p-3 sm:p-6">
 
-  <!-- TOP HEADER PUBLIK -->
-  <header class="bg-emerald-950 text-white sticky top-0 z-30 shadow-md border-b border-emerald-900/80">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="resetToSampleBatch()">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-inner text-base border border-emerald-500/30">
-          🌱
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-sm tracking-tight text-white">SeedVault</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-800 text-emerald-300 font-bold border border-emerald-700/80">PASPOR DIGITAL</span>
-          </div>
-          <p class="text-[10px] text-emerald-300/80 font-medium">Bank Benih & Pemuliaan Pusaka Nusantara</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="openCameraScanner()" title="Pindai QR Toples Lain" class="flex items-center gap-1.5 bg-emerald-800/80 hover:bg-emerald-800 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold border border-emerald-700 transition">
-          <span>📷</span><span class="hidden sm:inline">Pindai QR</span>
-        </button>
-        <button onclick="toggleSearchBar()" title="Cari Nomor Batch" class="flex items-center gap-1.5 bg-stone-800/60 hover:bg-stone-800 text-stone-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-stone-700 transition">
-          <span>🔍</span><span class="hidden sm:inline">Cari Batch</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- BILAH PENCARIAN BATCH CEPAT -->
-    <div id="searchBatchBar" class="hidden bg-emerald-900/90 border-t border-emerald-800 px-4 py-2.5">
-      <div class="max-w-4xl mx-auto flex items-center gap-2">
-        <input type="text" id="manualBatchInput" placeholder="Masukkan Kode Batch (contoh: BN-KAN-26-G1-001)..." class="flex-1 bg-emerald-950 border border-emerald-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-emerald-400/60 outline-none focus:ring-2 focus:ring-emerald-400 font-mono" />
-        <button onclick="submitManualBatch()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-1.5 rounded-xl transition shadow-xs">
-          Buka Paspor
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- KONTEN UTAMA PASPOR PUBLIK -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
-
-    <!-- LOADING STATE -->
-    <div id="loadingBox" class="py-16 text-center space-y-3">
-      <div class="inline-block w-10 h-10 border-4 border-emerald-200 border-t-emerald-700 rounded-full animate-spin"></div>
-      <p class="text-xs font-semibold text-stone-500">Memverifikasi paspor toples benih dari arsip data...</p>
-    </div>
-
-    <!-- ERROR NOT FOUND STATE -->
-    <div id="notFoundBox" class="hidden bg-white p-8 rounded-3xl border border-stone-200 shadow-sm text-center space-y-4 max-w-md mx-auto">
-      <div class="w-14 h-14 bg-rose-100 text-rose-700 text-2xl flex items-center justify-center rounded-2xl mx-auto shadow-inner">
-        🔍
+  <!-- Header Paspor -->
+  <header class="max-w-md w-full mx-auto flex items-center justify-between py-2 border-b border-stone-300">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-2xl bg-emerald-900 border border-emerald-700/80 flex items-center justify-center text-white text-base shadow-sm">
+        🌱
       </div>
       <div>
-        <h3 class="font-black text-stone-800 text-base">Batch Benih Tidak Ditemukan</h3>
-        <p id="notFoundMsg" class="text-xs text-stone-500 mt-1">Kode batch yang Anda scan belum terdaftar atau tautan salah.</p>
-      </div>
-      <div class="flex flex-col gap-2 pt-2">
-        <button onclick="openCameraScanner()" class="bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-sm transition">
-          📷 Pindai Ulang QR Toples
-        </button>
-        <button onclick="resetToSampleBatch()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold py-2.5 px-4 rounded-xl transition">
-          Lihat Contoh Paspor Benih
-        </button>
+        <h1 class="font-black text-sm tracking-tight text-stone-900 leading-tight">SeedVault Passport</h1>
+        <p class="text-[9px] text-stone-500 font-semibold tracking-wider uppercase">Sertifikat Digital Plasma Nutfah</p>
       </div>
     </div>
+    <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-black border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+      Terakreditasi
+    </span>
+  </header>
 
-    <!-- PASSPORT CARD UTAMA -->
-    <div id="passportCard" class="hidden bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden transition-all">
+  <!-- Konten Utama: Sertifikat Paspor Digital -->
+  <main class="max-w-md w-full mx-auto my-auto py-4">
+    
+    <!-- State Loading -->
+    <div id="loadingState" class="bg-white rounded-3xl p-8 border border-stone-200 text-center space-y-3 shadow-md">
+      <div class="inline-block w-8 h-8 border-4 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-xs font-bold text-stone-500">Memverifikasi tanda tangan digital benih...</p>
+    </div>
+
+    <!-- State Sertifikat Benih Ditemukan -->
+    <div id="cardPassport" class="hidden relative bg-cert-pattern rounded-3xl p-5 sm:p-6 border-2 border-stone-300/80 shadow-2xl space-y-5 transition-all overflow-hidden">
       
-      <!-- HEADER SERTIFIKAT -->
-      <div class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white p-5 sm:p-7 relative overflow-hidden">
-        <!-- Background Accent -->
-        <div class="absolute -right-8 -top-8 w-40 h-40 bg-emerald-700/20 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="absolute right-12 bottom-0 w-32 h-32 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
+      <!-- Dekorasi Pita Sertifikat Pojok Kanan Atas -->
+      <div class="absolute -top-7 -right-7 w-20 h-20 bg-emerald-800/10 rounded-full flex items-end justify-start p-2 pointer-events-none">
+        <span class="text-emerald-900/30 text-2xl font-black">✦</span>
+      </div>
 
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-800 text-emerald-200 border border-emerald-600/60 shadow-xs flex items-center gap-1">
-                <span>🛡️</span> Resmi Terverifikasi
+      <!-- Banner Kode Batch & Stempel -->
+      <div class="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white p-4 rounded-2xl flex items-center justify-between shadow-inner border border-stone-700">
+        <div>
+          <span class="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400 block">Nomor Seri Plasma Nutfah</span>
+          <h2 id="viewBatchCode" class="text-base sm:text-lg font-black font-mono tracking-tight text-white mt-0.5">-</h2>
+        </div>
+        <div class="text-right">
+          <span id="viewGenTag" class="px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white font-mono font-black text-xs border border-emerald-500">G1</span>
+          <span id="viewShortCode" class="block text-[10px] font-mono text-stone-300 mt-1 font-bold">Stempel: -</span>
+        </div>
+      </div>
+
+      <!-- Identitas Varietas Multilingual (ID, Bali, EN) & Taksonomi -->
+      <div class="space-y-2">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <span class="text-[9px] font-bold text-stone-400 uppercase tracking-widest block">Varietas Terdaftar</span>
+            <h3 id="viewVariety" class="text-2xl font-black text-stone-900 leading-snug tracking-tight">-</h3>
+            
+            <!-- Badge Bahasa Bali & Inggris -->
+            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span id="viewLocalBali" class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-[11px] border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                🌴 Bali: -
               </span>
-              <span id="badgeGen" class="px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                G1
+              <span id="viewCommonEn" class="px-2 py-0.5 rounded-lg bg-stone-100 text-stone-700 font-semibold text-[11px] border border-stone-200 flex items-center gap-1">
+                🌐 EN: -
               </span>
             </div>
-            <h1 id="passportVariety" class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Kangkung Darat
-            </h1>
-            <p id="passportSpecies" class="text-xs sm:text-sm italic text-emerald-200/90 font-medium">
-              Ipomoea aquatica <span id="passportFamily" class="text-emerald-400/70 not-italic font-normal">(Convolvulaceae)</span>
+
+            <p id="viewSpecies" class="text-xs italic text-emerald-900 font-bold mt-1.5 flex items-center gap-1">
+              <span>🔬</span><span id="viewSpeciesText">-</span>
             </p>
           </div>
 
-          <!-- Stempel Badge -->
-          <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-emerald-800/80">
-            <span class="text-[9px] uppercase tracking-wider text-emerald-300 font-bold">Stempel Sachet</span>
-            <span id="passportShortCode" class="font-mono font-black text-sm sm:text-base px-2.5 py-1 rounded-xl bg-amber-400 text-stone-950 shadow-md">
-              K26-01
-            </span>
-          </div>
+          <button onclick="triggerOpenBenefitModal()" class="shrink-0 bg-emerald-800 hover:bg-emerald-900 text-white px-3.5 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shadow-md cursor-pointer">
+            <span>🌾</span>
+            <span>Panduan & Adat</span>
+          </button>
         </div>
       </div>
 
-      <!-- KARTU DATA TEKNIS BATCH & STATISTIK MUTU -->
-      <div class="p-5 sm:p-7 space-y-6">
-
-        <!-- Grid Ringkasan Teknis -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/80">
-            <span class="text-[10px] font-bold text-stone-400 block uppercase tracking-wider">KODE BATCH</span>
-            <span id="passportBatchCode" class="font-mono font-black text-xs sm:text-sm text-stone-900 block mt-0.5 truncate">
-              BN-KAN-26-G1-001
-            </span>
-            <span class="text-[10px] text-stone-500 mt-1 block">Nomor Arsip Toples</span>
-          </div>
-
-          <div class="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200/80">
-            <span class="text-[10px] font-bold text-emerald-800 block uppercase tracking-wider">DAYA KECAMBAH (QC)</span>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span id="passportViability" class="font-black text-base sm:text-lg text-emerald-700">85%</span>
-              <span class="text-[10px] text-emerald-800 font-semibold bg-emerald-200/70 px-1.5 py-0.2 rounded">Unggul</span>
-            </div>
-            <span class="text-[10px] text-emerald-700 mt-1 block">Standar Viabilitas</span>
-          </div>
-
-          <div class="p-3.5 bg-blue-50/70 rounded-2xl border border-blue-200/80">
-            <span class="text-[10px] font-bold text-blue-800 block uppercase tracking-wider">KADAR AIR BENIH</span>
-            <span id="passportMoisture" class="font-black text-base sm:text-lg text-blue-700 block mt-0.5">
-              7.5%
-            </span>
-            <span class="text-[10px] text-blue-600 mt-1 block">Aman Simpan Panjang</span>
-          </div>
-
-          <div class="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/80">
-            <span class="text-[10px] font-bold text-stone-400 block uppercase tracking-wider">TGL PANEN</span>
-            <span id="passportHarvestDate" class="font-bold text-xs sm:text-sm text-stone-800 block mt-0.5">
-              2026-07-15
-            </span>
-            <span id="passportAge" class="text-[10px] text-stone-500 mt-1 block">Benih Segar</span>
-          </div>
+      <!-- VISUAL TIMELINE HST (PERJALANAN TUMBUH BENIH) -->
+      <div class="p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-2">
+        <div class="flex items-center justify-between text-[10px] font-extrabold text-stone-500 uppercase">
+          <span>Perjalanan Siklus Tumbuh</span>
+          <span id="timelineTotalDays" class="text-emerald-800">Panen Lengkap</span>
         </div>
 
-        <!-- ASAL USUL & SILSILAH INDUK -->
-        <div class="p-4 bg-gradient-to-r from-stone-50 to-emerald-50/40 rounded-2xl border border-stone-200/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0">
-              📍
-            </span>
-            <div>
-              <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Asal Usul & Sumber Benih (Provenance)</span>
-              <span id="passportProvenance" class="font-bold text-stone-800 text-xs sm:text-sm">Kebun Mandiri Koleksi Bank Benih</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end border-t sm:border-0 pt-2 sm:pt-0 border-stone-200">
-            <span class="text-[11px] text-stone-500">Batch Induk:</span>
-            <span id="passportParent" class="font-mono font-bold text-xs px-2 py-0.5 rounded-lg bg-stone-200 text-stone-800">
-              Tetua Utama (G1)
-            </span>
-          </div>
+        <!-- Progres Bar Garis Waktu -->
+        <div class="relative w-full bg-stone-100 h-2.5 rounded-full overflow-hidden flex">
+          <div class="bg-blue-400 w-1/4 h-full" title="Semai"></div>
+          <div class="bg-emerald-500 w-1/4 h-full" title="Vegetatif"></div>
+          <div class="bg-amber-400 w-1/4 h-full" title="Panen Konsumsi"></div>
+          <div class="bg-purple-500 w-1/4 h-full" title="Panen Benih"></div>
         </div>
 
-        <!-- ============================================================== -->
-        <!-- 4 PILAR TEKNIS PEMULIAAN BENIH PUSAKA (SEED BANKING PILLARS)   -->
-        <!-- ============================================================== -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between border-b pb-2 border-stone-200">
-            <div>
-              <h2 class="font-extrabold text-stone-900 text-sm sm:text-base flex items-center gap-2">
-                <span>🌱</span> 4 Pilar Teknis Pemuliaan Benih (Seed Banking Best Practices)
-              </h2>
-              <p class="text-[11px] text-stone-500">Panduan praktis budidaya, kemurnian genetik, dan ekstraksi benih untuk petani & mitra.</p>
-            </div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200 hidden sm:inline-block">
-              Panduan Mandiri
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- PILAR 1: KEMURNIAN GENETIK & ISOLASI -->
-            <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-2 shadow-2xs transition hover:shadow-xs">
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-emerald-950 text-xs flex items-center gap-1.5">
-                  <span class="text-sm">🧬</span> 1. Kemurnian Genetik & Isolasi
-                </span>
-                <span id="badgePollination" class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-200 text-emerald-900 border border-emerald-300">
-                  Self-pollinated
-                </span>
-              </div>
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <div>
-                  <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">Tipe Penyerbukan:</span>
-                  <p id="cardPollinationType" class="font-semibold text-stone-800">Self-pollinated (Penyerbukan Sendiri)</p>
-                </div>
-                <div>
-                  <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">Jarak Isolasi Spasial Aman:</span>
-                  <p id="cardIsolationDistance" class="font-bold text-emerald-900">3 - 5 meter (Aman di bedengan)</p>
-                </div>
-                <p class="text-[11px] text-stone-600 bg-white/80 p-2 rounded-xl border border-emerald-100 leading-relaxed">
-                  💡 <em>Pencegahan silang liar: Pastikan jarak isolasi lahan terjaga atau gunakan sungkup kain kasa bila menanam varietas sejenis di dekatnya untuk menjaga kemurnian sifat pusaka.</em>
-                </p>
-              </div>
-            </div>
-
-            <!-- PILAR 2: TIPS SEMAI & DORMASI -->
-            <div class="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 space-y-2 shadow-2xs transition hover:shadow-xs">
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-blue-950 text-xs flex items-center gap-1.5">
-                  <span class="text-sm">💧</span> 2. Tips Semai & Pemecahan Dormansi
-                </span>
-                <span class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-blue-200 text-blue-900 border border-blue-300">
-                  Pra-Semai
-                </span>
-              </div>
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <div>
-                  <span class="text-[10px] uppercase font-bold text-blue-800 tracking-wider block">Perlakuan Benih Sebelum Semai:</span>
-                  <p id="cardDormancyTreatment" class="font-semibold text-stone-800 leading-relaxed">
-                    Rendam air hangat kuku 40-45°C selama 4-6 jam sebelum disemai ke tray media.
-                  </p>
-                </div>
-                <p class="text-[11px] text-stone-600 bg-white/80 p-2 rounded-xl border border-blue-100 leading-relaxed">
-                  🌱 <em>Tips Semai: Gunakan media semai gembur (campuran tanah subur, kompos matang & biochar sekam halus 2:1:1). Jaga kelembapan media dengan spray halus tanpa menggenang.</em>
-                </p>
-              </div>
-            </div>
-
-            <!-- PILAR 3: PENGOLAHAN & EKSTRAKSI BENIH -->
-            <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2 shadow-2xs transition hover:shadow-xs">
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-amber-950 text-xs flex items-center gap-1.5">
-                  <span class="text-sm">🧺</span> 3. Metode Pengolahan & Ekstraksi Benih
-                </span>
-                <span id="badgeProcessing" class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-200 text-amber-900 border border-amber-300">
-                  Ekstraksi Kering
-                </span>
-              </div>
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <div>
-                  <span class="text-[10px] uppercase font-bold text-amber-800 tracking-wider block">Metode Ekstraksi Panen Mandiri:</span>
-                  <p id="cardProcessingType" class="font-semibold text-stone-800 leading-relaxed">
-                    Ekstraksi Kering (Polong kering di pohon, buka polong dan pipil biji bernas).
-                  </p>
-                </div>
-                <p class="text-[11px] text-stone-600 bg-white/80 p-2 rounded-xl border border-amber-100 leading-relaxed">
-                  ☀️ <em>Penyimpanan: Jemur benih di tempat teduh berangin (jangan di bawah terik matahari langsung yang merusak embrio), simpan di toples kaca kedap dengan silica gel.</em>
-                </p>
-              </div>
-            </div>
-
-            <!-- PILAR 4: KARAKTER MORFOLOGI & RASA -->
-            <div class="p-4 rounded-2xl bg-rose-50/80 border border-rose-200 space-y-2 shadow-2xs transition hover:shadow-xs">
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-rose-950 text-xs flex items-center gap-1.5">
-                  <span class="text-sm">👅</span> 4. Morfologi Fisik & Profil Rasa
-                </span>
-                <span class="text-[10px] font-bold px-2 py-0.2 rounded-full bg-rose-200 text-rose-900 border border-rose-300">
-                  Organoleptik
-                </span>
-              </div>
-              <div class="space-y-1.5 text-xs text-stone-700">
-                <div>
-                  <span class="text-[10px] uppercase font-bold text-rose-800 tracking-wider block">Catatan Morfologi & Karakter Rasa:</span>
-                  <p id="cardMorphologyFlavor" class="font-semibold text-stone-800 leading-relaxed">
-                    Batang hijau renyah berongga, daun segar rasa manis gurih alami tanpa rasa langu keras.
-                  </p>
-                </div>
-                <p class="text-[11px] text-stone-600 bg-white/80 p-2 rounded-xl border border-rose-100 leading-relaxed">
-                  🍽️ <em>Kualitas Pusaka: Rasa otentik varietas pusaka terjaga turun-temurun tanpa rekayasa genetik (Non-GMO), kaya nutrisi alami nusantara.</em>
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- BANNER AKSI: MODAL BUDIDAYA & CETAK -->
-        <div id="actionButtons" class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-200">
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <button onclick="openModalBudidaya()" class="flex-1 sm:flex-none bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-              <span>📖</span><span>Buka Buku Panduan Budidaya Lengkap</span>
-            </button>
-            <button onclick="window.print()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs py-2.5 px-3.5 rounded-xl border border-stone-300 transition flex items-center gap-1.5" title="Cetak Paspor Resmi">
-              <span>🖨️</span><span class="hidden sm:inline">Cetak</span>
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onclick="sharePassportLink()" class="flex-1 sm:flex-none bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs py-2.5 px-3.5 rounded-xl border border-emerald-300 transition flex items-center justify-center gap-1.5">
-              <span>🔗</span><span>Bagikan Paspor</span>
-            </button>
-            <button onclick="openPedigreeView()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs py-2.5 px-3.5 rounded-xl border border-stone-300 transition flex items-center gap-1.5" title="Lihat Garis Silsilah">
-              <span>🧬</span><span class="hidden sm:inline">Silsilah</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- FOOTER SERTIFIKAT PASPOR DENGAN MINI QR VERIFIKASI -->
-      <div class="bg-stone-50 border-t border-stone-200 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div id="passportMiniQr" class="p-1.5 bg-white border border-stone-300 rounded-xl shadow-2xs shrink-0 flex items-center justify-center"></div>
-          <div class="space-y-0.5 text-left">
-            <span class="text-[10px] font-bold text-stone-400 block uppercase tracking-wider">VERIFIKASI DIGITAL ASLI</span>
-            <span class="text-xs font-mono font-bold text-stone-800 block" id="qrTextLink">BN-KAN-26-G1-001</span>
-            <p class="text-[10px] text-stone-400">Pindai kode QR ini untuk memvalidasi sertifikat resmi ini.</p>
-          </div>
-        </div>
-
-        <div class="text-center sm:text-right text-[11px] text-stone-400 space-y-0.5">
-          <span class="block font-bold text-stone-600">Sistem Perbankan Benih Lestari</span>
-          <span class="block">Didukung oleh Platform SeedVault Pro & Supabase Database</span>
+        <div class="grid grid-cols-4 text-center text-[9px] font-bold pt-0.5">
+          <div class="text-blue-700">🌱 0 HST<br/><span class="text-stone-400 font-normal">Semai</span></div>
+          <div class="text-emerald-700">🌿 30 HST<br/><span class="text-stone-400 font-normal">Rawat</span></div>
+          <div class="text-amber-800 font-black">🥗 <span id="lblHarvestFoodHST">65 HST</span><br/><span class="text-stone-400 font-normal">Konsumsi</span></div>
+          <div class="text-purple-900 font-black">🌾 <span id="lblHarvestSeedHST">100 HST</span><br/><span class="text-stone-400 font-normal">Benih</span></div>
         </div>
       </div>
 
+      <!-- Grid Data Mutu Fisik QC & Umur Simpan -->
+      <div class="grid grid-cols-2 gap-2.5 text-xs">
+        <div class="p-3 rounded-2xl bg-white border border-stone-200 shadow-2xs">
+          <span class="text-stone-400 block font-bold text-[10px] uppercase">Daya Kecambah (QC)</span>
+          <p id="viewGermination" class="font-black text-lg text-emerald-800 mt-0.5">-</p>
+          <div class="w-full bg-stone-100 h-1 rounded-full overflow-hidden mt-1">
+            <div id="viewGerminationBar" class="bg-emerald-600 h-full" style="width: 85%;"></div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-white border border-stone-200 shadow-2xs">
+          <span class="text-stone-400 block font-bold text-[10px] uppercase">Kadar Air Benih</span>
+          <p id="viewMoisture" class="font-black text-lg text-stone-800 mt-0.5">-</p>
+          <span class="text-[10px] text-stone-400">Aman simpan kedap</span>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-white border border-stone-200 shadow-2xs">
+          <span class="text-stone-400 block font-bold text-[10px] uppercase">Tanggal Panen</span>
+          <p id="viewHarvestDate" class="font-bold text-stone-800 mt-0.5 text-xs">-</p>
+          <span id="viewAge" class="text-[10px] text-stone-400 font-medium">Umur simpan</span>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-white border border-stone-200 shadow-2xs">
+          <span class="text-stone-400 block font-bold text-[10px] uppercase">Silsilah Induk</span>
+          <p id="viewLineage" class="font-mono font-bold text-stone-800 mt-0.5 text-xs truncate">-</p>
+          <span class="text-[10px] text-stone-400 font-medium">Kemurnian terjaga</span>
+        </div>
+      </div>
+
+      <!-- Provenance / Kebun Asal -->
+      <div class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-xs">
+        <span class="text-emerald-900/60 block font-bold text-[10px] uppercase tracking-wider">Asal Usul / Provenance</span>
+        <p id="viewProvenance" class="font-bold text-emerald-950 mt-0.5 text-xs">-</p>
+      </div>
+
+      <!-- Card Banner Ajakan Mengetahui Budidaya & Adat -->
+      <div onclick="triggerOpenBenefitModal()" class="p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200 flex items-center justify-between cursor-pointer hover:bg-purple-100/70 transition shadow-2xs">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🕉️</span>
+          <div>
+            <p class="font-bold text-purple-950 text-xs leading-tight">Panduan Budidaya, Biochar & Peran Adat</p>
+            <p class="text-[10px] text-purple-800/80">Kearifan lokal Bali, khasiat kesehatan, dan panduan semai</p>
+          </div>
+        </div>
+        <span class="text-purple-700 font-black text-sm">&rarr;</span>
+      </div>
+
+      <!-- Cap Segel Resmi Digital Footer -->
+      <div class="pt-2 border-t border-stone-200 flex items-center justify-between text-[10px] text-stone-400">
+        <span>© 2026 SeedVault Foundation</span>
+        <span class="font-mono font-bold uppercase text-stone-500">Official Heirloom Passport</span>
+      </div>
+
+    </div>
+
+    <!-- State Data Tidak Ditemukan -->
+    <div id="errorState" class="hidden bg-white rounded-3xl p-6 border border-rose-200 text-center space-y-3 shadow-md">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto text-xl font-bold">
+        ⚠️
+      </div>
+      <h3 class="font-black text-stone-900 text-sm">Batch Benih Tidak Ditemukan</h3>
+      <p class="text-xs text-stone-500">Kode batch yang Anda pindai tidak terdaftar di sistem atau parameter link tidak valid.</p>
     </div>
 
   </main>
 
   <!-- ============================================================== -->
-  <!-- MODAL POP-UP BUDIDAYA & INFORMASI LENGKAP                     -->
+  <!-- MODAL POPUP: BUDIDAYA, MANFAAT KESEHATAN & BUDAYA ADAT        -->
   <!-- ============================================================== -->
-  <div id="modalBudidaya" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
+  <div id="benefitModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 border border-stone-200 max-h-[90vh] flex flex-col">
       
-      <!-- Modal Header -->
       <div class="flex items-center justify-between border-b pb-3 shrink-0">
         <div class="flex items-center gap-2.5">
-          <span class="p-2 rounded-xl bg-emerald-100 text-emerald-800 text-base">📖</span>
+          <span class="p-2 rounded-2xl bg-amber-100 text-amber-900 text-xl shadow-inner">🌿</span>
           <div>
-            <h3 id="modalBudidayaTitle" class="font-black text-stone-900 text-base">Panduan Budidaya: Kangkung Darat</h3>
-            <p class="text-[11px] text-stone-400">Informasi agronomi, kalender tanam, dan 4 pilar manfaat tanaman</p>
+            <h3 id="benefitPlantTitle" class="font-black text-stone-900 text-base leading-tight">Panduan Budidaya & Adat</h3>
+            <p id="benefitSpeciesSubtitle" class="text-xs italic text-emerald-800 font-bold">-</p>
           </div>
         </div>
-        <button onclick="closeModalBudidaya()" class="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
+        <button onclick="closeBenefitModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
       </div>
 
-      <!-- Tab Navigasi Modal -->
-      <div class="flex border-b border-stone-200 text-xs font-bold gap-2 shrink-0">
-        <button id="tabBtnAgronomi" onclick="switchModalTab('agronomi')" class="pb-2 px-3 border-b-2 border-emerald-700 text-emerald-800">
-          🌾 Agronomi & Tanam
+      <!-- Tab Switcher Modal -->
+      <div class="flex gap-2 p-1 bg-stone-100 rounded-xl text-xs font-bold shrink-0">
+        <button type="button" id="tabBtnAgro" onclick="switchModalTab('agro')" class="flex-1 py-1.5 rounded-lg bg-white shadow-2xs text-emerald-950 transition">
+          🌾 Budidaya & Tanam
         </button>
-        <button id="tabBtnManfaat" onclick="switchModalTab('manfaat')" class="pb-2 px-3 text-stone-400 hover:text-stone-600 border-b-2 border-transparent">
-          🌿 4 Pilar Manfaat
-        </button>
-        <button id="tabBtnSilsilah" onclick="switchModalTab('silsilah')" class="pb-2 px-3 text-stone-400 hover:text-stone-600 border-b-2 border-transparent">
-          🧬 Pohon Silsilah
+        <button type="button" id="tabBtnBenefit" onclick="switchModalTab('benefit')" class="flex-1 py-1.5 rounded-lg text-stone-500 hover:text-stone-800 transition">
+          🕉️ Manfaat & Adat Bali
         </button>
       </div>
 
-      <!-- Modal Content Body -->
-      <div class="overflow-y-auto flex-1 pr-1 space-y-4 text-xs">
+      <!-- Konten Tab Modal -->
+      <div class="overflow-y-auto flex-1 pr-1 text-xs">
         
-        <!-- PANDUAN AGRONOMI -->
-        <div id="contentAgronomi" class="space-y-3">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Musim Tanam</span>
-              <span id="modalSeason" class="font-bold text-stone-800 text-xs block mt-0.5">Sepanjang Tahun</span>
+        <!-- SECTION 1: PARAMETER AGRONOMI BUDIDAYA -->
+        <div id="modalAgroSection" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Musim Tanam</span>
+              <p id="agroSeason" class="font-bold text-stone-800 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Rentang Bulan</span>
-              <span id="modalMonthRange" class="font-bold text-stone-800 text-xs block mt-0.5">Januari - Desember</span>
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Range Bulan</span>
+              <p id="agroMonthRange" class="font-bold text-stone-800 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Elevasi Lahan</span>
-              <span id="modalRegion" class="font-bold text-stone-800 text-xs block mt-0.5">Dataran Rendah (0-700 mdpl)</span>
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Daerah / Wilayah</span>
+              <p id="agroRegion" class="font-bold text-stone-800 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Suhu Optimal</span>
-              <span id="modalTemp" class="font-bold text-amber-800 text-xs block mt-0.5">25 - 35°C</span>
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Suhu Optimal</span>
+              <p id="agroTemp" class="font-bold text-amber-900 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-              <span class="text-[10px] font-bold text-emerald-800 block uppercase">Panen Sayur (HST)</span>
-              <span id="modalHarvestFood" class="font-black text-emerald-800 text-xs block mt-0.5">25 - 30 HST</span>
+            <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200">
+              <span class="text-[9px] font-bold text-emerald-800 block uppercase">Panen Konsumsi (HST)*</span>
+              <p id="agroHarvestFood" class="font-black text-emerald-950 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
-              <span class="text-[10px] font-bold text-amber-800 block uppercase">Panen Benih (HST)</span>
-              <span id="modalHarvestSeed" class="font-black text-amber-900 text-xs block mt-0.5">85 - 100 HST</span>
+            <div class="p-2.5 bg-amber-50 rounded-xl border border-amber-200">
+              <span class="text-[9px] font-bold text-amber-800 block uppercase">Panen Benih (HST)*</span>
+              <p id="agroHarvestSeed" class="font-black text-amber-950 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Penyiraman</span>
-              <span id="modalWatering" class="font-bold text-stone-800 text-xs block mt-0.5">2x sehari</span>
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Penyiraman</span>
+              <p id="agroWatering" class="font-bold text-stone-800 text-xs mt-0.5">-</p>
             </div>
-            <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <span class="text-[10px] font-bold text-stone-400 block uppercase">Kebutuhan Sinar</span>
-              <span id="modalSunlight" class="font-bold text-stone-800 text-xs block mt-0.5">Penuh (Full Sun)</span>
+            <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+              <span class="text-[9px] font-bold text-stone-400 block uppercase">Kebutuhan Sinar</span>
+              <p id="agroSunlight" class="font-bold text-stone-800 text-xs mt-0.5">-</p>
             </div>
           </div>
 
-          <div class="p-3.5 bg-emerald-950/5 rounded-2xl border border-emerald-800/20">
-            <span class="font-bold text-stone-800 block mb-1">🌱 Rekomendasi Pemupukan Biochar & Organik:</span>
-            <p id="modalBiochar" class="text-stone-600 leading-relaxed text-xs">
-              Biochar sekam padi 10% dicampur pupuk kandang matang/kompos 2:1 saat pengolahan bedengan tanah untuk meretensi air dan nutrisi mikroba tanah.
-            </p>
+          <!-- Pemupukan Biochar -->
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-1">
+            <span class="text-[10px] font-bold text-stone-600 uppercase tracking-wider block">🌾 Pemupukan Biochar & Organik</span>
+            <p id="agroBiochar" class="font-medium text-stone-800 leading-relaxed text-[11px]">-</p>
           </div>
+
+          <p class="text-[10px] text-stone-400 italic">*HST = Hari Setelah Tanam (Perhitungan umur tanaman di bedengan)</p>
         </div>
 
-        <!-- 4 PILAR MANFAAT -->
-        <div id="contentManfaat" class="hidden space-y-3">
-          <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80">
-            <div class="font-bold text-emerald-950 text-xs mb-1">🥗 1. Pangan & Ketahanan Gizi</div>
-            <p id="modalFood" class="text-stone-700 leading-relaxed text-xs">
-              Kaya zat besi, vitamin A dan serat larut yang baik untuk kesehatan pencernaan keluarga.
-            </p>
+        <!-- SECTION 2: BUDAYA/UPACARA, KESEHATAN & MANFAAT MULTISEKTORAL -->
+        <div id="modalBenefitSection" class="space-y-3 hidden">
+          <!-- 1. Budaya & Upacara Adat Bali -->
+          <div class="p-3.5 rounded-2xl bg-purple-50/90 border border-purple-200 space-y-1 shadow-2xs">
+            <h4 class="font-black text-purple-950 flex items-center gap-1.5 text-xs">
+              <span>🕉️</span> Manfaat Budaya, Upacara Adat & Tradisi Bali
+            </h4>
+            <p id="benefitCulture" class="text-stone-700 leading-relaxed text-[11px]">-</p>
           </div>
-          <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80">
-            <div class="font-bold text-blue-950 text-xs mb-1">🐝 2. Peran Agroekologi & Permakultur</div>
-            <p id="modalEcology" class="text-stone-700 leading-relaxed text-xs">
-              Menjaga kelembapan tanah bedengan dan sangat efisien memanfaatkan air buangan budidaya.
-            </p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/80">
-            <div class="font-bold text-rose-950 text-xs mb-1">💊 3. Kesehatan & Herbal Alami</div>
-            <p id="modalHealth" class="text-stone-700 leading-relaxed text-xs">
-              Kandungan sedatif alami menenangkan sistem saraf dan merangsang kualitas tidur berkualitas.
-            </p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80">
-            <div class="font-bold text-amber-950 text-xs mb-1">💰 4. Potensi Ekonomi & Budaya</div>
-            <p id="modalEconomy" class="text-stone-700 leading-relaxed text-xs">
-              Tingkat perputaran konsumsi harian sangat cepat dan menjadi komoditas sayur pokok masyarakat.
-            </p>
-          </div>
-        </div>
 
-        <!-- POHON SILSILAH GENERASI -->
-        <div id="contentSilsilah" class="hidden space-y-3">
-          <p class="text-stone-500 text-xs">Jejak regenerasi varietas pusaka dari tetua hingga batch aktif:</p>
-          <div id="modalPedigreeTree" class="space-y-2 p-2 bg-stone-50 rounded-2xl border border-stone-200">
-            <!-- Timeline Item -->
+          <!-- 2. Kesehatan & Herbal -->
+          <div class="p-3.5 rounded-2xl bg-rose-50/80 border border-rose-200 space-y-1 shadow-2xs">
+            <h4 class="font-black text-rose-950 flex items-center gap-1.5 text-xs">
+              <span>💊</span> Khasiat Kesehatan & Pengobatan Herbal
+            </h4>
+            <p id="benefitHealth" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- 3. Pangan & Gizi -->
+          <div class="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
+            <h4 class="font-bold text-emerald-950 flex items-center gap-1.5 text-xs">
+              <span>🥗</span> Pangan & Ketahanan Gizi Keluarga
+            </h4>
+            <p id="benefitFood" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- 4. Agroekologi -->
+          <div class="p-3 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-1">
+            <h4 class="font-bold text-blue-950 flex items-center gap-1.5 text-xs">
+              <span>🐝</span> Peran Agroekologi Kebun
+            </h4>
+            <p id="benefitEcology" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- 5. Ekonomi -->
+          <div class="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1">
+            <h4 class="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
+              <span>💰</span> Nilai Ekonomi & Pemanfaatan Lokal
+            </h4>
+            <p id="benefitEconomy" class="text-stone-700 leading-relaxed text-[11px]">-</p>
           </div>
         </div>
 
       </div>
 
-      <div class="border-t pt-3 flex items-center justify-end shrink-0">
-        <button onclick="closeModalBudidaya()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-5 py-2 rounded-xl text-xs transition">
-          Tutup
+      <div class="border-t pt-3 flex justify-between items-center shrink-0">
+        <span class="text-[10px] text-stone-400 font-medium">Database Kearifan Lokal • SeedVault</span>
+        <button onclick="closeBenefitModal()" class="px-5 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-stone-700 transition">
+          Tutup Informasi
         </button>
       </div>
+
     </div>
   </div>
 
-  <!-- MODAL: PEMINDAI KAMERA QR -->
-  <div id="cameraScannerModal" class="fixed inset-0 bg-stone-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-stone-200">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="font-black text-stone-800 text-sm flex items-center gap-1.5">
-          <span>📷</span> Pindai QR Toples Benih
-        </h3>
-        <button onclick="closeCameraScanner()" class="p-1 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition">✕</button>
-      </div>
-      <div id="qrReaderBox" class="w-full bg-stone-900 rounded-2xl overflow-hidden aspect-square border border-stone-300"></div>
-      <p class="text-[11px] text-stone-400 text-center">Arahkan kamera smartphone ke kode QR pada stiker toples benih</p>
-    </div>
-  </div>
+  <!-- Footer Publik -->
+  <footer class="max-w-md w-full mx-auto text-center py-2 border-t border-stone-300">
+    <p class="text-[10px] text-stone-500 font-medium">© 2026 SeedVault Foundation • Menjaga Keanekaragaman Hayati</p>
+  </footer>
 
-  <!-- SCRIPT LOGIKA PASPOR DIGITAL -->
   <script>
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
     const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
     const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
 
-    let currentBatchData = null;
-    let currentPlantSpecies = null;
-    let html5QrScanner = null;
+    let activeBatchData = null;
 
-    // KAMUS BOTANI & AGRONOMI BAWAAN (25 TANAMAN PUSAKA LENGKAP)
-    const BASE_BOTANICAL_DICTIONARY = [
-      { 
-        common: "Tomat Rampai", scientific: "Solanum lycopersicum", family: "Solanaceae",
+    const BASE_AGRO_ENCYCLOPEDIA = {
+      "tomat": {
+        local_bali: "Ranti / Tomat", common_en: "Tomato",
         season: "Kemarau / Awal Hujan", month_range: "Mei - Agustus", region: "Dataran Menengah - Tinggi (300-1000 mdpl)", temp_range: "22 - 28°C",
         harvest_food_hst: "65 - 75 HST", harvest_seed_hst: "90 - 100 HST", watering: "1x sehari (pagi)", sunlight: "Penuh (Full Sun)",
         biochar: "Campuran 10% biochar sekam padi + pupuk kandang sapi matang 2:1",
-        pollination_type: "Self-pollinated (Penyerbukan Sendiri)", isolation_distance: "3 - 5 meter (Min 15m jika berdekatan varietas ceri lain)",
-        processing_type: "Ekstraksi Basah (Fermentasi 2-3 hari hingga lendir larut)",
-        dormancy_treatment: "Rendam air hangat 40-45°C selama 4-6 jam sebelum semai",
-        morphology_flavor: "Buah bulat bergelombang/keriting kecil, rasa asam segar kuat gurih berair khas sambal rampai",
-        food: "Kaya likopen, vitamin C, dan antioksidan tinggi untuk sambal rampai khas nusantara.",
-        ecology: "Menarik predator alami kutu putih bila diselingi tagetes/marigold.",
-        health: "Membantu kesehatan jantung, anti-kanker prostat, dan penangkal radikal bebas.",
-        economy: "Varietas lokal digemari pasar kuliner tradisional dan rumah tangga."
+        culture: "Pelengkap olahan kuliner sambal bejek/sere tabia Bali, persembahan hasil bumi banten pawedan.",
+        health: "Tinggi antioksidan likopen untuk menjaga kesehatan jantung dan elastisitas pembuluh darah.",
+        food: "Kaya vitamin C, vitamin K, kalium, dan antioksidan likopen tinggi.",
+        ecology: "Tanaman pendamping ideal untuk asparagus dan basil. Bunga memikat serangga penyerbuk.",
+        economy: "Bernilai jual segar tinggi, bahan pasta saus organik artisan."
       },
-      { 
-        common: "Cabai Rawit", scientific: "Capsicum frutescens", family: "Solanaceae",
-        season: "Kemarau", month_range: "April - Juli", region: "Dataran Rendah - Menengah (0-500 mdpl)", temp_range: "25 - 32°C",
-        harvest_food_hst: "75 - 85 HST", harvest_seed_hst: "100 - 120 HST", watering: "2 hari sekali", sunlight: "Penuh",
-        biochar: "Aplikasi biochar bambu 150 gr/lubang tanam + kompos cacing",
-        pollination_type: "Self-pollinated (Dapat silang via lebah 10-20%)", isolation_distance: "Min 150 - 200 meter dari varietas cabai lain",
-        processing_type: "Ekstraksi Basah / Kering (Kikis biji dari buah matang merah sempurna)",
-        dormancy_treatment: "Rendam air hangat kuku 40°C selama 6-8 jam + tiriskan di tisu lembap",
-        morphology_flavor: "Buah tegak menghadap atas, warna putih kehijauan saat muda dan merah menyala saat masak, rasa pedas tajam menusuk",
-        food: "Tingkat kepedasan tinggi (capsaicin kuat), bumbu dasar masakan pedas nusantara.",
-        ecology: "Dapat dijadikan insektisida nabati anti-hama ulat dan serangga pengisap.",
-        health: "Memicu endorfin, melancarkan sirkulasi darah dan pernapasan.",
-        economy: "Komoditas bernilai tinggi dengan fluktuasi harga menguntungkan petani."
-      },
-      { 
-        common: "Cabai Keriting", scientific: "Capsicum annuum", family: "Solanaceae",
-        season: "Kemarau / Akhir Hujan", month_range: "Maret - Juli", region: "Dataran Rendah - Tinggi (0-900 mdpl)", temp_range: "24 - 30°C",
-        harvest_food_hst: "80 - 90 HST", harvest_seed_hst: "110 - 125 HST", watering: "1x sehari pagi", sunlight: "Penuh",
-        biochar: "Biochar sekam 10% + pupuk kandang kambing fermentasi",
-        pollination_type: "Self-pollinated (Potensi penyerbukan silang terbatas)", isolation_distance: "Min 200 meter dari cabai manis/rawit lain",
-        processing_type: "Ekstraksi Kering (Belah buah merah matang pohon, keringkan biji di tempat teduh bersirkulasi)",
-        dormancy_treatment: "Rendam air hangat ekstrak bawang merah (ZPT alami) selama 6 jam",
-        morphology_flavor: "Buah panjang ramping bergelombang lentur, merah mengilap, rasa pedas aromatik seimbang gurih",
-        food: "Pewarna merah alami masakan, sambal balado dan bumbu rempah nusantara.",
-        ecology: "Tumpang sari efektif bersama bawang merah dan tagetes penolak nematoda.",
-        health: "Tinggi vitamin C, membakar kalori dan anti-inflamasi alami.",
-        economy: "Kebutuhan harian pokok pasar induk dan industri bumbu olahan."
-      },
-      { 
-        common: "Kelor", scientific: "Moringa oleifera", family: "Moringaceae",
+      "kelor": {
+        local_bali: "Don Keloor", common_en: "Moringa / Drumstick Tree",
         season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Dataran Rendah Kering (0-600 mdpl)", temp_range: "25 - 35°C",
         harvest_food_hst: "45 - 60 HST (Daun)", harvest_seed_hst: "180 - 210 HST (Polong)", watering: "Tahan kering (3 hari sekali)", sunlight: "Penuh",
         biochar: "Biochar kayu keras 20% pada lubang tanam bibit",
-        pollination_type: "Cross-pollinated (Penyerbukan Silang via lebah madu Xylocopa)", isolation_distance: "Min 200 - 300 meter antar kultivar",
-        processing_type: "Ekstraksi Kering (Polong cokelat kering di pohon, buka cangkang polong bersayap)",
-        dormancy_treatment: "Rendam air suhu ruang 24 jam atau kupas kulit luar cangkang benih secara hati-hati",
-        morphology_flavor: "Biji bulat bersayap tiga warna cokelat tua, rasa daun herba segar agak langu gurih berkaldu",
-        food: "Superfood kaya 46 antioksidan, 18 asam amino, dan mineral seng penting.",
-        ecology: "Penahan erosi tanah marjinal dan penyerap emisi karbon sangat tinggi.",
-        health: "ASI booster alami, penurun gula darah dan penyeimbang kolesterol.",
-        economy: "Potensi ekspor bubuk daun kering dan minyak biji benih ben berharga tinggi."
+        culture: "Pohon sakral pelindung pekarangan, sarana ruwatan/leletan spiritual, sayur jukut kelor wajib.",
+        health: "Antioksidan kuat, antiinflamasi alami, penstabil gula darah, dan melancarkan ASI.",
+        food: "Superfood kaya zat besi, kalsium, vitamin A, dan asam amino pencegah stunting.",
+        ecology: "Pohon pionir tahan kekeringan, daun rontok menjadi biomasa pupuk hijau kaya hara.",
+        economy: "Bubuk daun kelor bernilai ekspor tinggi dan bahan kapsul herbal."
       },
-      { 
-        common: "Kenikir", scientific: "Cosmos caudatus", family: "Asteraceae",
+      "kenikir": {
+        local_bali: "Ulam Raja / Kenikir", common_en: "King's Salad",
         season: "Sepanjang Tahun", month_range: "Maret - Oktober", region: "Semua Ketinggian (0-1200 mdpl)", temp_range: "20 - 30°C",
         harvest_food_hst: "30 - 40 HST", harvest_seed_hst: "65 - 75 HST", watering: "1x sehari", sunlight: "Penuh - Sedang",
         biochar: "Biochar sekam 5% dicampur kompos daun matang",
-        pollination_type: "Cross-pollinated (Serangga penyerbuk & kupu-kupu)", isolation_distance: "Min 100 - 150 meter dari cosmos hias lain",
-        processing_type: "Ekstraksi Kering (Kumpulkan kepala bunga saat kelopak rontok dan biji jarum menghitam)",
-        dormancy_treatment: "Tidak memerlukan perlakuan khusus, semai langsung tabur tipis di media gembur",
-        morphology_flavor: "Biji berbentuk jarum pipih bergerigi warna hitam, aroma daun aromatik khas mirip mangga muda manis",
-        food: "Lalapan segar kaya kalsium, pelengkap pecel, urap dan salad tradisional.",
-        ecology: "Tanaman refugia terbaik penarik serangga musuh alami hama wereng.",
-        health: "Meningkatkan sirkulasi darah, anti-aging, dan pelindung kepadatan tulang.",
-        economy: "Peluang pasar resto sunda dan sajian teh herbal kenikir."
+        culture: "Lalapan segar upacara dan tanaman hias pekarangan penolak serangga.",
+        health: "Melancarkan peredaran darah, detoksifikasi alami, dan menjaga lambung.",
+        food: "Sayur lalapan segar kaya polifenol dan antioksidan alami.",
+        ecology: "Trap crop pengusir nematoda akar berkat senyawa pada akarnya.",
+        economy: "Pasokan sayuran segar organik pasar kuliner tradisional."
       },
-      { 
-        common: "Telang", scientific: "Clitoria ternatea", family: "Fabaceae",
+      "telang": {
+        local_bali: "Bunga Teleng", common_en: "Butterfly Pea",
         season: "Kemarau & Pancaroba", month_range: "Februari - September", region: "Dataran Rendah (0-700 mdpl)", temp_range: "24 - 32°C",
         harvest_food_hst: "45 - 55 HST (Bunga)", harvest_seed_hst: "90 - 110 HST (Polong)", watering: "1x sehari secukupnya", sunlight: "Penuh (merambat)",
         biochar: "Biochar kelapa + inokulan rhizobium pengikat nitrogen",
-        pollination_type: "Self-pollinated (Struktur bunga tertutup melindungi benang sari)", isolation_distance: "5 - 10 meter (Aman di pekarangan)",
-        processing_type: "Ekstraksi Kering (Petik polong saat cokelat kering berderak, pipil biji hitamnya)",
-        dormancy_treatment: "Skarifikasi ringan (gosok lembut dengan amplas halus) lalu rendam air hangat 8 jam",
-        morphology_flavor: "Biji bulat lonjong hitam pekat mirip ginjal kecil, bunga biru nila keunguan elegan, rasa tawar herba segar",
-        food: "Pewarna biru alami makanan/minuman, teh telang lemon, nasi ulam biru.",
-        ecology: "Fiksasi nitrogen udara menyuburkan tanah bedengan pekarangan.",
-        health: "Tinggi antosianin, meningkatkan daya ingat dan relaksasi otak.",
-        economy: "Komoditas kafe modern, pewarna kosmetik alami, dan teh seduh kemasan."
+        culture: "Bunga biru sakral persembahyangan Hyang Siwa, canang sari, pewarna alami jaja Bali.",
+        health: "Meningkatkan fungsi kognitif/memori (nootropik), meredakan stres, dan menjaga kesehatan mata.",
+        food: "Pewarna biru alami kaya antosianin untuk teh herbal dan nasi uduk.",
+        ecology: "Tanaman legum pengikat nitrogen bebas penyubur tanah.",
+        economy: "Bunga kering bernilai jual tinggi per gram untuk teh dan mocktail artisan."
       },
-      { 
-        common: "Terong Gelatik", scientific: "Solanum melongena", family: "Solanaceae",
-        season: "Kemarau - Pancaroba", month_range: "April - Agustus", region: "Dataran Rendah - Menengah (0-600 mdpl)", temp_range: "24 - 30°C",
-        harvest_food_hst: "55 - 65 HST", harvest_seed_hst: "90 - 105 HST", watering: "1x sehari pagi", sunlight: "Penuh",
-        biochar: "Biochar sekam 10% + kascing 15%",
-        pollination_type: "Self-pollinated (Penyerbukan sendiri, getaran angin/lebah)", isolation_distance: "Min 50 - 100 meter antar varietas terong ungu/hijau",
-        processing_type: "Ekstraksi Basah (Buah dibiarkan kuning/kecokelatan lembek di pohon, remas dalam ember air, saring biji bernas tenggelam)",
-        dormancy_treatment: "Rendam air hangat 45°C selama 6 jam untuk memicu perkecambahan",
-        morphology_flavor: "Buah bulat kecil seukuran bola pingpong, belang hijau putih, tekstur renyah manis tawar segar tanpa rasa pahit",
-        food: "Lalap renyah mentah, sambal terong, dan sayur lodeh gurih.",
-        ecology: "Menarik lebah solitary pollinator untuk kebun permakultur seimbang.",
-        health: "Mengandung nasunin (antioksidan pelindung sel otak) dan serat pektin tinggi.",
-        economy: "Penjualan rutin di pasar tradisional dengan permintaan harian stabil."
-      },
-      { 
-        common: "Kacang Panjang", scientific: "Vigna unguiculata sesquipedalis", family: "Fabaceae",
-        season: "Awal Kemarau", month_range: "Mei - September", region: "Dataran Rendah - Menengah (0-700 mdpl)", temp_range: "25 - 32°C",
-        harvest_food_hst: "45 - 50 HST", harvest_seed_hst: "75 - 85 HST", watering: "1x sehari", sunlight: "Penuh (butuh lanjaran)",
-        biochar: "Biochar tongkol jagung 10% + kompos kotoran ayam",
-        pollination_type: "Self-pollinated (Penyerbukan sendiri tertutup)", isolation_distance: "3 - 5 meter (Jarak aman bedengan biasa)",
-        processing_type: "Ekstraksi Kering (Biarkan polong mengering kuning kecokelatan di lanjaran, pipil bijinya)",
-        dormancy_treatment: "Rendam air hangat kuku 30-40°C selama 4 jam atau langsung tanam ke tugalan",
-        morphology_flavor: "Biji lonjong dwiwarna (merah-putih/lurik), polong renyah manis padat tanpa serat keras",
-        food: "Sumber protein nabati, vitamin A, sayur tumis dan lalap urap segar.",
-        ecology: "Nodul akar mengikat nitrogen bebas di tanah bedengan kebun.",
-        health: "Membantu metabolisme energi dan menjaga kadar hemoglobin darah.",
-        economy: "Siklus panen berkali-kali memberikan arus kas mingguan bagi petani."
-      },
-      { 
-        common: "Pare Belut", scientific: "Trichosanthes cucumerina", family: "Cucurbitaceae",
-        season: "Kemarau - Awal Hujan", month_range: "Maret - Juli", region: "Dataran Rendah (0-500 mdpl)", temp_range: "25 - 33°C",
-        harvest_food_hst: "60 - 70 HST", harvest_seed_hst: "100 - 120 HST", watering: "1x sehari teratur", sunlight: "Penuh (para-para kukuh)",
-        biochar: "Biochar sekam 15% + pupuk kandang sapi",
-        pollination_type: "Cross-pollinated (Monoecious - penyerbukan silang malam hari via ngengat)", isolation_distance: "Min 500 meter atau lakukan isolasi sungkup bunga & polinasi manual",
-        processing_type: "Ekstraksi Basah (Buah matang merah membubur, cuci salut biji lendir merah di saringan kawat)",
-        dormancy_treatment: "Skarifikasi jepit ujung cangkang tebalnya dengan gunting kuku secara hati-hati, rendam air hangat 12 jam",
-        morphology_flavor: "Biji berbentuk ukiran pipih khas bertakik cokelat tua, buah panjang spiral mirip ular, rasa manis berair mirip labu air tanpa rasa pahit",
-        food: "Sayur bening segar, oseng tempe, tidak pahit seperti pare biasa.",
-        ecology: "Bunga putih berenda mekar malam hari menarik ngengat polinator sphingidae.",
-        health: "Kaya cairan elektrolit, pendingin tubuh alami, dan serat diet sehat.",
-        economy: "Bentuk eksotis bernilai tambah di pasar sayur organik premium."
-      },
-      { 
-        common: "Pare Pahit", scientific: "Momordica charantia", family: "Cucurbitaceae",
-        season: "Kemarau", month_range: "Mei - Agustus", region: "Dataran Rendah - Menengah (0-800 mdpl)", temp_range: "24 - 32°C",
-        harvest_food_hst: "50 - 60 HST", harvest_seed_hst: "80 - 95 HST", watering: "1x sehari", sunlight: "Penuh",
-        biochar: "Biochar bambu 10% + kascing 10%",
-        pollination_type: "Cross-pollinated (Serangga lebah & lalat bunga)", isolation_distance: "Min 400 - 500 meter dari varietas pare lainnya",
-        processing_type: "Ekstraksi Basah (Kupas salut biji merah manis dari buah matang jingga terbuka, cuci dan angin-anginkan)",
-        dormancy_treatment: "Rendam air hangat 40°C selama 8 jam sebelum disemai",
-        morphology_flavor: "Biji bergerigi artistik cokelat terang, buah berigi tajam runcing, rasa pahit getir khas membangkitkan nafsu makan",
-        food: "Bahan tumis tahu taoco, siomay kukus, dan jus detoks pare segar.",
-        ecology: "Resisten hama nematoda tanah bila dirotasikan dengan famili solanaceae.",
-        health: "Charantin & polipeptida-P aktif membantu menjaga keseimbangan gula darah.",
-        economy: "Pasar tradisional loyal dan permintaan konstan di berbagai daerah."
-      },
-      { 
-        common: "Timun Suri", scientific: "Cucumis melo var. conomon", family: "Cucurbitaceae",
-        season: "Kemarau Kering", month_range: "Juni - September", region: "Dataran Rendah (0-400 mdpl)", temp_range: "26 - 34°C",
-        harvest_food_hst: "55 - 65 HST", harvest_seed_hst: "80 - 90 HST", watering: "1x sehari saat pagi, kurangi jelang panen", sunlight: "Penuh",
-        biochar: "Biochar sekam 10% + dolomit 5%",
-        pollination_type: "Cross-pollinated (Penyerbukan silang lebah apis)", isolation_distance: "Min 500 - 800 meter dari melon/blewah lain",
-        processing_type: "Ekstraksi Basah (Keruk biji bersama lendirnya, fermentasi 24-48 jam, cuci bersih dan jemur)",
-        dormancy_treatment: "Rendam air hangat kuku 4 jam + peram di kain basah 24 jam sampai keluar titik tunas",
-        morphology_flavor: "Buah lonjong gemuk kuning keemasan mereka saat masak, daging buah empuk pulen berpasir wangi harum semerbak",
-        food: "Menu takjil berbuka puasa, es timun suri sirup mawar dan pandan.",
-        ecology: "Penutup tanah cepat penekan gulma di lahan kering terbuka.",
-        health: "Menghidrasi sel tubuh seketika, sumber vitamin C dan mineral kalium.",
-        economy: "Peluang panen musiman Ramadhan bernilai omset jutaan rupiah bagi petani lokal."
-      },
-      { 
-        common: "Gambas", scientific: "Luffa acutangula", family: "Cucurbitaceae",
-        season: "Pancaroba & Kemarau", month_range: "Februari - Juli", region: "Dataran Rendah (0-600 mdpl)", temp_range: "25 - 32°C",
-        harvest_food_hst: "45 - 55 HST", harvest_seed_hst: "90 - 110 HST", watering: "1x sehari", sunlight: "Penuh (butuh para-para)",
-        biochar: "Biochar sekam 10% + pupuk kandang kambing",
-        pollination_type: "Cross-pollinated (Lebah madu & kumbang malam)", isolation_distance: "Min 400 meter dari varietas gambas/blustru lain",
-        processing_type: "Ekstraksi Kering (Biarkan buah cokelat kering dan berserat keras di rambatan, buka tutup ujung buah dan goyang hingga biji keluar)",
-        dormancy_treatment: "Rendam air hangat 45°C selama 6 jam sebelum semai",
-        morphology_flavor: "Biji hitam pipih dengan sayap tipis di tepi, buah berlingir sepuluh tajam memanjang, rasa sayur manis lunak beraroma segar",
-        food: "Sayur oyong soun bening, pelindung lambung anak dan lansia.",
-        ecology: "Sisa serat buah tua dapat diolah menjadi spons mandi ramah lingkungan (loofah).",
-        health: "Meredakan panas dalam, menyehatkan dinding lambung, dan anti-mikroba alami.",
-        economy: "Hasil panen berkesinambungan dan bernilai jual ganda (sayur konsumsi & loofah alami)."
-      },
-      { 
-        common: "Jagung Pulut", scientific: "Zea mays var. ceratina", family: "Poaceae",
-        season: "Awal Musim Hujan / Awal Kemarau", month_range: "Oktober - Februari", region: "Dataran Rendah - Menengah (0-800 mdpl)", temp_range: "22 - 30°C",
-        harvest_food_hst: "65 - 75 HST", harvest_seed_hst: "95 - 110 HST", watering: "2-3 hari sekali", sunlight: "Penuh (Full Sun wajib)",
-        biochar: "Biochar tongkol jagung 20% pada alur bedengan tanam",
-        pollination_type: "Cross-pollinated (Anemophilous - penyerbukan silang lewat angin)", isolation_distance: "Min 250 - 400 meter dari jagung kuning/manis lain untuk mencegah xenia (biji mengeras)",
-        processing_type: "Ekstraksi Kering (Tongkol dibiarkan mengering hingga kelobot cokelat di batang, kupas kelobot, jemur tongkol, lalu pipil)",
-        dormancy_treatment: "Rendam air dingin biasa selama 4-6 jam sebelum tanam di petak sawah",
-        morphology_flavor: "Biji berwarna putih susu mengilap seperti lilin waxy, rasa pulen lengket gurih kenyal manis alami",
-        food: "Jagung rebus pulut gurih legit, marning jagung pusaka nusantara.",
-        ecology: "Biomassa batang dan daun berlimpah untuk mulsa organik dan pakan ternak.",
-        health: "Kandungan amilopektin tinggi memberi rasa kenyang lebih lama dan ramah gluten.",
-        economy: "Varietas pusaka digandrungi pasar pecinta kuliner jagung tradisional."
-      },
-      { 
-        common: "Bayam Merah", scientific: "Amaranthus tricolor", family: "Amaranthaceae",
-        season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Semua Ketinggian (0-1000 mdpl)", temp_range: "20 - 32°C",
-        harvest_food_hst: "20 - 30 HST", harvest_seed_hst: "55 - 65 HST", watering: "1-2x sehari (lembut)", sunlight: "Penuh",
-        biochar: "Biochar halus 5% + kompos daun terfermentasi",
-        pollination_type: "Self & Wind-pollinated (Sebagian besar mandiri + angin)", isolation_distance: "50 - 100 meter dari jenis bayam liar (Amaranthus spinosus)",
-        processing_type: "Ekstraksi Kering (Potong malai bunga saat mulai kecokelatan, gilas lembut di atas tampah, ayak dengan saringan halus)",
-        dormancy_treatment: "Tidak perlu perlakuan, campur benih dengan pasir kering saat menabur agar merata",
-        morphology_flavor: "Biji mikroskopis bulat berkilau hitam pekat, daun oval bergradasi merah marun keunguan, rasa gurih lembut tanah khas bayam",
-        food: "Sayur bening bayam merah jagung manis, keripik bayam merah renyah.",
-        ecology: "Sistem perakaran serabut menjaga struktur partikel tanah permukaan dari erosi air siraman.",
-        health: "Sangat kaya zat besi, kalsium, fosfor, dan pigmen betasianin anti-anemia alami.",
-        economy: "Panen super cepat (kurang dari sebulan) menjamin perputaran modal tercepat bagi petani pemula."
-      },
-      { 
-        common: "Kangkung Darat", scientific: "Ipomoea aquatica", family: "Convolvulaceae",
-        season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Dataran Rendah - Menengah (0-700 mdpl)", temp_range: "25 - 35°C",
-        harvest_food_hst: "25 - 30 HST", harvest_seed_hst: "85 - 100 HST", watering: "2x sehari (kebutuhan air tinggi)", sunlight: "Penuh",
-        biochar: "Biochar sekam padi 10% menjaga kelembapan bedengan",
-        pollination_type: "Cross-pollinated (Serangga lebah penyerbuk bunga lonceng)", isolation_distance: "Min 100 meter antar varietas daun lebar vs daun sempit",
-        processing_type: "Ekstraksi Kering (Polong bulat meletus saat kering di batang, rontokkan dan bersihkan dari kulit buah)",
-        dormancy_treatment: "Rendam air hangat kuku selama 8-12 jam hingga cangkang sedikit merekah",
-        morphology_flavor: "Biji bersegi bulat warna cokelat keabu-abuan keras, batang berongga renyah juicy tidak liat",
-        food: "Kangkung plecing lombok, cah kangkung terasi, dan sayur asam segar.",
-        ecology: "Sangat efisien memanfaatkan sisa nutrisi air buangan kolam budidaya lele/aquaponik.",
-        health: "Zat sedatif alami membuat tidur lebih nyenyak, tinggi vitamin A & B kompleks.",
-        economy: "Sayuran sejuta umat dengan tingkat konsumsi harian tertinggi di Indonesia."
-      },
-      { 
-        common: "Sawi Caisim", scientific: "Brassica rapa parachinensis", family: "Brassicaceae",
-        season: "Pancaroba & Hujan Ringan", month_range: "September - Maret", region: "Dataran Rendah - Tinggi (0-1200 mdpl)", temp_range: "18 - 28°C",
-        harvest_food_hst: "25 - 35 HST", harvest_seed_hst: "65 - 80 HST", watering: "1-2x sehari", sunlight: "Penuh - Sedang",
-        biochar: "Biochar sekam 10% + kascing 10%",
-        pollination_type: "Cross-pollinated (Self-incompatible - wajib serangga polinator)", isolation_distance: "Min 300 - 500 meter dari varietas sawi putih, pakcoy, dan lobak sejenis",
-        processing_type: "Ekstraksi Kering (Polong siliqua cokelat tua dipetik sebelum pecah sendiri, jemur dan remas dalam kain)",
-        dormancy_treatment: "Semai langsung atau rendam air dingin 2 jam sebelum sebar di persemaian",
-        morphology_flavor: "Biji bulat kecil merah kecokelatan sampai hitam, tangkai daun renyah manis sedikit pedas khas mustard lembut",
-        food: "Pelengkap wajib mie ayam, bakso, capcay, dan tumisan bawang putih renyah.",
-        ecology: "Bunga kuning semarak mengundang tawon parasitoid pemakan kutu daun kebun.",
-        health: "Mengandung senyawa glukosinolat anti-karsinogenik dan serat larut yang baik untuk pencernaan.",
-        economy: "Kebutuhan warung makan dan pedagang mie bakso sangat tinggi tanpa henti."
-      },
-      { 
-        common: "Kemangi", scientific: "Ocimum basilicum var. anisatum", family: "Lamiaceae",
-        season: "Sepanjang Tahun", month_range: "Februari - Oktober", region: "Semua Ketinggian (0-900 mdpl)", temp_range: "22 - 32°C",
-        harvest_food_hst: "30 - 40 HST (Pucuk Daun)", harvest_seed_hst: "75 - 90 HST", watering: "1x sehari", sunlight: "Penuh",
-        biochar: "Biochar sekam 8% + pupuk kandang fermentasi",
-        pollination_type: "Self & Cross-pollinated (Kombinasi lebah madu & penyerbukan mandiri)", isolation_distance: "Min 150 meter dari kemangi italia atau ruku-ruku",
-        processing_type: "Ekstraksi Kering (Malai bunga bunga tua berwarna cokelat dipotong, remas pelan, pisahkan biji selasih)",
-        dormancy_treatment: "Rendam air 10 menit (biji akan langsung mengeluarkan selaput jeli putih pelindung kelembapan)",
-        morphology_flavor: "Biji lonjong hitam licin pembentuk jeli, daun wangi tajam anis sitrat yang membangkitkan selera makan",
-        food: "Lalapan ikan bakar, bumbu pepes, aroma khas sambal kemangi tradisional.",
-        ecology: "Aroma atsiri kuat (eugenol) menolak hama lalat buah (Bactrocera) dan nyamuk kebun.",
-        health: "Meredakan bau badan, mengatasi perut kembung, dan menenangkan sistem saraf.",
-        economy: "Petani pekarangan memetik pucuk mingguan hingga 6 bulan masa produktif."
-      },
-      { 
-        common: "Rosella", scientific: "Hibiscus sabdariffa", family: "Malvaceae",
-        season: "Kemarau", month_range: "April - September", region: "Dataran Rendah (0-600 mdpl)", temp_range: "25 - 34°C",
-        harvest_food_hst: "100 - 120 HST (Kelopak)", harvest_seed_hst: "140 - 160 HST", watering: "2 hari sekali (sangat tahan kering)", sunlight: "Penuh",
-        biochar: "Biochar kayu 15% pada tanah lempung berpasir",
-        pollination_type: "Self-pollinated (Bunga mekar pagi dan menyerbuk sendiri sebelum siang)", isolation_distance: "Min 100 meter antar varietas merah dan ungu/putih",
-        processing_type: "Ekstraksi Kering (Kapsul buah di dalam kelopak mengering cokelat merekah, keluarkan biji ginjalnya)",
-        dormancy_treatment: "Rendam air hangat 50°C selama 6 jam untuk melembutkan kulit biji keras",
-        morphology_flavor: "Biji berbentuk ginjal berbulu halus warna cokelat gelap, kelopak bunga merah anggur berdaging tebal asam segar nikmat",
-        food: "Teh herbal merah pekat, selai rosella, sirup kesehatan dingin pelepas dahaga.",
-        ecology: "Tanaman pagar hidup berbunga spektakuler penahan terpaan angin kencang ladang.",
-        health: "Vitamin C 3x lebih banyak dari jeruk, penurun tekanan darah tinggi/hipertensi alami.",
-        economy: "Kelopak kering memiliki nilai ekonomis tinggi per kilogram untuk industri jamu herbal."
-      },
-      { 
-        common: "Labu Kuning", scientific: "Cucurbita moschata", family: "Cucurbitaceae",
-        season: "Pancaroba & Kemarau", month_range: "Maret - Agustus", region: "Dataran Rendah - Menengah (0-800 mdpl)", temp_range: "22 - 30°C",
-        harvest_food_hst: "85 - 95 HST", harvest_seed_hst: "110 - 130 HST", watering: "1x sehari pagi", sunlight: "Penuh",
-        biochar: "Biochar sekam 15% + pupuk kandang sapi 1 blek per lubang tanam",
-        pollination_type: "Cross-pollinated (Bunga jantan & betina terpisah - butuh lebah atau penyerbukan manual)", isolation_distance: "Min 500 - 1000 meter dari varietas Cucurbita moschata lain untuk menjaga kemurnian",
-        processing_type: "Ekstraksi Basah (Belah buah matang simpan, sendok biji bersama serat, cuci bersih tanpa fermentasi panjang, jemur berangin)",
-        dormancy_treatment: "Rendam air hangat kuku 40°C selama 8 jam sebelum disemai",
-        morphology_flavor: "Biji pipih berpinggir tebal krem kecokelatan, daging buah jingga menyala pulen gurih legit beraroma mentega",
-        food: "Kolak labu, puding, sup labu kuning, serta bahan campuran roti/kue lezat.",
-        ecology: "Tajuk daun raksasa menjadi mulsa hidup penekan erosi dan gulma di bawahnya.",
-        health: "Beta-karoten sangat tinggi untuk imunitas anak dan kesehatan mata.",
-        economy: "Daya simpan buah utuh pasca panen sangat lama (mencapai 4-6 bulan tanpa kulkas)."
-      },
-      { 
-        common: "Labu Madu", scientific: "Cucurbita moschata", family: "Cucurbitaceae",
-        season: "Kemarau", month_range: "Mei - September", region: "Dataran Rendah - Menengah (100-700 mdpl)", temp_range: "23 - 32°C",
-        harvest_food_hst: "80 - 90 HST", harvest_seed_hst: "105 - 120 HST", watering: "1x sehari teratur", sunlight: "Penuh",
-        biochar: "Biochar bambu 10% + kompos kotoran kambing matang",
-        pollination_type: "Cross-pollinated (Serangga penyerbuk / Polinasi manual tangan pagi hari)", isolation_distance: "Min 800 meter atau sungkup kuncup bunga sehari sebelum mekar",
-        processing_type: "Ekstraksi Basah (Keruk biji dari rongga bawah buah masak fisiologis, cuci bersih dan tiriskan)",
-        dormancy_treatment: "Rendam air hangat 40°C selama 6 jam sebelum disemai",
-        morphology_flavor: "Biji pipih oval warna gading muda, buah berbentuk lonceng pir cokelat muda, daging super manis legit pulen lezat",
-        food: "Makanan pendamping ASI (MPASI) terbaik, cake labu madu panggang lembut.",
-        ecology: "Dapat dirambatkan pada pergola teralis memanfaatkan ruang vertikal sempit.",
-        health: "Rendah kalori, kaya vitamin A, kalsium, dan kalium penjaga ginjal.",
-        economy: "Harga jual per kilogram di supermarket dan restoran 3x lipat labu biasa."
-      },
-      { 
-        common: "Koro Pedang", scientific: "Canavalia gladiata", family: "Fabaceae",
-        season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Dataran Rendah - Menengah (0-800 mdpl)", temp_range: "24 - 32°C",
-        harvest_food_hst: "90 - 120 HST (Polong Muda)", harvest_seed_hst: "160 - 190 HST", watering: "Tahan kering (3 hari sekali)", sunlight: "Penuh (merambat kuat)",
-        biochar: "Biochar sekam 15% pada tanah marjinal berbatu",
-        pollination_type: "Self-pollinated (Sebagian besar penyerbukan sendiri oleh anatomi bunga)", isolation_distance: "10 - 20 meter antar varietas Canavalia",
-        processing_type: "Ekstraksi Kering (Polong raksasa mengering cokelat kaku di pohon, buka kulit polong berserat, keluarkan biji merah mudanya)",
-        dormancy_treatment: "Skarifikasi amplas kulit keras di sisi bukan hilum, rendam air hangat 24 jam",
-        morphology_flavor: "Biji lonjong tebal raksasa merah muda dengan hilum putih panjang, polong pedang panjang 30-40 cm, tekstur biji padat gurih bila diolah matang",
-        food: "Substitusi kedelai untuk tempe koro, tahu koro, dan rempeyek koro pedang gurih.",
-        ecology: "Fiksasi nitrogen masif dan biomassa perakarannya merestorasi tanah tandus marjinal.",
-        health: "Tinggi protein nabati, serat pangan, serta asam amino esensial bebas kolesterol.",
-        economy: "Alternatif kemandirian pangan pengganti impor kedelai nasional."
-      },
-      { 
-        common: "Kacang Komak", scientific: "Lablab purpureus", family: "Fabaceae",
-        season: "Kemarau Kering", month_range: "April - Oktober", region: "Dataran Rendah Kering (0-500 mdpl)", temp_range: "25 - 35°C",
-        harvest_food_hst: "70 - 80 HST", harvest_seed_hst: "120 - 140 HST", watering: "Sangat tahan kekeringan (1x seminggu cukup)", sunlight: "Penuh",
-        biochar: "Biochar kayu 20% pada bedengan tanah kering",
-        pollination_type: "Self-pollinated (Penyerbukan sendiri berlangsung sebelum bunga mekar penuh)", isolation_distance: "5 - 10 meter",
-        processing_type: "Ekstraksi Kering (Polong mengering keputihan di rambatan, pipil bijinya yang sudah mengeras)",
-        dormancy_treatment: "Rendam air suhu ruang selama 12 jam sebelum ditanam ke lahan",
-        morphology_flavor: "Biji oval pipih bertepi putih tegak (hilum menonjol), rasa polong muda manis renyah khas polong-polongan tropis",
-        food: "Sayur lodeh polong komak khas Lombok/Jawa Timur, camilan komak sangrai gurih.",
-        ecology: "Tanaman penutup tanah tangguh penyubur lahan kering musim kemarau ekstrem.",
-        health: "Sumber fosfor, zat besi, vitamin B1 penambah vitalitas dan stamina.",
-        economy: "Pangan cadangan musim paceklik bernilai gizi tinggi bagi masyarakat pedesaan."
-      },
-      { 
-        common: "Kecipir", scientific: "Psophocarpus tetragonolobus", family: "Fabaceae",
-        season: "Pancaroba & Kemarau", month_range: "Maret - September", region: "Dataran Rendah - Menengah (0-900 mdpl)", temp_range: "22 - 30°C",
-        harvest_food_hst: "65 - 75 HST (Polong Muda)", harvest_seed_hst: "130 - 150 HST", watering: "1x sehari", sunlight: "Penuh (butuh tiang panjatan)",
-        biochar: "Biochar sekam 10% + kompos kotoran ayam matang",
-        pollination_type: "Self-pollinated (Penyerbukan sendiri tertutup)", isolation_distance: "5 - 10 meter",
-        processing_type: "Ekstraksi Kering (Polong bersayap mengering cokelat gelap dan rapuh, buka sekat polong, ambil biji bulat mengilapnya)",
-        dormancy_treatment: "Skarifikasi kikis sedikit kulit biji keras atau rendam air hangat 50°C selama 12 jam",
-        morphology_flavor: "Biji bulat keras mengilap cokelat keemasan, polong bersayap empat bergelombang renyah manis segar tanpa bau langu",
-        food: "Polong bersayap lalap sambal terasi, urap, bunga dan umbinya bisa dimakan.",
-        ecology: "Seluruh bagian tanaman (daun, bunga, polong, biji, umbi) dapat dimanfaatkan tanpa limbah.",
-        health: "Tinggi protein setara kedelai, kaya tokoferol (vitamin E) dan kalsium tinggi.",
-        economy: "Sayuran tradisional pekarangan yang mulai langka dan dicari pecinta kuliner sehat organik."
-      },
-      { 
-        common: "Buncis Merah", scientific: "Phaseolus vulgaris", family: "Fabaceae",
-        season: "Kemarau Sejuk", month_range: "Mei - Agustus", region: "Dataran Menengah - Tinggi (500-1400 mdpl)", temp_range: "18 - 25°C",
-        harvest_food_hst: "50 - 60 HST (Sayur)", harvest_seed_hst: "85 - 100 HST (Kering)", watering: "1x sehari pagi", sunlight: "Penuh",
-        biochar: "Biochar sekam 10% + dolomit 5%",
-        pollination_type: "Self-pollinated (Cleistogamous - penyerbukan terjadi saat mahkota masih kuncup)", isolation_distance: "3 - 5 meter",
-        processing_type: "Ekstraksi Kering (Biarkan polong mengering kekuningan rapuh di pohon, pecahkan polong perlahan)",
-        dormancy_treatment: "Rendam air hangat kuku 4 jam sebelum disemai",
-        morphology_flavor: "Biji berbentuk ginjal lonjong merah marun tua mengilap, rasa manis gurih pulen lembut saat dimasak matang",
-        food: "Sayur buncis kuah santan, sup kacang merah brenebon, campuran salad segar.",
-        ecology: "Meningkatkan agregat tanah dan kesuburan biologis tanah pegunungan.",
-        health: "Mengontrol kadar gula darah, tinggi folat pelindung ibu hamil, dan kaya serat larut.",
-        economy: "Komoditas sayur primadona dataran tinggi bernilai jual stabil sepanjang tahun."
-      },
-      { 
-        common: "Semangka Biji", scientific: "Citrullus lanatus", family: "Cucurbitaceae",
-        season: "Kemarau Kering", month_range: "Juni - September", region: "Dataran Rendah Berpasir (0-300 mdpl)", temp_range: "26 - 35°C",
-        harvest_food_hst: "65 - 75 HST", harvest_seed_hst: "85 - 95 HST", watering: "1x sehari pagi, hentikan seminggu sebelum panen agar manis", sunlight: "Penuh (Full Sun terik)",
-        biochar: "Biochar sekam 15% + pupuk kandang sapi pada alur tanam berpasir",
-        pollination_type: "Cross-pollinated (Bunga jantan & betina terpisah - diserbuki lebah madu Apis cerana)", isolation_distance: "Min 800 - 1000 meter dari varietas semangka lain atau melon untuk mencegah persilangan liar",
-        processing_type: "Ekstraksi Basah (Keruk biji dari daging buah matang tua, cuci bilas dengan air mengalir untuk menghilangkan gula, keringkan di bawah naungan berangin)",
-        dormancy_treatment: "Rendam air hangat 45°C selama 6 jam + tiriskan di kertas koran lembap hangat 24 jam",
-        morphology_flavor: "Biji pipih bertepi hitam pekat bertekstur kuat, daging buah merah menyala dengan kadar gula brix tinggi berair melimpah segar",
-        food: "Buah segar pencuci mulut pelepas dahaga terik, biji semangka untuk kuaci gurih.",
-        ecology: "Sistem perakaran dalam mampu mengekstrak air tanah di lahan pantai berpasir marjinal.",
-        health: "Tinggi asam amino L-sitrulin pelindung otot dan asam urat, serta likopen tinggi.",
-        economy: "Panen musim kemarau memberikan keuntungan tunai tinggi bagi petani lahan pesisir."
+      "cabai": {
+        local_bali: "Tabia Krinyi / Tabia Alit", common_en: "Bird's Eye Chili",
+        season: "Kemarau", month_range: "April - Juli", region: "Dataran Rendah - Menengah (0-500 mdpl)", temp_range: "25 - 32°C",
+        harvest_food_hst: "75 - 85 HST", harvest_seed_hst: "100 - 120 HST", watering: "2 hari sekali", sunlight: "Penuh",
+        biochar: "Aplikasi biochar bambu 150 gr/lubang tanam + kompos cacing",
+        culture: "Unsur mutlak bumbu rajang caru yadnya, canang sari kelengkapan tertentu, penolak bala (simbol Brahma).",
+        health: "Kapsaisin merangsang metabolisme tubuh dan melegakan pernapasan.",
+        food: "Pemberi rasa pedas khas penambah selera makan kaya vitamin C.",
+        ecology: "Bahan ekstrak pestisida nabati pengusir ulat dan kutu daun.",
+        economy: "Komoditas pangan strategis berputar cepat bernilai tinggi."
       }
-    ];
+    };
 
-    // MENGAMBIL PARAMETER URL ?batch=
-    function getQueryParam(key) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(key);
-    }
-
-    function generateShortCode(batchCode, varietyName) {
+    function getShortCode(batchCode, varietyName) {
       if (!batchCode) return "";
       const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
       if (match) {
@@ -874,389 +392,181 @@
       return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
-    // LOAD BATCH UTAMA
-    async function loadPassportData(batchCode) {
-      document.getElementById("loadingBox").classList.remove("hidden");
-      document.getElementById("notFoundBox").classList.add("hidden");
-      document.getElementById("passportCard").classList.add("hidden");
+    async function getPlantAgroData(varietyName) {
+      const q = (varietyName || "").toLowerCase();
 
-      let batch = null;
+      try {
+        const { data } = await dbClient.from("plant_species").select("*");
+        if (data && data.length > 0) {
+          const found = data.find(p => q.includes(p.common_name.toLowerCase()) || p.common_name.toLowerCase().includes(q));
+          if (found) {
+            return {
+              local_bali: found.local_name_bali || "-",
+              common_en: found.common_name_en || "-",
+              season: found.season || "Sesuai iklim tropis",
+              month_range: found.month_range || "Sepanjang musim tanam",
+              region: found.region || "Dataran Rendah - Menengah",
+              temp_range: found.temp_range || "24 - 32°C",
+              harvest_food_hst: found.harvest_food_hst || "65 HST",
+              harvest_seed_hst: found.harvest_seed_hst || "100 HST",
+              watering: found.watering || "1x sehari",
+              sunlight: found.sunlight || "Penuh",
+              biochar: found.biochar_fertilizer || "Aplikasi biochar sekam 10% + kompos matang",
+              culture: found.benefit_culture || "Kelengkapan banten dan kearifan lokal Bali.",
+              health: found.benefit_health || "Bermanfaat bagi kebugaran tubuh alami.",
+              food: found.benefit_food || "Kandungan pangan alami berkualitas.",
+              ecology: found.benefit_ecology || "Mendukung keseimbangan ekologis lahan.",
+              economy: found.benefit_economy || "Memiliki potensi nilai tambah ekonomi lokal."
+            };
+          }
+        }
+      } catch(e) {}
 
-      // 1. Coba fetch dari Supabase
+      for (const [key, val] of Object.entries(BASE_AGRO_ENCYCLOPEDIA)) {
+        if (q.includes(key)) return val;
+      }
+
+      return {
+        local_bali: "Lokal Bali",
+        common_en: "Heritage Seed",
+        season: "Musim Pancaroba / Kemarau",
+        month_range: "Maret - September",
+        region: "Dataran Rendah - Sedang (0-800 mdpl)",
+        temp_range: "24 - 30°C",
+        harvest_food_hst: "65 HST",
+        harvest_seed_hst: "100 HST",
+        watering: "1x sehari pagi/sore",
+        sunlight: "Sinar Matahari Penuh (Full Sun)",
+        biochar: "Biochar sekam/bambu 10-15% dicampur pupuk kompos matang",
+        culture: "Sarana persembahan hasil bumi dan pelestarian tradisi lokal.",
+        health: "Kaya mikronutrien alami untuk memelihara daya tahan tubuh.",
+        food: "Varietas pangan bergizi tinggi pendukung ketahanan gizi keluarga.",
+        ecology: "Mendukung keanekaragaman hayati agroekosistem dan kesehatan tanah.",
+        economy: "Memiliki potensi nilai ekonomi lokal berkelanjutan."
+      };
+    }
+
+    window.switchModalTab = function(tab) {
+      const btnAgro = document.getElementById("tabBtnAgro");
+      const btnBen = document.getElementById("tabBtnBenefit");
+      const secAgro = document.getElementById("modalAgroSection");
+      const secBen = document.getElementById("modalBenefitSection");
+
+      if (tab === 'agro') {
+        btnAgro.className = "flex-1 py-1.5 rounded-lg bg-white shadow-2xs text-emerald-950 transition";
+        btnBen.className = "flex-1 py-1.5 rounded-lg text-stone-500 hover:text-stone-800 transition";
+        secAgro.classList.remove("hidden");
+        secBen.classList.add("hidden");
+      } else {
+        btnBen.className = "flex-1 py-1.5 rounded-lg bg-white shadow-2xs text-purple-950 transition";
+        btnAgro.className = "flex-1 py-1.5 rounded-lg text-stone-500 hover:text-stone-800 transition";
+        secBen.classList.remove("hidden");
+        secAgro.classList.add("hidden");
+      }
+    };
+
+    window.triggerOpenBenefitModal = async function() {
+      if (!activeBatchData) return;
+
+      const variety = activeBatchData.variety_name;
+      const species = activeBatchData.species || "Taksonomi Botani Terdaftar";
+
+      document.getElementById("benefitPlantTitle").textContent = variety;
+      document.getElementById("benefitSpeciesSubtitle").textContent = species;
+
+      switchModalTab('agro');
+      document.getElementById("benefitModal").classList.remove("hidden");
+
+      const agro = await getPlantAgroData(variety);
+
+      document.getElementById("agroSeason").textContent = agro.season || '-';
+      document.getElementById("agroMonthRange").textContent = agro.month_range || '-';
+      document.getElementById("agroRegion").textContent = agro.region || '-';
+      document.getElementById("agroTemp").textContent = agro.temp_range || '-';
+      document.getElementById("agroHarvestFood").textContent = agro.harvest_food_hst || '-';
+      document.getElementById("agroHarvestSeed").textContent = agro.harvest_seed_hst || '-';
+      document.getElementById("agroWatering").textContent = agro.watering || '-';
+      document.getElementById("agroSunlight").textContent = agro.sunlight || '-';
+      document.getElementById("agroBiochar").textContent = agro.biochar || '-';
+
+      document.getElementById("benefitCulture").textContent = agro.culture || '-';
+      document.getElementById("benefitHealth").textContent = agro.health || '-';
+      document.getElementById("benefitFood").textContent = agro.food || '-';
+      document.getElementById("benefitEcology").textContent = agro.ecology || '-';
+      document.getElementById("benefitEconomy").textContent = agro.economy || '-';
+    };
+
+    window.closeBenefitModal = function() {
+      document.getElementById("benefitModal").classList.add("hidden");
+    };
+
+    async function loadPassport() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const batchCode = urlParams.get('batch') || urlParams.get('passport');
+
+      if (!batchCode) {
+        document.getElementById("loadingState").classList.add("hidden");
+        document.getElementById("errorState").classList.remove("hidden");
+        return;
+      }
+
       try {
         const { data, error } = await dbClient
           .from("seed_batches")
           .select("*")
-          .eq("batch_code", batchCode)
+          .ilike("batch_code", batchCode.trim())
           .maybeSingle();
 
-        if (!error && data) {
-          batch = data;
-        }
-      } catch (err) {
-        console.warn("Supabase fetch failed, trying local fallback:", err);
-      }
+        document.getElementById("loadingState").classList.add("hidden");
 
-      // 2. Fallback jika offline/tidak ditemukan di Supabase
-      if (!batch) {
-        // Cek LocalStorage
-        try {
-          const localBatches = JSON.parse(localStorage.getItem("seedvault_all_batches") || "[]");
-          const foundLocal = localBatches.find(b => b.batch_code && b.batch_code.toLowerCase() === batchCode.toLowerCase());
-          if (foundLocal) batch = foundLocal;
-        } catch (e) {}
-      }
-
-      // 3. Fallback demo data jika dicari batch contoh
-      if (!batch && (batchCode === "BN-KAN-26-G1-001" || batchCode === "BN-TOM-26-G1-001")) {
-        if (batchCode === "BN-KAN-26-G1-001") {
-          batch = {
-            batch_code: "BN-KAN-26-G1-001",
-            variety_name: "Kangkung Darat",
-            species: "Ipomoea aquatica",
-            provenance: "Kebun Koleksi Pusaka Nusantara",
-            storage_location: "Rak Toples A-01",
-            stock_grams: 100,
-            germination_rate: 85,
-            harvest_date: "2026-07-15",
-            moisture_content: 7.5,
-            parent_batch_code: null
-          };
-        } else {
-          batch = {
-            batch_code: "BN-TOM-26-G1-001",
-            variety_name: "Tomat Rampai",
-            species: "Solanum lycopersicum",
-            provenance: "Petani Mitra Desa Sukamaju",
-            storage_location: "Rak Toples B-03",
-            stock_grams: 250,
-            germination_rate: 90,
-            harvest_date: "2026-08-10",
-            moisture_content: 6.8,
-            parent_batch_code: null
-          };
-        }
-      }
-
-      document.getElementById("loadingBox").classList.add("hidden");
-
-      if (!batch) {
-        document.getElementById("notFoundMsg").textContent = `Toples benih dengan kode [${batchCode}] tidak ditemukan dalam database publik.`;
-        document.getElementById("notFoundBox").classList.remove("hidden");
-        return;
-      }
-
-      currentBatchData = batch;
-      await matchPlantSpecies(batch);
-      renderPassportView(batch);
-    }
-
-    // COCOKKAN DATA SPESIES DENGAN 4 PILAR PEMULIAAN BENIH
-    async function matchPlantSpecies(batch) {
-      let matched = null;
-
-      // Cek ke Supabase plant_species
-      try {
-        const { data } = await dbClient
-          .from("plant_species")
-          .select("*")
-          .or(`common_name.ilike.%${batch.variety_name}%,scientific_name.ilike.%${batch.species || ''}%`)
-          .limit(1);
-
-        if (data && data.length > 0) {
-          const d = data[0];
-          matched = {
-            common: d.common_name,
-            scientific: d.scientific_name,
-            family: d.family || "-",
-            season: d.season || "-",
-            month_range: d.month_range || "-",
-            region: d.region || "-",
-            temp_range: d.temp_range || "-",
-            harvest_food_hst: d.harvest_food_hst || "-",
-            harvest_seed_hst: d.harvest_seed_hst || "-",
-            watering: d.watering || "-",
-            sunlight: d.sunlight || "-",
-            biochar: d.biochar_fertilizer || "-",
-            pollination_type: d.pollination_type || "",
-            isolation_distance: d.isolation_distance || "",
-            processing_type: d.processing_type || "",
-            dormancy_treatment: d.dormancy_treatment || "",
-            morphology_flavor: d.morphology_flavor || "",
-            food: d.benefit_food || "",
-            ecology: d.benefit_ecology || "",
-            health: d.benefit_health || "",
-            economy: d.benefit_economy || ""
-          };
-        }
-      } catch (e) {}
-
-      // Fallback ke kamus 25 tanaman bawaan
-      if (!matched) {
-        const vLower = (batch.variety_name || "").toLowerCase();
-        const sLower = (batch.species || "").toLowerCase();
-        matched = BASE_BOTANICAL_DICTIONARY.find(p => 
-          vLower.includes(p.common.toLowerCase()) || 
-          p.common.toLowerCase().includes(vLower) ||
-          (p.scientific && sLower.includes(p.scientific.toLowerCase()))
-        );
-      }
-
-      // Default aman jika tanaman tidak ada di kamus
-      if (!matched) {
-        matched = {
-          common: batch.variety_name,
-          scientific: batch.species || "Spesies Lokal",
-          family: "Varietas Pusaka",
-          season: "Sepanjang Tahun",
-          month_range: "Menyesuaikan Iklim Mikro",
-          region: "Dataran Tropis",
-          temp_range: "24 - 32°C",
-          harvest_food_hst: "30 - 60 HST",
-          harvest_seed_hst: "80 - 110 HST",
-          watering: "1-2x sehari teratur",
-          sunlight: "Penuh (Full Sun)",
-          biochar: "Campuran 10% biochar sekam padi + pupuk kandang matang 2:1",
-          pollination_type: "Self-pollinated / Open-pollinated",
-          isolation_distance: "Min 10 - 20 meter dari varietas sejenis",
-          processing_type: "Pengolahan Biji Kering / Pencucian Basah",
-          dormancy_treatment: "Rendam air hangat kuku 40°C selama 6 jam sebelum semai",
-          morphology_flavor: "Varietas pusaka lokal berkarakter rasa otentik dan daya adaptasi tanah tangguh",
-          food: "Bahan pangan pokok keluarga kaya mikronutrien alami.",
-          ecology: "Menjaga keanekaragaman hayati dan plasma nutfah nusantara.",
-          health: "Bebas bahan kimia sintetis dan pestisida berbahaya.",
-          economy: "Benih pusaka dapat diperbanyak mandiri tanpa membeli bibit hibrida baru."
-        };
-      }
-
-      currentPlantSpecies = matched;
-    }
-
-    // RENDER HALAMAN PASPOR DIGITAL
-    function renderPassportView(batch) {
-      const p = currentPlantSpecies;
-
-      const genMatch = batch.batch_code.match(/-G(\d+)-/i);
-      const genNum = genMatch ? parseInt(genMatch[1], 10) : 1;
-      const genTag = `G${genNum}`;
-      const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
-
-      // 1. Identitas Header
-      document.getElementById("passportVariety").textContent = batch.variety_name;
-      document.getElementById("passportSpecies").innerHTML = `${p.scientific || batch.species || 'Spesies Lokal'} <span class="text-emerald-400/70 not-italic font-normal">(${p.family && p.family !== '-' ? p.family : 'Famili Pusaka'})</span>`;
-      document.getElementById("passportShortCode").textContent = shortCode;
-      document.getElementById("badgeGen").textContent = `${genTag} (Generasi ${genNum})`;
-
-      // 2. Statistik Mutu & Nomor Batch
-      document.getElementById("passportBatchCode").textContent = batch.batch_code;
-      const germRate = Number(batch.germination_rate || 0);
-      document.getElementById("passportViability").textContent = `${germRate}%`;
-      document.getElementById("passportMoisture").textContent = `${batch.moisture_content || 7.5}%`;
-      document.getElementById("passportHarvestDate").textContent = batch.harvest_date || "-";
-
-      // Hitung umur benih
-      if (batch.harvest_date) {
-        const hDate = new Date(batch.harvest_date);
-        const diffMonths = Math.floor((new Date() - hDate) / (1000 * 60 * 60 * 24 * 30));
-        document.getElementById("passportAge").textContent = diffMonths > 0 ? `${diffMonths} Bulan Pasca Panen` : "Panen Baru (< 1 bln)";
-      }
-
-      document.getElementById("passportProvenance").textContent = batch.provenance || "Kebun Mandiri Koleksi Bank Benih";
-      document.getElementById("passportParent").textContent = batch.parent_batch_code ? `Induk: ${batch.parent_batch_code}` : "Tetua Utama (G1)";
-
-      // 3. 4 Pilar Teknis Pemuliaan Benih
-      document.getElementById("cardPollinationType").textContent = p.pollination_type || "Self-pollinated (Penyerbukan Sendiri)";
-      document.getElementById("badgePollination").textContent = (p.pollination_type && p.pollination_type.toLowerCase().includes("cross")) ? "Cross-pollinated" : "Self-pollinated";
-      document.getElementById("cardIsolationDistance").textContent = p.isolation_distance || "3 - 5 meter";
-      document.getElementById("cardProcessingType").textContent = p.processing_type || "Ekstraksi Kering (Polong kering di pohon)";
-      document.getElementById("badgeProcessing").textContent = (p.processing_type && p.processing_type.toLowerCase().includes("basah")) ? "Ekstraksi Basah" : "Ekstraksi Kering";
-      document.getElementById("cardDormancyTreatment").textContent = p.dormancy_treatment || "Rendam air hangat 40-45°C selama 4-6 jam sebelum semai";
-      document.getElementById("cardMorphologyFlavor").textContent = p.morphology_flavor || "Karakter morfologi buah dan biji khas pusaka dengan profil rasa otentik alami nusantara.";
-
-      // 4. Modal Budidaya Info
-      document.getElementById("modalBudidayaTitle").textContent = `Panduan Budidaya: ${batch.variety_name} (${p.scientific})`;
-      document.getElementById("modalSeason").textContent = p.season || "-";
-      document.getElementById("modalMonthRange").textContent = p.month_range || "-";
-      document.getElementById("modalRegion").textContent = p.region || "-";
-      document.getElementById("modalTemp").textContent = p.temp_range || "-";
-      document.getElementById("modalHarvestFood").textContent = p.harvest_food_hst || "-";
-      document.getElementById("modalHarvestSeed").textContent = p.harvest_seed_hst || "-";
-      document.getElementById("modalWatering").textContent = p.watering || "-";
-      document.getElementById("modalSunlight").textContent = p.sunlight || "-";
-      document.getElementById("modalBiochar").textContent = p.biochar || "-";
-
-      document.getElementById("modalFood").textContent = p.food || "Sumber pangan bernutrisi alami tinggi.";
-      document.getElementById("modalEcology").textContent = p.ecology || "Mendukung keseimbangan rantai ekologi ramah lingkungan.";
-      document.getElementById("modalHealth").textContent = p.health || "Mengandung antioksidan dan serat nabati sehat.";
-      document.getElementById("modalEconomy").textContent = p.economy || "Nilai ekonomis terjangkau dan dapat dibudidayakan mandiri.";
-
-      // 5. Render Silsilah di Modal
-      renderModalPedigree(batch);
-
-      // 6. Mini QR Code Verifikasi
-      const qrBox = document.getElementById("passportMiniQr");
-      qrBox.innerHTML = "";
-      const currentUrl = window.location.href;
-      new QRCode(qrBox, {
-        text: currentUrl,
-        width: 60,
-        height: 60,
-        colorDark: "#064e3b",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      document.getElementById("qrTextLink").textContent = batch.batch_code;
-
-      document.getElementById("passportCard").classList.remove("hidden");
-    }
-
-    function renderModalPedigree(batch) {
-      const box = document.getElementById("modalPedigreeTree");
-      box.innerHTML = "";
-
-      const genMatch = batch.batch_code.match(/-G(\d+)-/i);
-      const currentGen = genMatch ? parseInt(genMatch[1], 10) : 1;
-
-      // Item 1: Tetua Induk Asal
-      const parentRow = document.createElement("div");
-      parentRow.className = "flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-stone-200";
-      parentRow.innerHTML = `
-        <span class="w-6 h-6 rounded-lg bg-stone-200 text-stone-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">
-          G1
-        </span>
-        <div class="min-w-0 flex-1">
-          <div class="font-bold text-stone-800 text-xs">${batch.parent_batch_code || batch.batch_code} (Tetua Induk Awal)</div>
-          <div class="text-[10px] text-stone-500">${batch.provenance || 'Asal Usul Tetua Pusaka'}</div>
-        </div>
-        <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Induk Asal</span>
-      `;
-      box.appendChild(parentRow);
-
-      // Item 2: Batch Aktif
-      if (batch.parent_batch_code) {
-        const activeRow = document.createElement("div");
-        activeRow.className = "flex items-start gap-2.5 p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 ml-4";
-        activeRow.innerHTML = `
-          <span class="w-6 h-6 rounded-lg bg-emerald-800 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
-            G${currentGen}
-          </span>
-          <div class="min-w-0 flex-1">
-            <div class="font-bold text-emerald-950 text-xs">${batch.batch_code} (Batch Aktif Saat Ini)</div>
-            <div class="text-[10px] text-emerald-700">Daya Kecambah: ${batch.germination_rate}% | Panen: ${batch.harvest_date}</div>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-700 text-white font-bold">Toples Ini</span>
-        `;
-        box.appendChild(activeRow);
-      }
-    }
-
-    // MODAL BUDIDAYA CONTROL
-    window.openModalBudidaya = function() {
-      document.getElementById("modalBudidaya").classList.remove("hidden");
-    };
-
-    window.closeModalBudidaya = function() {
-      document.getElementById("modalBudidaya").classList.add("hidden");
-    };
-
-    window.openPedigreeView = function() {
-      openModalBudidaya();
-      switchModalTab('silsilah');
-    };
-
-    window.switchModalTab = function(tabName) {
-      ['agronomi', 'manfaat', 'silsilah'].forEach(t => {
-        const cap = t.charAt(0).toUpperCase() + t.slice(1);
-        const btn = document.getElementById(`tabBtn${cap}`);
-        const cnt = document.getElementById(`content${cap}`);
-        if (t === tabName) {
-          btn.className = "pb-2 px-3 border-b-2 border-emerald-700 text-emerald-800";
-          cnt.classList.remove("hidden");
-        } else {
-          btn.className = "pb-2 px-3 text-stone-400 hover:text-stone-600 border-b-2 border-transparent";
-          cnt.classList.add("hidden");
-        }
-      });
-    };
-
-    // PENCARIAN MANUAL & SCANNER
-    window.toggleSearchBar = function() {
-      const bar = document.getElementById("searchBatchBar");
-      bar.classList.toggle("hidden");
-      if (!bar.classList.contains("hidden")) {
-        document.getElementById("manualBatchInput").focus();
-      }
-    };
-
-    window.submitManualBatch = function() {
-      const code = document.getElementById("manualBatchInput").value.trim();
-      if (!code) return;
-      window.location.href = `paspor.html?batch=${encodeURIComponent(code)}`;
-    };
-
-    window.resetToSampleBatch = function() {
-      window.location.href = `paspor.html?batch=BN-KAN-26-G1-001`;
-    };
-
-    window.sharePassportLink = async function() {
-      const shareData = {
-        title: `Paspor Benih ${currentBatchData?.variety_name || 'SeedVault'}`,
-        text: `Lihat sertifikat kemurnian & panduan budidaya benih ${currentBatchData?.variety_name || ''} [${currentBatchData?.batch_code || ''}]`,
-        url: window.location.href
-      };
-
-      if (navigator.share) {
-        try {
-          await navigator.share(shareData);
+        if (error || !data) {
+          document.getElementById("errorState").classList.remove("hidden");
           return;
-        } catch (e) {}
-      }
-
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("Tautan paspor benih berhasil disalin ke clipboard!");
-      } catch (err) {
-        prompt("Salin tautan paspor ini:", window.location.href);
-      }
-    };
-
-    // SCANNER KAMERA UNTUK MOBILE
-    window.openCameraScanner = function() {
-      document.getElementById("cameraScannerModal").classList.remove("hidden");
-      html5QrScanner = new Html5Qrcode("qrReaderBox");
-      const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-
-      html5QrScanner.start({ facingMode: "environment" }, config, (decodedText) => {
-        closeCameraScanner();
-        let targetCode = decodedText;
-        if (decodedText.includes("?batch=")) {
-          targetCode = new URLSearchParams(decodedText.split('?')[1]).get("batch");
-        } else if (decodedText.startsWith("SEEDVAULT|")) {
-          targetCode = decodedText.split('|')[1];
         }
-        window.location.href = `paspor.html?batch=${encodeURIComponent(targetCode)}`;
-      }).catch(err => {
-        console.warn("Gagal membuka kamera:", err);
-      });
-    };
 
-    window.closeCameraScanner = function() {
-      if (html5QrScanner) {
-        html5QrScanner.stop().then(() => { html5QrScanner.clear(); }).catch(() => {});
-      }
-      document.getElementById("cameraScannerModal").classList.add("hidden");
-    };
+        activeBatchData = data;
 
-    // INISIALISASI SAAT HALAMAN DIMUAT
-    window.addEventListener("DOMContentLoaded", () => {
-      const batchFromUrl = getQueryParam("batch");
-      if (batchFromUrl) {
-        loadPassportData(batchFromUrl.trim());
-      } else {
-        // Tampilkan batch default jika tidak ada parameter query
-        loadPassportData("BN-KAN-26-G1-001");
+        const genMatch = data.batch_code.match(/-G(\d+)-/i);
+        const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+
+        document.getElementById("viewBatchCode").textContent = data.batch_code;
+        document.getElementById("viewGenTag").textContent = genLabel;
+        document.getElementById("viewShortCode").textContent = `Stempel: ${getShortCode(data.batch_code, data.variety_name)}`;
+        document.getElementById("viewVariety").textContent = data.variety_name;
+        document.getElementById("viewSpeciesText").textContent = data.species || "Spesies botani terdata";
+        
+        const germ = data.germination_rate || 0;
+        document.getElementById("viewGermination").textContent = `${germ}%`;
+        document.getElementById("viewGerminationBar").style.width = `${Math.min(germ, 100)}%`;
+
+        document.getElementById("viewMoisture").textContent = data.moisture_content ? `${data.moisture_content}%` : "-";
+        document.getElementById("viewHarvestDate").textContent = data.harvest_date || "-";
+
+        if (data.harvest_date) {
+          const days = Math.floor((new Date() - new Date(data.harvest_date)) / (1000 * 60 * 60 * 24));
+          document.getElementById("viewAge").textContent = `${days} hari masa simpan`;
+        }
+
+        document.getElementById("viewLineage").textContent = data.parent_batch_code ? `Induk: ${data.parent_batch_code}` : "Batch Induk Perdana (G1)";
+        document.getElementById("viewProvenance").textContent = data.provenance || "Kebun Mitra Subak Bali";
+
+        // Ambil data agro untuk timeline & chip bahasa
+        const agro = await getPlantAgroData(data.variety_name);
+        document.getElementById("viewLocalBali").textContent = `🌴 Bali: ${agro.local_bali || '-'}`;
+        document.getElementById("viewCommonEn").textContent = `🌐 EN: ${agro.common_en || '-'}`;
+        
+        document.getElementById("lblHarvestFoodHST").textContent = agro.harvest_food_hst || '65 HST';
+        document.getElementById("lblHarvestSeedHST").textContent = agro.harvest_seed_hst || '100 HST';
+
+        document.getElementById("cardPassport").classList.remove("hidden");
+
+      } catch (err) {
+        document.getElementById("loadingState").classList.add("hidden");
+        document.getElementById("errorState").classList.remove("hidden");
       }
-    });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadPassport);
   </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SeedVault Pro - Manajemen, Regenerasi & CRM Benih</title>
+  <title>Bibit Pusaka - Sistem Manajemen, Regenerasi & CRM Benih</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -44,14 +44,14 @@
         🔐
       </div>
       <div class="text-center">
-        <h3 class="font-black text-stone-900 text-base">Login Staf SeedVault</h3>
+        <h3 class="font-black text-stone-900 text-base">Login Staf Bibit Pusaka</h3>
         <p class="text-xs text-stone-400 mt-1">Masuk dengan akun Supabase untuk mengelola bank benih</p>
       </div>
 
       <form id="supabaseAuthForm" onsubmit="handleSupabaseLogin(event)" class="space-y-3 text-left text-xs">
         <div>
           <label class="block font-bold text-stone-600 mb-1">Email Akun</label>
-          <input type="email" id="authEmail" required placeholder="admin@seedvault.org" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+          <input type="email" id="authEmail" required placeholder="admin@bibitpusaka.id" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
         </div>
         <div>
           <label class="block font-bold text-stone-600 mb-1">Password</label>
@@ -79,9 +79,9 @@
             </div>
             <div>
               <h1 class="font-black text-base tracking-tight text-white flex items-center gap-1.5">
-                SeedVault <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-300 font-bold border border-emerald-700">PRO</span>
+                Bibit Pusaka <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-300 font-bold border border-emerald-700">PRO</span>
               </h1>
-              <p class="text-[11px] text-emerald-300/70 font-medium">Sistem Siklus Benih</p>
+              <p class="text-[11px] text-emerald-300/70 font-medium">Sistem Siklus & Konservasi</p>
             </div>
           </div>
 
@@ -112,7 +112,8 @@
         </nav>
       </div>
 
-      <div class="p-4 border-t border-emerald-900/60 bg-emerald-950/80">
+      <!-- FOOTER SIDEBAR DENGAN KREDIT PENGEMBANG -->
+      <div class="p-4 border-t border-emerald-900/60 bg-emerald-950/80 space-y-2">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span class="relative flex h-2 w-2">
@@ -122,6 +123,11 @@
             <span id="userEmailBadge" class="text-[11px] font-bold text-emerald-200 truncate max-w-[120px]">Staf Aktif</span>
           </div>
           <button onclick="lockSystem()" class="text-[10px] text-stone-400 hover:text-white font-mono underline">Logout</button>
+        </div>
+
+        <div class="pt-2 border-t border-emerald-900/50 text-[10px] text-emerald-400/80 leading-snug">
+          Dikembangkan oleh:<br/>
+          <strong class="text-white font-semibold">I Gusti Ngurah Aristiana Adi Putra</strong>
         </div>
       </div>
     </aside>
@@ -438,11 +444,8 @@
           </div>
         </section>
 
-        <!-- ============================================================== -->
-        <!-- 5. MEMBER & CRM TANAM TAB (DENGAN PIPELINE KANBAN & WA BRAND)   -->
-        <!-- ============================================================== -->
+        <!-- 5. MEMBER & CRM TANAM TAB (DENGAN PIPELINE KANBAN & WA BRAND) -->
         <section id="tab-crm" class="space-y-6 hidden">
-          
           <!-- PIPELINE KANBAN SUMMARY CRM -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div class="p-4 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-between">
@@ -484,7 +487,6 @@
 
           <!-- Form Tambah Anggota & Adopsi Benih -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Form 1: Pendaftaran Anggota -->
             <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-3">
               <h2 class="text-base font-extrabold text-stone-800 flex items-center gap-1.5">
                 <span>👤</span> Tambah Anggota / Petani
@@ -518,7 +520,6 @@
               </form>
             </div>
 
-            <!-- Form 2: Penyaluran / Adopsi Benih -->
             <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-3 lg:col-span-2">
               <h2 class="text-base font-extrabold text-stone-800 flex items-center gap-1.5">
                 <span>📦</span> Catat Distribusi / Adopsi Benih
@@ -767,8 +768,8 @@
       <div id="labelModalContent" class="bg-stone-50 border-2 border-stone-800 p-4 rounded-xl text-stone-900 font-sans space-y-3">
         <div class="flex items-center justify-between border-b-2 border-stone-800 pb-2">
           <div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-900 block leading-tight">SEEDVAULT PASSPORT</span>
-            <span class="text-[8px] text-stone-500 uppercase tracking-widest block font-bold">Bank Benih Berkelanjutan</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-900 block leading-tight">BIBIT PUSAKA PASSPORT</span>
+            <span class="text-[8px] text-stone-500 uppercase tracking-widest block font-bold">Konservasi Benih Berkelanjutan</span>
           </div>
           <span id="lblGenTag" class="text-xs font-black px-2 py-0.5 rounded bg-stone-900 text-white font-mono">G1</span>
         </div>
@@ -827,7 +828,6 @@
     let html5QrScanner = null;
     let isAuthenticatedStaff = false;
 
-    // 1. SUPABASE AUTH
     async function checkSupabaseSession() {
       const { data: { session } } = await dbClient.auth.getSession();
 
@@ -979,7 +979,7 @@
       triggerAutoBatchSuggest();
     };
 
-    // CRM DATA LOAD & PIPELINE REFRESH
+    // CRM DATA LOAD & PIPELINE
     async function loadCrmData() {
       try {
         const [resMem, resAdopt] = await Promise.allSettled([
@@ -990,7 +990,6 @@
         if (resMem.status === 'fulfilled' && resMem.value.data) allMembers = resMem.value.data;
         if (resAdopt.status === 'fulfilled' && resAdopt.value.data) allAdoptions = resAdopt.value.data;
 
-        // Hitung Pipeline Kanban
         let cSemai = 0, cVeg = 0, cKonsumsi = 0, cKembalikan = 0;
         allAdoptions.forEach(a => {
           if (a.current_stage === 'Penyemaian') cSemai++;
@@ -1190,20 +1189,20 @@
 
       let message = "";
       if (stage === 'Penyemaian') {
-        message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nSalam lestari dari Bank Benih SeedVault. Kami ingin menanyakan kabar benih pusaka *${variety}* yang diadopsi sekitar ${days} hari lalu. Apakah benihnya sudah mulai berkecambah dengan baik di tempat semai?\n\nJika ada kendala perlakuan semai atau butuh panduan, silakan kabari kami nggih. Suksema!`;
+        message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nSalam lestari dari Bank Benih *Bibit Pusaka*. Kami ingin menanyakan kabar benih pusaka *${variety}* yang diadopsi sekitar ${days} hari lalu. Apakah benihnya sudah mulai berkecambah dengan baik di tempat semai?\n\nJika ada kendala perlakuan semai atau butuh panduan, silakan kabari kami nggih. Suksema!`;
       } else if (stage === 'Vegetatif/Rawat') {
         message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nSemoga tanamannya subur! Tanaman *${variety}* Bpk/Ibu saat ini memasuki umur ${days} HST (fase pertumbuhan aktif). Pastikan penyiraman dan pemberian kompos/biochar dilakukan berkala agar tanaman kokoh dan terhindar dari hama.\n\nBoleh berbagi foto perkembangan tanamannya hari ini? Suksema!`;
       } else if (stage === 'Panen Konsumsi') {
         message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nSelamat! Tanaman *${variety}* Bpk/Ibu sudah memasuki usia ${days} HST dan semestinya sudah siap dipanen untuk konsumsi keluarga. Bagaimana performa rasa dan hasilnya?\n\nJangan lupa sisakan 2-3 pohon/buah yang paling sehat dan terbaik untuk dijadikan bibit benih pusaka berikutnya nggih. Suksema!`;
       } else {
-        message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nTanaman *${variety}* Bpk/Ibu sudah memasuki fase matang benih (${days} HST). Kami dari SeedVault mengundang Bpk/Ibu untuk berpartisipasi mengembalikan sebagian benih hasil panen mandiri ke bank benih komunitas agar siklus plasma nutfah ini terus lestari.\n\nKapan ada waktu luang untuk bertukar atau menyetorkan benihnya? Suksema!`;
+        message = `Om Swastyastu / Halo Bpk/Ibu ${name},\n\nTanaman *${variety}* Bpk/Ibu sudah memasuki fase matang benih (${days} HST). Kami dari *Bibit Pusaka* mengundang Bpk/Ibu untuk berpartisipasi mengembalikan sebagian benih hasil panen mandiri ke bank benih komunitas agar siklus plasma nutfah ini terus lestari.\n\nKapan ada waktu luang untuk bertukar atau menyetorkan benihnya? Suksema!`;
       }
 
       const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
       window.open(waUrl, '_blank');
     };
 
-    // TAB NAVIGASI
+    // TAB METADATA
     const tabMetadata = {
       dashboard: { title: "Dashboard Ringkasan", subtitle: "Status kesehatan benih dan prioritas regenerasi" },
       katalog: { title: "Katalog Batch Benih", subtitle: "Kelola data fisik lot benih, lokasi simpan, dan jejak silsilah generasi" },
@@ -1389,10 +1388,6 @@
       filtered.forEach(batch => {
         const st = evaluateRegenStatus(batch);
         const germRate = Number(batch.germination_rate || 0);
-
-        let germBadgeColor = "text-emerald-700 bg-emerald-500";
-        if (germRate < 50) germBadgeColor = "text-rose-600 bg-rose-500";
-        else if (germRate < 70) germBadgeColor = "text-amber-600 bg-amber-500";
 
         const genMatch = batch.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
@@ -1752,7 +1747,6 @@
       }
     };
 
-    // Silsilah Generasi Auto-code
     function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
       if (!varietyName) return "";
       const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil Tanaman Pusaka - Bibit Pusaka</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col justify-between p-3 sm:p-6">
+
+  <!-- Navigasi Atas -->
+  <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-3 border-b border-stone-200">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="p-2 rounded-xl bg-white border border-stone-200 hover:bg-stone-50 transition text-stone-600 font-bold text-xs flex items-center gap-1 shadow-2xs">
+        &larr; <span class="hidden sm:inline">Kembali ke Dashboard</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🌱</span>
+        <h1 class="font-black text-base tracking-tight text-emerald-950">Bibit Pusaka <span class="text-[10px] font-semibold text-stone-400 block sm:inline">• Ensiklopedia Botani</span></h1>
+      </div>
+    </div>
+    <span class="text-[10px] font-mono px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold">
+      Arsip Plasma Nutfah
+    </span>
+  </header>
+
+  <!-- Konten Utama Detail Tanaman -->
+  <main class="max-w-4xl w-full mx-auto my-6 space-y-6">
+
+    <!-- Loading State -->
+    <div id="loadingBox" class="bg-white rounded-3xl p-12 text-center border border-stone-200 shadow-sm space-y-3">
+      <div class="inline-block w-8 h-8 border-4 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-xs font-bold text-stone-500">Membuka lembar arsip botani...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorBox" class="hidden bg-white rounded-3xl p-8 text-center border border-rose-200 shadow-sm space-y-3">
+      <span class="text-3xl">⚠️</span>
+      <h2 class="text-base font-black text-stone-900">Tanaman Tidak Ditemukan</h2>
+      <p class="text-xs text-stone-500">Data tanaman yang Anda cari belum terdaftar di ensiklopedia Bibit Pusaka.</p>
+      <a href="index.html" class="inline-block px-4 py-2 rounded-xl bg-emerald-800 text-white font-bold text-xs">Kembali ke Katalog</a>
+    </div>
+
+    <!-- Content Card -->
+    <div id="detailContent" class="hidden space-y-6">
+
+      <!-- Header Identitas & Galeri Foto -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-6">
+        
+        <!-- Identitas Utama 3 Bahasa -->
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-stone-100 pb-6">
+          <div class="space-y-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-800 block">Koleksi Plasma Nutfah Terdaftar</span>
+            <h1 id="plantCommonName" class="text-3xl sm:text-4xl font-black text-stone-900 leading-tight">-</h1>
+            
+            <div class="flex items-center gap-2 flex-wrap pt-1">
+              <span id="plantLocalBali" class="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-950 font-bold text-xs border border-emerald-200 shadow-2xs">
+                🌴 Bali: -
+              </span>
+              <span id="plantCommonEn" class="px-3 py-1 rounded-xl bg-blue-50 text-blue-900 font-semibold text-xs border border-blue-200">
+                🌐 EN: -
+              </span>
+              <span id="plantFamily" class="px-3 py-1 rounded-xl bg-stone-100 text-stone-700 font-medium text-xs">
+                Famili: -
+              </span>
+            </div>
+
+            <p id="plantScientific" class="text-sm italic font-bold text-emerald-900 pt-1">
+              🔬 Moringa oleifera
+            </p>
+          </div>
+
+          <div class="text-left sm:text-right shrink-0">
+            <span class="text-[10px] font-bold text-stone-400 block uppercase">Status Konservasi</span>
+            <span class="inline-block px-3 py-1 rounded-xl bg-emerald-700 text-white text-xs font-black shadow-xs mt-1">
+              Varietas Pusaka (Heirloom)
+            </span>
+          </div>
+        </div>
+
+        <!-- Galeri Multi-Foto Morfologi -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-extrabold text-stone-800 text-sm flex items-center gap-1.5">
+              <span>📷</span> Dokumentasi Visual Morfologi
+            </h3>
+            <span id="photoCounter" class="text-[11px] text-stone-400 font-mono">0 Foto Tersimpan</span>
+          </div>
+
+          <div id="photoGalleryGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- Timeline Siklus Tumbuh (HST) -->
+      <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-3">
+        <div class="flex items-center justify-between text-xs font-extrabold text-stone-700">
+          <span>⏱️ ESTIMASI SIKLUS HIDUP TANAMAN (HARI SETELAH TANAM)</span>
+          <span class="text-emerald-800 font-black">Bibit Mandiri</span>
+        </div>
+
+        <div class="relative w-full bg-stone-100 h-3 rounded-full overflow-hidden flex">
+          <div class="bg-blue-400 w-1/4 h-full" title="Semai"></div>
+          <div class="bg-emerald-500 w-1/4 h-full" title="Vegetatif"></div>
+          <div class="bg-amber-400 w-1/4 h-full" title="Panen Konsumsi"></div>
+          <div class="bg-purple-500 w-1/4 h-full" title="Panen Benih"></div>
+        </div>
+
+        <div class="grid grid-cols-4 text-center text-xs font-bold pt-1">
+          <div class="text-blue-700">🌱 0 HST<br/><span class="text-[10px] text-stone-400 font-normal">Penyemaian</span></div>
+          <div class="text-emerald-700">🌿 30 HST<br/><span class="text-[10px] text-stone-400 font-normal">Perawatan</span></div>
+          <div class="text-amber-800 font-black">🥗 <span id="valHarvestFood">65 HST</span><br/><span class="text-[10px] text-stone-400 font-normal">Panen Konsumsi</span></div>
+          <div class="text-purple-900 font-black">🌾 <span id="valHarvestSeed">100 HST</span><br/><span class="text-[10px] text-stone-400 font-normal">Panen Benih</span></div>
+        </div>
+      </div>
+
+      <!-- Grid 2 Kolom: Agronomi Budidaya & Kearifan Lokal / Kesehatan -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Kolom Kiri: Panduan Agronomi & Biochar -->
+        <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4">
+          <h3 class="font-black text-stone-900 text-sm flex items-center gap-2 border-b border-stone-100 pb-3">
+            <span>🌾</span> Karakteristik Agronomi & Penanaman
+          </h3>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Musim Tanam</span>
+              <p id="valSeason" class="font-bold text-stone-800 mt-0.5">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Rentang Bulan</span>
+              <p id="valMonthRange" class="font-bold text-stone-800 mt-0.5">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Wilayah / Ketinggian</span>
+              <p id="valRegion" class="font-bold text-stone-800 mt-0.5">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Suhu Optimal</span>
+              <p id="valTemp" class="font-bold text-amber-900 mt-0.5">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Penyiraman</span>
+              <p id="valWatering" class="font-bold text-stone-800 mt-0.5">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">Kebutuhan Cahaya</span>
+              <p id="valSunlight" class="font-bold text-stone-800 mt-0.5">-</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs space-y-1">
+            <span class="font-bold text-emerald-950 uppercase text-[10px] block tracking-wider">🌱 Rekomendasi Biochar & Pemupukan Organik</span>
+            <p id="valBiochar" class="text-stone-700 leading-relaxed">-</p>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Kearifan Lokal Bali & Farmakologi Kesehatan -->
+        <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4">
+          <h3 class="font-black text-stone-900 text-sm flex items-center gap-2 border-b border-stone-100 pb-3">
+            <span>🕉️</span> Nilai Budaya, Tradisi & Khasiat Herbal
+          </h3>
+
+          <!-- Budaya & Adat Bali -->
+          <div class="p-4 bg-purple-50/80 rounded-2xl border border-purple-200 space-y-1.5 shadow-2xs text-xs">
+            <h4 class="font-black text-purple-950 flex items-center gap-1.5">
+              <span>🕉️</span> Manfaat Budaya & Upacara Adat Bali
+            </h4>
+            <p id="valCulture" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- Kesehatan & Farmakologi -->
+          <div class="p-4 bg-rose-50/80 rounded-2xl border border-rose-200 space-y-1.5 shadow-2xs text-xs">
+            <h4 class="font-black text-rose-950 flex items-center gap-1.5">
+              <span>💊</span> Khasiat Kesehatan & Pengobatan Herbal
+            </h4>
+            <p id="valHealth" class="text-stone-700 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- Pangan & Gizi -->
+          <div class="p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-200 space-y-1 text-xs">
+            <h4 class="font-bold text-emerald-950 flex items-center gap-1.5 text-[11px]">
+              <span>🥗</span> Pangan & Ketahanan Gizi Keluarga
+            </h4>
+            <p id="valFood" class="text-stone-600 leading-relaxed text-[11px]">-</p>
+          </div>
+
+          <!-- Ekologi & Ekonomi -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">🐝 Agroekologi</span>
+              <p id="valEcology" class="text-stone-700 text-[11px] mt-1 line-clamp-3">-</p>
+            </div>
+            <div class="p-3 bg-stone-50 rounded-2xl border border-stone-100">
+              <span class="text-[10px] font-bold text-stone-400 uppercase block">💰 Ekonomi Lokal</span>
+              <p id="valEconomy" class="text-stone-700 text-[11px] mt-1 line-clamp-3">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toples Batch Aktif yang Tersedia di Bank Benih -->
+      <div class="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-black text-stone-900 text-sm flex items-center gap-2">
+              <span>🫙</span> Ketersediaan Batch Benih di Gudang
+            </h3>
+            <p class="text-xs text-stone-400">Lot benih aktif dari varietas ini yang dapat diadopsi petani mitra.</p>
+          </div>
+          <span id="batchCountBadge" class="px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono font-bold text-xs">0 Batch</span>
+        </div>
+
+        <div id="activeBatchesGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-4xl w-full mx-auto text-center py-4 border-t border-stone-300 text-xs text-stone-500">
+    <p>© 2026 <strong>Bibit Pusaka</strong> • Developed by <strong>I Gusti Ngurah Aristiana Adi Putra</strong></p>
+  </footer>
+
+  <script>
+    const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
+    const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
+    const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
+
+    // Kamus Dasar Fallback
+    const BASE_BOTANICAL_DICTIONARY = [
+      { 
+        common: "Tomat", local_bali: "Ranti / Tomat", common_en: "Tomato", scientific: "Solanum lycopersicum", family: "Solanaceae",
+        season: "Kemarau / Awal Hujan", month_range: "Mei - Agustus", region: "Dataran Menengah - Tinggi (300-1000 mdpl)", temp_range: "22 - 28°C",
+        harvest_food_hst: "65 - 75 HST", harvest_seed_hst: "90 - 100 HST", watering: "1x sehari (pagi)", sunlight: "Penuh (Full Sun)",
+        biochar: "Campuran 10% biochar sekam padi + pupuk kandang sapi matang 2:1",
+        culture: "Pelengkap olahan kuliner sambal bejek/sere tabia Bali, persembahan banten pawedan.",
+        health: "Tinggi antioksidan likopen untuk menjaga kesehatan jantung dan sirkulasi darah.",
+        food: "Kaya vitamin C, vitamin K, kalium, dan antioksidan likopen tinggi.",
+        ecology: "Tanaman pendamping ideal asparagus dan basil. Bunga memikat lebah.",
+        economy: "Bernilai jual segar tinggi, bahan pasta saus organik artisan.",
+        image_urls: []
+      },
+      { 
+        common: "Cabai Rawit", local_bali: "Tabia Krinyi / Tabia Alit", common_en: "Bird's Eye Chili", scientific: "Capsicum frutescens", family: "Solanaceae",
+        season: "Kemarau", month_range: "April - Juli", region: "Dataran Rendah - Menengah (0-500 mdpl)", temp_range: "25 - 32°C",
+        harvest_food_hst: "75 - 85 HST", harvest_seed_hst: "100 - 120 HST", watering: "2 hari sekali", sunlight: "Penuh",
+        biochar: "Aplikasi biochar bambu 150 gr/lubang tanam + kompos cacing",
+        culture: "Unsur bumbu rajang caru yadnya, canang sari kelengkapan tertentu, penolak bala.",
+        health: "Kapsaisin tinggi melancarkan metabolisme dan pernapasan.",
+        food: "Pemberi rasa pedas khas penambah selera makan kaya vitamin C.",
+        ecology: "Bahan ekstrak pestisida nabati pengusir ulat dan kutu daun.",
+        economy: "Komoditas pangan strategis bernilai ekonomi tinggi.",
+        image_urls: []
+      },
+      { 
+        common: "Kelor", local_bali: "Don Keloor", common_en: "Moringa / Drumstick Tree", scientific: "Moringa oleifera", family: "Moringaceae",
+        season: "Sepanjang Tahun", month_range: "Januari - Desember", region: "Dataran Rendah Kering (0-600 mdpl)", temp_range: "25 - 35°C",
+        harvest_food_hst: "45 - 60 HST (Daun)", harvest_seed_hst: "180 - 210 HST (Polong)", watering: "Tahan kering (3 hari sekali)", sunlight: "Penuh",
+        biochar: "Biochar kayu keras 20% pada lubang tanam bibit",
+        culture: "Pohon sakral pelindung pekarangan, sarana ruwatan spiritual, sayur jukut kelor wajib.",
+        health: "Superfood kaya zat besi, kalsium, dan asam amino pencegah stunting.",
+        food: "Kaya zat besi, protein nabati tinggi, dan antioksidan.",
+        ecology: "Pohon pionir tahan kering, menyuburkan tanah gersang.",
+        economy: "Bubuk kelor bernilai ekspor dan bahan kapsul nutrasetika.",
+        image_urls: []
+      },
+      { 
+        common: "Kenikir", local_bali: "Ulam Raja / Kenikir", common_en: "King's Salad", scientific: "Cosmos caudatus", family: "Asteraceae",
+        season: "Sepanjang Tahun", month_range: "Maret - Oktober", region: "Semua Ketinggian (0-1200 mdpl)", temp_range: "20 - 30°C",
+        harvest_food_hst: "30 - 40 HST", harvest_seed_hst: "65 - 75 HST", watering: "1x sehari", sunlight: "Penuh - Sedang",
+        biochar: "Biochar sekam 5% dicampur kompos daun matang",
+        culture: "Lalapan segar upacara dan tanaman hias pekarangan penolak serangga.",
+        health: "Melancarkan sirkulasi darah dan menambah nafsu makan.",
+        food: "Lalapan kaya antioksidan polifenol.",
+        ecology: "Tanaman perangkap pengusir nematoda akar.",
+        economy: "Pasokan sayur organik restoran tradisional.",
+        image_urls: []
+      },
+      { 
+        common: "Telang", local_bali: "Bunga Teleng", common_en: "Butterfly Pea", scientific: "Clitoria ternatea", family: "Fabaceae",
+        season: "Kemarau & Pancaroba", month_range: "Februari - September", region: "Dataran Rendah (0-700 mdpl)", temp_range: "24 - 32°C",
+        harvest_food_hst: "45 - 55 HST (Bunga)", harvest_seed_hst: "90 - 110 HST (Polong)", watering: "1x sehari secukupnya", sunlight: "Penuh (merambat)",
+        biochar: "Biochar kelapa + inokulan rhizobium pengikat nitrogen",
+        culture: "Bunga biru sakral persembahyangan Hyang Siwa, canang sari, pewarna alami jaja Bali.",
+        health: "Nootropik alami meningkatkan memori, kesehatan mata, dan pereda stres.",
+        food: "Pewarna biru alami kaya antosianin untuk teh herbal dan nasi uduk.",
+        ecology: "Tanaman legum pengikat nitrogen bebas penyubur tanah.",
+        economy: "Bunga kering bernilai jual tinggi per gram untuk teh artisan.",
+        image_urls: []
+      }
+    ];
+
+    async function loadPlantDetail() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryName = (urlParams.get('nama') || urlParams.get('spesies') || '').trim();
+
+      if (!queryName) {
+        document.getElementById("loadingBox").classList.add("hidden");
+        document.getElementById("errorBox").classList.remove("hidden");
+        return;
+      }
+
+      let plant = null;
+
+      // 1. Cek di Supabase
+      try {
+        const { data, error } = await dbClient
+          .from("plant_species")
+          .select("*")
+          .ilike("common_name", queryName)
+          .maybeSingle();
+
+        if (!error && data) {
+          plant = {
+            common: data.common_name,
+            local_bali: data.local_name_bali || "-",
+            common_en: data.common_name_en || "-",
+            scientific: data.scientific_name,
+            family: data.family || "-",
+            season: data.season || "Sesuai iklim tropis",
+            month_range: data.month_range || "Sepanjang musim tanam",
+            region: data.region || "Dataran Rendah - Menengah",
+            temp_range: data.temp_range || "24 - 32°C",
+            harvest_food_hst: data.harvest_food_hst || "65 HST",
+            harvest_seed_hst: data.harvest_seed_hst || "100 HST",
+            watering: data.watering || "1x sehari",
+            sunlight: data.sunlight || "Penuh",
+            biochar: data.biochar_fertilizer || "Aplikasi biochar sekam 10% + kompos matang",
+            culture: data.benefit_culture || "Kelengkapan banten dan kearifan lokal Bali.",
+            health: data.benefit_health || "Bermanfaat bagi kebugaran tubuh alami.",
+            food: data.benefit_food || "Kandungan pangan bergizi tinggi.",
+            ecology: data.benefit_ecology || "Mendukung keseimbangan ekologis lahan.",
+            economy: data.benefit_economy || "Memiliki nilai tambah ekonomi lokal.",
+            image_urls: data.image_urls || []
+          };
+        }
+      } catch (err) {}
+
+      // 2. Fallback ke Kamus Bawaan
+      if (!plant) {
+        plant = BASE_BOTANICAL_DICTIONARY.find(x => 
+          x.common.toLowerCase() === queryName.toLowerCase() ||
+          x.common.toLowerCase().includes(queryName.toLowerCase())
+        );
+      }
+
+      document.getElementById("loadingBox").classList.add("hidden");
+
+      if (!plant) {
+        document.getElementById("errorBox").classList.remove("hidden");
+        return;
+      }
+
+      // Render Identitas
+      document.getElementById("plantCommonName").textContent = plant.common;
+      document.getElementById("plantLocalBali").textContent = `🌴 Bali: ${plant.local_bali}`;
+      document.getElementById("plantCommonEn").textContent = `🌐 EN: ${plant.common_en}`;
+      document.getElementById("plantFamily").textContent = `Famili: ${plant.family}`;
+      document.getElementById("plantScientific").textContent = `🔬 ${plant.scientific}`;
+
+      // Render Timeline HST
+      document.getElementById("valHarvestFood").textContent = plant.harvest_food_hst;
+      document.getElementById("valHarvestSeed").textContent = plant.harvest_seed_hst;
+
+      // Render Agronomi
+      document.getElementById("valSeason").textContent = plant.season;
+      document.getElementById("valMonthRange").textContent = plant.month_range;
+      document.getElementById("valRegion").textContent = plant.region;
+      document.getElementById("valTemp").textContent = plant.temp_range;
+      document.getElementById("valWatering").textContent = plant.watering;
+      document.getElementById("valSunlight").textContent = plant.sunlight;
+      document.getElementById("valBiochar").textContent = plant.biochar;
+
+      // Render Budaya & Kesehatan
+      document.getElementById("valCulture").textContent = plant.culture;
+      document.getElementById("valHealth").textContent = plant.health;
+      document.getElementById("valFood").textContent = plant.food;
+      document.getElementById("valEcology").textContent = plant.ecology;
+      document.getElementById("valEconomy").textContent = plant.economy;
+
+      // Render Galeri Multi-Foto
+      const galleryGrid = document.getElementById("photoGalleryGrid");
+      galleryGrid.innerHTML = "";
+      const photos = plant.image_urls || [];
+      document.getElementById("photoCounter").textContent = `${photos.length} Foto Tersimpan`;
+
+      if (photos.length > 0) {
+        photos.forEach(url => {
+          const card = document.createElement("div");
+          card.className = "aspect-square rounded-2xl overflow-hidden border border-stone-200 shadow-2xs group relative bg-stone-100";
+          card.innerHTML = `
+            <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <a href="${url}" target="_blank" class="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
+              Lihat Penuh ↗
+            </a>
+          `;
+          galleryGrid.appendChild(card);
+        });
+      } else {
+        galleryGrid.innerHTML = `
+          <div class="col-span-2 sm:col-span-4 p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-300 text-stone-400 text-xs">
+            Belum ada dokumentasi foto untuk tanaman ini. Anda dapat mengunggahnya melalui menu Kamus Botani di dashboard.
+          </div>
+        `;
+      }
+
+      // 3. Cari Batch Toples Aktif dari Tanaman ini
+      loadActiveBatches(plant.common);
+
+      document.getElementById("detailContent").classList.remove("hidden");
+    }
+
+    async function loadActiveBatches(commonName) {
+      const grid = document.getElementById("activeBatchesGrid");
+      const badge = document.getElementById("batchCountBadge");
+
+      try {
+        const { data, error } = await dbClient
+          .from("seed_batches")
+          .select("*")
+          .ilike("variety_name", `%${commonName}%`)
+          .gt("stock_grams", 0);
+
+        if (!error && data && data.length > 0) {
+          badge.textContent = `${data.length} Batch Tersedia`;
+          grid.innerHTML = "";
+
+          data.forEach(b => {
+            const genMatch = b.batch_code.match(/-G(\d+)-/i);
+            const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
+
+            const card = document.createElement("div");
+            card.className = "p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 text-xs";
+            card.innerHTML = `
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-black text-emerald-950">${b.batch_code}</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-800 text-white font-mono text-[10px] font-bold">${genLabel}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1 text-[11px] text-stone-600">
+                <div>Stok: <strong>${b.stock_grams} gr</strong></div>
+                <div>Kecambah: <strong>${b.germination_rate}%</strong></div>
+                <div class="col-span-2 truncate text-stone-400">Rak: ${b.storage_location || '-'}</div>
+              </div>
+              <a href="paspor.html?batch=${encodeURIComponent(b.batch_code)}" target="_blank" class="block text-center w-full py-1.5 rounded-xl bg-white border border-stone-200 hover:border-emerald-700 text-emerald-800 font-bold transition text-[11px] mt-1 shadow-2xs">
+                Buka Paspor QR ↗
+              </a>
+            `;
+            grid.appendChild(card);
+          });
+          return;
+        }
+      } catch (err) {}
+
+      badge.textContent = "0 Batch";
+      grid.innerHTML = `
+        <div class="col-span-1 sm:col-span-3 p-6 text-center text-stone-400 text-xs bg-stone-50 rounded-2xl border border-stone-200">
+          Saat ini belum ada toples benih aktif yang terdaftar untuk varietas ini di rak penyimpanan.
+        </div>
+      `;
+    }
+
+    window.addEventListener("DOMContentLoaded", loadPlantDetail);
+  </script>
+</body>
+</html>

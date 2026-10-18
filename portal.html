@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Adopsi & Barter Benih Pusaka - Bibit Pusaka</title>
+
+  <!-- PWA Metadata -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#064e3b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="icon-192.svg" />
+
+  <!-- Tailwind CSS & Supabase SDK -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col justify-between">
+
+  <!-- BANNER STATUS OFFLINE & ANTREAN SINKRONISASI -->
+  <div id="offlineNoticeBanner" class="hidden bg-amber-500 text-amber-950 px-4 py-2.5 text-xs font-bold border-b border-amber-600 shadow-sm sticky top-0 z-50 transition-all">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-center sm:text-left">
+        <span class="text-base animate-pulse">📡</span>
+        <span id="offlineBannerText">Mode Offline Aktif — Bekerja tanpa sinyal internet. Data tersimpan lokal di perangkat.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="queueBadge" class="bg-amber-700 text-white px-2 py-0.5 rounded-full text-[10px]">0 antrean</span>
+        <button onclick="syncOfflineQueue()" class="bg-white hover:bg-stone-100 text-amber-900 px-3 py-1 rounded-xl text-xs font-black shadow-xs transition flex items-center gap-1">
+          <span>🔄</span> <span>Sinkronkan Sekarang</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER UTAMA -->
+  <header class="bg-emerald-950 text-white border-b border-emerald-900 sticky top-0 z-40 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="portal.html" class="flex items-center gap-2.5 group">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-800 border border-emerald-600 flex items-center justify-center text-lg shadow-inner group-hover:scale-105 transition-transform">
+            🌱
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-black text-base sm:text-lg tracking-tight text-white leading-tight">Bibit Pusaka</h1>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-800 text-emerald-300 border border-emerald-700">Komunitas</span>
+            </div>
+            <p class="text-[11px] text-emerald-300/80 font-medium">Portal Adopsi & Barter Plasma Nutfah</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Tombol Aksi Header -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Status Indikator Jaringan -->
+        <span id="netStatusBadge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Online
+        </span>
+
+        <!-- Tombol Install PWA -->
+        <button id="btnInstallApp" onclick="triggerPwaInstall()" class="hidden bg-amber-500 hover:bg-amber-400 text-amber-950 font-black px-3 py-1.5 rounded-xl text-xs shadow-md transition items-center gap-1.5">
+          <span>📲</span> <span class="hidden sm:inline">Install Aplikasi</span><span class="sm:hidden">Install</span>
+        </button>
+
+        <!-- Tautan ke Dashboard Staf -->
+        <a href="index.html" class="bg-emerald-800/80 hover:bg-emerald-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-emerald-700 transition flex items-center gap-1.5 shadow-2xs">
+          <span>🔐</span> <span class="hidden sm:inline">Area Staf</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="bg-gradient-to-b from-emerald-950 via-emerald-900 to-stone-100 text-white pt-8 pb-14 px-4 sm:px-6">
+    <div class="max-w-4xl mx-auto text-center space-y-3">
+      <span class="inline-block px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-700 text-emerald-200 text-xs font-bold tracking-wide uppercase">
+        Gerakan Kedaulatan Benih Warisan Leluhur
+      </span>
+      <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+        Lestarikan Plasma Nutfah Nusantara Bersama Komunitas
+      </h2>
+      <p class="text-xs sm:text-sm text-emerald-200/90 max-w-2xl mx-auto leading-relaxed">
+        Adopsi benih pusaka terbuka untuk pekebun & petani, rawat hingga berbuah, lalu kembalikan sebagian hasil panen benih Anda (<em>Seed Return Protocol</em>) agar rantai regenerasi tanaman tidak terputus.
+      </p>
+
+      <!-- TAB NAVIGATION UTAMA -->
+      <div class="pt-6 flex justify-center">
+        <div class="inline-flex p-1.5 rounded-2xl bg-emerald-950/90 border border-emerald-800/80 shadow-xl gap-1">
+          <button id="tabBtnEtalase" onclick="switchPortalTab('etalase')" class="px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 bg-emerald-600 text-white shadow-sm">
+            <span>🌱</span> Etalase Adopsi Benih
+          </button>
+          <button id="tabBtnSetor" onclick="switchPortalTab('setor')" class="px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-emerald-300 hover:text-white">
+            <span>🌾</span> Setor / Barter Benih
+          </button>
+          <button id="tabBtnCek" onclick="switchPortalTab('cek')" class="px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 text-emerald-300 hover:text-white">
+            <span>🔍</span> Cek Status Pengajuan
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KONTEN UTAMA -->
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 -mt-6 mb-12 flex-1">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: ETALASE ADOPSI BENIH                                   -->
+    <!-- ============================================================== -->
+    <div id="portalSectionEtalase" class="space-y-6">
+      
+      <!-- Filter & Pencarian Bar -->
+      <div class="glass-card rounded-2xl p-4 sm:p-5 border border-stone-200/80 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="relative w-full sm:w-96">
+          <input type="text" id="searchSeedInput" oninput="filterBatches()" placeholder="Cari varietas benih, spesies, atau desa..." class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-stone-800 placeholder-stone-400 focus:ring-2 focus:ring-emerald-600 outline-none" />
+          <span class="absolute left-3 top-3 text-stone-400 text-xs">🔍</span>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span class="text-xs font-bold text-stone-500 hidden sm:inline">Generasi:</span>
+          <select id="genFilterSelect" onchange="filterBatches()" class="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-700 outline-none w-full sm:w-auto">
+            <option value="all">Semua Generasi</option>
+            <option value="G1">Generasi 1 (G1)</option>
+            <option value="G2">Generasi 2 (G2)</option>
+            <option value="G3">Generasi 3+ (G3+)</option>
+          </select>
+
+          <button onclick="loadSeedBatches()" title="Muat Ulang Data" class="p-2 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-600 transition">
+            🔄
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Memuat -->
+      <div id="loadingBatches" class="bg-white rounded-3xl p-12 text-center border border-stone-200 shadow-sm space-y-3">
+        <div class="inline-block w-8 h-8 border-4 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-xs font-bold text-stone-500">Menyiapkan etalase plasma nutfah yang tersedia...</p>
+      </div>
+
+      <!-- Grid Kartu Koleksi Benih -->
+      <div id="batchesGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Kartu di-render dinamis oleh JS -->
+      </div>
+
+      <!-- State Kosong / Tidak Ada Hasil -->
+      <div id="emptyBatches" class="hidden bg-white rounded-3xl p-12 text-center border border-stone-200 shadow-sm space-y-3">
+        <span class="text-4xl">🌾</span>
+        <h3 class="font-black text-stone-800 text-base">Tidak Ada Stok Benih yang Cocok</h3>
+        <p class="text-xs text-stone-400 max-w-sm mx-auto">Semua lot benih mungkin sedang dalam proses regenerasi atau kata kunci pencarian Anda belum sesuai.</p>
+        <button onclick="resetBatchFilters()" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-4 py-2 rounded-xl hover:bg-emerald-100 transition">
+          Tampilkan Semua Benih Tersedia
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: FORMULIR SETOR / BARTER BENIH PANEN                    -->
+    <!-- ============================================================== -->
+    <div id="portalSectionSetor" class="hidden space-y-6">
+      
+      <!-- Banner Panduan Seed Return Protocol -->
+      <div class="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg border border-purple-800 space-y-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl p-2.5 rounded-2xl bg-purple-800/80 border border-purple-700">📜</span>
+          <div>
+            <h3 class="text-base sm:text-lg font-black tracking-tight text-white">Protokol Pengembalian Benih (Seed Return Protocol)</h3>
+            <p class="text-xs text-purple-200">Panduan standar kualitas benih pusaka hasil panen mandiri sebelum disetor ke bank benih.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 text-xs text-purple-100">
+          <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
+            <strong class="text-purple-300 block mb-1">1. Buah Matang Sempurna</strong>
+            Dipetik saat buah/polong mencapai kematangan fisiologis penuh di pohon induk.
+          </div>
+          <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
+            <strong class="text-purple-300 block mb-1">2. Alami & Non-Kimia</strong>
+            Ditanam secara organik atau tanpa residu pestisida kimia sintetis berlebih.
+          </div>
+          <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
+            <strong class="text-purple-300 block mb-1">3. Pengeringan Optimal</strong>
+            Dibersihkan dari lendir dan dijemur hingga kadar air rendah (&lt;8%).
+          </div>
+          <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
+            <strong class="text-purple-300 block mb-1">4. Seleksi Bernas</strong>
+            Hanya biji yang bernas, padat, utuh, dan bebas kutu/jamur yang disetorkan.
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Pengajuan Setor Benih -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-6">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+            <span>🌾</span> Formulir Setor / Barter Benih Panen
+          </h3>
+          <p class="text-xs text-stone-400 mt-1">Isi formulir ini untuk menyetorkan hasil panen benih Anda. Tim kurator Bibit Pusaka akan memverifikasi fisik benih dan mengintegrasikannya ke bank benih.</p>
+        </div>
+
+        <form id="seedReturnForm" onsubmit="handleSeedReturnSubmit(event)" class="space-y-4 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Nama Lengkap Petani / Penyetor <span class="text-rose-500">*</span></label>
+              <input type="text" id="returnApplicantName" required placeholder="Contoh: I Made Suartha" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Nomor WhatsApp Aktif <span class="text-rose-500">*</span></label>
+              <input type="text" id="returnPhone" required placeholder="Contoh: 08123456789 atau 628..." class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs" />
+              <span class="text-[10px] text-stone-400">Digunakan untuk konfirmasi tanda terima dan barter benih.</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Desa / Subak / Wilayah Asal <span class="text-rose-500">*</span></label>
+              <input type="text" id="returnVillage" required placeholder="Contoh: Subak Intaran, Sanur / Desa Aan Klungkung" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Koordinat GPS Kebun (Opsional)</label>
+              <div class="flex gap-2">
+                <input type="number" step="any" id="returnLat" placeholder="Lat (-8.65)" class="w-1/2 border border-stone-200 rounded-xl p-2.5 outline-none text-xs" />
+                <input type="number" step="any" id="returnLng" placeholder="Lng (115.21)" class="w-1/2 border border-stone-200 rounded-xl p-2.5 outline-none text-xs" />
+                <button type="button" onclick="getGpsForReturn()" title="Ambil titik GPS kebun saat ini" class="px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition flex items-center justify-center">
+                  📍
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-stone-100">
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Nama Varietas Benih <span class="text-rose-500">*</span></label>
+              <input type="text" id="returnVariety" required placeholder="Contoh: Pare Belut Bali / Kacang Roay" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Kode Batch Induk (Jika Ada)</label>
+              <input type="text" id="returnBatchCode" placeholder="Contoh: BN-PAR-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs font-mono" />
+              <span class="text-[10px] text-stone-400">Kosongkan jika varietas pusaka baru mandiri.</span>
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Jumlah Benih yang Disetor (Gram) <span class="text-rose-500">*</span></label>
+              <input type="number" id="returnGrams" required min="5" value="50" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs font-bold" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Tanggal Panen <span class="text-rose-500">*</span></label>
+              <input type="date" id="returnHarvestDate" required class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Foto Bukti Panen / Fisik Benih</label>
+              <input type="file" id="returnPhotoInput" accept="image/*" class="w-full border border-stone-200 rounded-xl p-2 text-xs bg-stone-50 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-purple-100 file:text-purple-800 hover:file:bg-purple-200" />
+              <span class="text-[10px] text-stone-400">Format JPG/PNG (foto toples, biji di nampan, atau buah tanaman).</span>
+            </div>
+          </div>
+
+          <!-- Preview Foto yang Dipilih -->
+          <div id="returnPhotoPreviewBox" class="hidden p-3 bg-stone-50 rounded-2xl border border-stone-200 flex items-center gap-3">
+            <img id="returnPhotoPreviewImg" src="" alt="Preview Bukti" class="w-16 h-16 rounded-xl object-cover border border-stone-300" />
+            <div class="text-xs">
+              <span class="font-bold text-stone-700 block" id="returnPhotoPreviewName">-</span>
+              <span class="text-[10px] text-stone-400">Foto siap diunggah ke repositori storage Supabase.</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Catatan Budidaya & Permintaan Barter</label>
+            <textarea id="returnNotes" rows="2" placeholder="Ceritakan riwayat penanaman, ketinggian lahan, atau sebutkan varietas lain yang ingin Anda barter..." class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs"></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button type="submit" id="btnSubmitReturn" class="w-full sm:w-auto bg-purple-800 hover:bg-purple-900 text-white font-extrabold px-8 py-3 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-2">
+              <span>🌾</span> Kirim Setoran Benih
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: CEK STATUS PENGAJUAN SAYA                               -->
+    <!-- ============================================================== -->
+    <div id="portalSectionCek" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-4">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+            <span>🔍</span> Lacak Status Permohonan Benih Anda
+          </h3>
+          <p class="text-xs text-stone-400 mt-1">Masukkan nomor WhatsApp yang Anda gunakan saat mendaftar adopsi atau setor benih.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2 max-w-lg">
+          <input type="text" id="checkPhoneInput" placeholder="Contoh: 08123456789 atau 628..." class="flex-1 border border-stone-200 rounded-xl p-2.5 text-xs outline-none focus:ring-2 focus:ring-emerald-600" />
+          <button onclick="checkMyRequests()" class="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-sm">
+            Cari Permohonan
+          </button>
+        </div>
+
+        <div id="myRequestsResult" class="space-y-3 pt-3">
+          <p class="text-xs text-stone-400 italic">Ketik nomor WhatsApp di atas untuk melihat riwayat verifikasi.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL FORM PENGAJUAN ADOPSI BENIH                             -->
+  <!-- ============================================================== -->
+  <div id="adoptModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-200 space-y-5 my-8">
+      
+      <!-- Header Modal -->
+      <div class="flex items-start justify-between border-b border-stone-100 pb-3">
+        <div class="space-y-0.5">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 block">Formulir Adopsi Komunitas</span>
+          <h3 id="modalVarietyName" class="font-black text-stone-900 text-lg leading-tight">-</h3>
+          <p id="modalBatchCode" class="text-xs font-mono font-bold text-stone-400">-</p>
+        </div>
+        <button onclick="closeAdoptModal()" class="p-1.5 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Ringkasan Batch Terpilih -->
+      <div class="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 flex items-center justify-between text-xs">
+        <div>
+          <span class="text-[10px] text-emerald-800/80 font-bold block">Stok Tersedia</span>
+          <strong id="modalStockGrams" class="font-black text-emerald-950 text-sm">0 gram</strong>
+        </div>
+        <div>
+          <span class="text-[10px] text-emerald-800/80 font-bold block">Viabilitas</span>
+          <strong id="modalGermination" class="font-black text-emerald-950 text-sm">0%</strong>
+        </div>
+        <div>
+          <span class="text-[10px] text-emerald-800/80 font-bold block">Generasi</span>
+          <span id="modalGenTag" class="px-2 py-0.5 rounded-md bg-emerald-800 text-white font-mono font-bold text-[11px]">G1</span>
+        </div>
+      </div>
+
+      <!-- Form Isian Petani -->
+      <form id="adoptRequestForm" onsubmit="handleAdoptSubmit(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Nama Lengkap Pemohon <span class="text-rose-500">*</span></label>
+          <input type="text" id="adoptApplicantName" required placeholder="Contoh: Ni Luh Putu Ayu" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Nomor WhatsApp Aktif <span class="text-rose-500">*</span></label>
+            <input type="text" id="adoptPhone" required placeholder="Contoh: 08123456789" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Jumlah Diadopsi (Gram) <span class="text-rose-500">*</span></label>
+            <input type="number" id="adoptGramsInput" required min="5" value="25" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs font-bold" />
+            <span class="text-[10px] text-stone-400">Standar 25 gram (~30-50 benih)</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Desa / Subak / Wilayah di Bali <span class="text-rose-500">*</span></label>
+          <input type="text" id="adoptVillage" required placeholder="Contoh: Subak Sembung, Peguyangan / Bedugul" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+        </div>
+
+        <!-- Input Koordinat GPS Kebun -->
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Titik Koordinat Kebun (Opsional)</label>
+          <div class="flex gap-2">
+            <input type="number" step="any" id="adoptLat" placeholder="Latitude (-8.65)" class="w-1/2 border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+            <input type="number" step="any" id="adoptLng" placeholder="Longitude (115.21)" class="w-1/2 border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+            <button type="button" onclick="getGpsForAdopt()" title="Ambil titik GPS kebun saat ini" class="px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold transition flex items-center justify-center">
+              📍
+            </button>
+          </div>
+          <span class="text-[10px] text-stone-400">Titik GPS membantu kami memetakan sebaran varietas di peta komunitas Bali.</span>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Rencana Lahan / Catatan Petani</label>
+          <textarea id="adoptNotes" rows="2" placeholder="Contoh: Ditanam di bedengan pekarangan rumah organik, berniat mengembalikan benih panen berikutnya..." class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAdoptModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitAdoptModal" class="bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-6 py-2.5 rounded-xl transition text-xs shadow-md flex items-center gap-1.5">
+            <span>🌱</span> Ajukan Adopsi Sekarang
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFIKASI -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-60 hidden bg-stone-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-stone-700 text-xs flex items-center gap-2 transform transition-all duration-300">
+    <span id="toastIcon">🌱</span>
+    <span id="toastMsg">Pesan</span>
+  </div>
+
+  <!-- FOOTER DENGAN KREDIT PENGEMBANG RESMI -->
+  <footer class="bg-emerald-950 text-white border-t border-emerald-900 py-8 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-center md:justify-start gap-2">
+          <span class="text-xl">🌱</span>
+          <h4 class="font-black text-base text-white tracking-tight">Bibit Pusaka</h4>
+        </div>
+        <p class="text-xs text-emerald-300/80 max-w-md">
+          Sistem Terbuka Manajemen Bank Benih, Regenerasi Siklus Tanam, CRM Komunitas Petani & Ensiklopedia Botani Pusaka Bali.
+        </p>
+      </div>
+
+      <div class="text-xs text-emerald-300/90 space-y-1 border-t md:border-t-0 md:border-l border-emerald-900 pt-4 md:pt-0 md:pl-6 text-center md:text-right">
+        <div>Developed with 💚 by:</div>
+        <strong class="text-white font-bold text-sm tracking-wide block">I Gusti Ngurah Aristiana Adi Putra</strong>
+        <p class="text-[11px] text-emerald-400/80">&copy; 2026 Bibit Pusaka. Menjaga Benih, Merawat Masa Depan.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIKA PORTAL, OFFLINE QUEUE, & SUPABASE -->
+  <script>
+    const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
+    const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
+    const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
+
+    let allAvailableBatches = [];
+    let currentSelectedBatch = null;
+    let deferredPwaPrompt = null;
+    let selectedReturnPhotoFile = null;
+
+    // ==============================================================
+    // PWA & SERVICE WORKER REGISTRATION
+    // ==============================================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker aktif di portal:', reg.scope))
+          .catch(err => console.warn('[PWA] Pendaftaran SW gagal:', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      const btn = document.getElementById('btnInstallApp');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    window.triggerPwaInstall = async function() {
+      if (!deferredPwaPrompt) return;
+      deferredPwaPrompt.prompt();
+      const choice = await deferredPwaPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        showToast("Terima kasih telah menginstall Bibit Pusaka!");
+      }
+      deferredPwaPrompt = null;
+      document.getElementById('btnInstallApp')?.classList.add('hidden');
+    };
+
+    // ==============================================================
+    // OFFLINE QUEUE & NETWORK DETECTION
+    // ==============================================================
+    function getOfflineQueue() {
+      try {
+        return JSON.parse(localStorage.getItem('bibitpusaka_offline_queue') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveOfflineQueue(queue) {
+      localStorage.setItem('bibitpusaka_offline_queue', JSON.stringify(queue));
+      updateNetworkBanner();
+    }
+
+    function addToOfflineQueue(item) {
+      const queue = getOfflineQueue();
+      queue.push({
+        id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        createdAt: new Date().toISOString(),
+        ...item
+      });
+      saveOfflineQueue(queue);
+    }
+
+    function updateNetworkBanner() {
+      const isOnline = navigator.onLine;
+      const queue = getOfflineQueue();
+      const banner = document.getElementById('offlineNoticeBanner');
+      const badge = document.getElementById('queueBadge');
+      const text = document.getElementById('offlineBannerText');
+      const netBadge = document.getElementById('netStatusBadge');
+
+      if (netBadge) {
+        if (isOnline) {
+          netBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Online';
+          netBadge.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-800';
+        } else {
+          netBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Offline';
+          netBadge.className = 'hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-900/80 text-amber-300 border border-amber-800';
+        }
+      }
+
+      if (!isOnline || queue.length > 0) {
+        banner.classList.remove('hidden');
+        badge.textContent = `${queue.length} antrean`;
+        if (!isOnline) {
+          text.textContent = `Mode Lapangan / Offline Aktif — Terdapat ${queue.length} data tersimpan di perangkat.`;
+        } else {
+          text.textContent = `Koneksi internet kembali! Terdapat ${queue.length} data siap disinkronkan ke server.`;
+        }
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('online', () => {
+      showToast("Koneksi internet pulih. Memulai sinkronisasi...");
+      updateNetworkBanner();
+      syncOfflineQueue();
+      loadSeedBatches();
+    });
+
+    window.addEventListener('offline', () => {
+      showToast("Koneksi terputus. Mode offline diaktifkan.");
+      updateNetworkBanner();
+    });
+
+    window.syncOfflineQueue = async function() {
+      if (!navigator.onLine) {
+        alert("Perangkat Anda masih dalam keadaan offline. Sinkronisasi membutuhkan koneksi internet.");
+        return;
+      }
+
+      const queue = getOfflineQueue();
+      if (queue.length === 0) {
+        showToast("Semua data telah sinkron.");
+        updateNetworkBanner();
+        return;
+      }
+
+      let successCount = 0;
+      const remaining = [];
+
+      for (const item of queue) {
+        try {
+          if (item.table === 'seed_exchange_requests') {
+            const { error } = await dbClient.from('seed_exchange_requests').insert([item.payload]);
+            if (error) throw error;
+            successCount++;
+          } else {
+            remaining.push(item);
+          }
+        } catch (err) {
+          console.warn("[Sync Error]", err);
+          remaining.push(item);
+        }
+      }
+
+      saveOfflineQueue(remaining);
+      if (successCount > 0) {
+        showToast(`Berhasil menyinkronkan ${successCount} data ke server!`);
+      }
+      updateNetworkBanner();
+    };
+
+    // ==============================================================
+    // DATA LOADER & ETALASE BATCH
+    // ==============================================================
+    async function loadSeedBatches() {
+      const loader = document.getElementById('loadingBatches');
+      const grid = document.getElementById('batchesGrid');
+      const empty = document.getElementById('emptyBatches');
+
+      loader?.classList.remove('hidden');
+      grid?.classList.add('hidden');
+      empty?.classList.add('hidden');
+
+      try {
+        const { data, error } = await dbClient
+          .from('seed_batches')
+          .select('*')
+          .gt('stock_grams', 0)
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          allAvailableBatches = data;
+          // Simpan ke offline cache lokal
+          localStorage.setItem('bibitpusaka_cache_batches', JSON.stringify(data));
+        } else {
+          throw error || new Error("Gagal mengambil data");
+        }
+      } catch (err) {
+        console.warn("[Load Batches] Menggunakan cadangan cache lokal:", err);
+        const cached = localStorage.getItem('bibitpusaka_cache_batches');
+        if (cached) {
+          allAvailableBatches = JSON.parse(cached);
+          showToast("Memuat data dari memori cache lokal.");
+        }
+      } finally {
+        loader?.classList.add('hidden');
+        renderBatches(allAvailableBatches);
+      }
+    }
+
+    function renderBatches(batches) {
+      const grid = document.getElementById('batchesGrid');
+      const empty = document.getElementById('emptyBatches');
+      if (!grid) return;
+
+      if (!batches || batches.length === 0) {
+        grid.classList.add('hidden');
+        empty?.classList.remove('hidden');
+        return;
+      }
+
+      empty?.classList.add('hidden');
+      grid.classList.remove('hidden');
+      grid.innerHTML = '';
+
+      batches.forEach(b => {
+        const genMatch = b.batch_code ? b.batch_code.match(/-G(\d+)-/i) : null;
+        const genTag = genMatch ? `G${genMatch[1]}` : 'G1';
+
+        const germRate = Number(b.germination_rate || 80);
+        let germColor = "bg-emerald-600";
+        let germText = "text-emerald-700";
+        if (germRate < 70) { germColor = "bg-rose-500"; germText = "text-rose-700"; }
+        else if (germRate < 85) { germColor = "bg-amber-500"; germText = "text-amber-700"; }
+
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-4 group relative overflow-hidden";
+        card.innerHTML = `
+          <!-- Header Kartu -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-lg bg-emerald-800 text-emerald-100 font-mono font-bold text-[11px] shadow-2xs">
+                ${genTag} • ${b.batch_code}
+              </span>
+              <span class="text-[11px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md">
+                ${b.stock_grams} gram tersedia
+              </span>
+            </div>
+
+            <div>
+              <h3 class="font-black text-stone-900 text-lg group-hover:text-emerald-800 transition-colors leading-tight">
+                ${b.variety_name}
+              </h3>
+              <p class="text-xs text-stone-400 italic">${b.species || 'Varietas Pusaka Terdaftar'}</p>
+            </div>
+          </div>
+
+          <!-- Info Viabilitas & Asal -->
+          <div class="space-y-2.5 pt-2 border-t border-stone-100 text-xs">
+            <div>
+              <div class="flex justify-between items-center text-[11px] font-bold mb-1">
+                <span class="text-stone-500">Daya Berkecambah (QC)</span>
+                <span class="${germText}">${germRate}%</span>
+              </div>
+              <div class="w-full bg-stone-100 rounded-full h-2 overflow-hidden">
+                <div class="${germColor} h-2 rounded-full transition-all duration-500" style="width: ${germRate}%"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-600 pt-1">
+              <div>
+                <span class="text-stone-400 block text-[10px]">Asal Benih:</span>
+                <span class="font-semibold truncate block">${b.provenance || 'Kebun Mandiri'}</span>
+              </div>
+              <div>
+                <span class="text-stone-400 block text-[10px]">Tgl Panen:</span>
+                <span class="font-semibold block">${b.harvest_date || '-'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tombol Aksi -->
+          <div class="pt-3 border-t border-stone-100 space-y-2">
+            <button onclick="openAdoptModal('${b.batch_code}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold py-2.5 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5">
+              <span>🌱</span> Ajukan Adopsi Benih
+            </button>
+
+            <div class="grid grid-cols-2 gap-2">
+              <a href="tanaman.html?nama=${encodeURIComponent(b.variety_name)}" class="py-1.5 px-2 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-bold text-[11px] text-center transition flex items-center justify-center gap-1">
+                <span>📖</span> Ensiklopedia
+              </a>
+              <a href="paspor.html?batch=${encodeURIComponent(b.batch_code)}" class="py-1.5 px-2 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-bold text-[11px] text-center transition flex items-center justify-center gap-1">
+                <span>🏷️</span> Paspor Digital
+              </a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterBatches() {
+      const q = (document.getElementById('searchSeedInput')?.value || '').toLowerCase();
+      const gen = document.getElementById('genFilterSelect')?.value || 'all';
+
+      let filtered = allAvailableBatches.filter(b => {
+        const varName = (b.variety_name || '').toLowerCase();
+        const specName = (b.species || '').toLowerCase();
+        const bCode = (b.batch_code || '').toLowerCase();
+        const prov = (b.provenance || '').toLowerCase();
+
+        const matchQuery = varName.includes(q) || specName.includes(q) || bCode.includes(q) || prov.includes(q);
+
+        if (!matchQuery) return false;
+
+        if (gen !== 'all') {
+          const genMatch = b.batch_code ? b.batch_code.match(/-G(\d+)-/i) : null;
+          const currentGen = genMatch ? `G${genMatch[1]}` : 'G1';
+          if (gen === 'G3') {
+            const num = genMatch ? parseInt(genMatch[1], 10) : 1;
+            return num >= 3;
+          }
+          return currentGen === gen;
+        }
+
+        return true;
+      });
+
+      renderBatches(filtered);
+    }
+
+    window.resetBatchFilters = function() {
+      const s = document.getElementById('searchSeedInput');
+      const g = document.getElementById('genFilterSelect');
+      if (s) s.value = '';
+      if (g) g.value = 'all';
+      renderBatches(allAvailableBatches);
+    };
+
+    // ==============================================================
+    // TAB SWITCHER PORTAL
+    // ==============================================================
+    window.switchPortalTab = function(tabName) {
+      const tabs = ['etalase', 'setor', 'cek'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`portalSection${capitalize(t)}`);
+        const btn = document.getElementById(`tabBtn${capitalize(t)}`);
+        if (sec) sec.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+          btn.classList.add('text-emerald-300');
+        }
+      });
+
+      const activeSec = document.getElementById(`portalSection${capitalize(tabName)}`);
+      const activeBtn = document.getElementById(`tabBtn${capitalize(tabName)}`);
+      if (activeSec) activeSec.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.remove('text-emerald-300');
+        activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+      }
+    };
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // ==============================================================
+    // MODAL ADOPSI BENIH
+    // ==============================================================
+    window.openAdoptModal = function(batchCode) {
+      const batch = allAvailableBatches.find(b => b.batch_code === batchCode);
+      if (!batch) return;
+      currentSelectedBatch = batch;
+
+      const genMatch = batch.batch_code ? batch.batch_code.match(/-G(\d+)-/i) : null;
+      const genTag = genMatch ? `G${genMatch[1]}` : 'G1';
+
+      document.getElementById('modalVarietyName').textContent = batch.variety_name;
+      document.getElementById('modalBatchCode').textContent = batch.batch_code;
+      document.getElementById('modalStockGrams').textContent = `${batch.stock_grams} gram`;
+      document.getElementById('modalGermination').textContent = `${batch.germination_rate || 85}%`;
+      document.getElementById('modalGenTag').textContent = genTag;
+
+      const gramsInput = document.getElementById('adoptGramsInput');
+      if (gramsInput) {
+        gramsInput.max = batch.stock_grams;
+        gramsInput.value = Math.min(25, batch.stock_grams);
+      }
+
+      document.getElementById('adoptModal').classList.remove('hidden');
+    };
+
+    window.closeAdoptModal = function() {
+      document.getElementById('adoptModal').classList.add('hidden');
+      currentSelectedBatch = null;
+    };
+
+    window.getGpsForAdopt = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            document.getElementById('adoptLat').value = pos.coords.latitude.toFixed(6);
+            document.getElementById('adoptLng').value = pos.coords.longitude.toFixed(6);
+            showToast("📍 Koordinat GPS kebun berhasil diperoleh!");
+          },
+          () => alert("Tidak dapat mengakses GPS perangkat. Pastikan izin lokasi aktif.")
+        );
+      } else {
+        alert("Peramban Anda tidak mendukung sensor GPS.");
+      }
+    };
+
+    window.getGpsForReturn = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            document.getElementById('returnLat').value = pos.coords.latitude.toFixed(6);
+            document.getElementById('returnLng').value = pos.coords.longitude.toFixed(6);
+            showToast("📍 Koordinat GPS kebun berhasil diperoleh!");
+          },
+          () => alert("Tidak dapat mengakses GPS perangkat. Pastikan izin lokasi aktif.")
+        );
+      } else {
+        alert("Peramban Anda tidak mendukung sensor GPS.");
+      }
+    };
+
+    window.handleAdoptSubmit = async function(e) {
+      e.preventDefault();
+      if (!currentSelectedBatch) return;
+
+      const btn = document.getElementById('btnSubmitAdoptModal');
+      btn.disabled = true;
+      btn.textContent = "Mengirim Permohonan...";
+
+      const applicantName = document.getElementById('adoptApplicantName').value.trim();
+      const phone = document.getElementById('adoptPhone').value.trim();
+      const village = document.getElementById('adoptVillage').value.trim();
+      const grams = parseFloat(document.getElementById('adoptGramsInput').value) || 25;
+      const lat = parseFloat(document.getElementById('adoptLat').value) || null;
+      const lng = parseFloat(document.getElementById('adoptLng').value) || null;
+      const notes = document.getElementById('adoptNotes').value.trim();
+
+      const payload = {
+        request_type: 'Adopsi Benih',
+        applicant_name: applicantName,
+        phone_whatsapp: phone,
+        village_region: village,
+        latitude: lat,
+        longitude: lng,
+        variety_name: currentSelectedBatch.variety_name,
+        batch_code: currentSelectedBatch.batch_code,
+        grams_amount: grams,
+        notes: notes,
+        status: 'Menunggu Verifikasi',
+        created_at: new Date().toISOString()
+      };
+
+      if (!navigator.onLine) {
+        // Mode offline: Simpan ke antrean lokal
+        addToOfflineQueue({
+          table: 'seed_exchange_requests',
+          payload: payload,
+          description: `Adopsi benih ${payload.variety_name} (${payload.grams_amount}g) oleh ${payload.applicant_name}`
+        });
+
+        btn.disabled = false;
+        btn.textContent = "🌱 Ajukan Adopsi Sekarang";
+        closeAdoptModal();
+        document.getElementById('adoptRequestForm').reset();
+        alert("📡 Sinyal offline! Pengajuan adopsi Anda telah tersimpan aman di perangkat dan akan terkirim otomatis saat internet kembali.");
+        return;
+      }
+
+      try {
+        const { error } = await dbClient.from('seed_exchange_requests').insert([payload]);
+        if (error) throw error;
+
+        btn.disabled = false;
+        btn.textContent = "🌱 Ajukan Adopsi Sekarang";
+        closeAdoptModal();
+        document.getElementById('adoptRequestForm').reset();
+
+        showToast("Pengajuan adopsi benih berhasil dikirim! Menunggu verifikasi tim.");
+        alert(`Sukses! Permohonan adopsi benih [${payload.variety_name}] sebanyak ${payload.grams_amount} gram telah kami terima.\n\nStaf kurator Bibit Pusaka akan menghubungi Anda via WhatsApp (${phone}) untuk konfirmasi serah terima benih.`);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "🌱 Ajukan Adopsi Sekarang";
+        alert("Gagal mengirim permohonan: " + err.message);
+      }
+    };
+
+    // ==============================================================
+    // TAB SETOR BENIH & UPLOAD FOTO
+    // ==============================================================
+    document.getElementById('returnPhotoInput')?.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        selectedReturnPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('returnPhotoPreviewImg').src = event.target.result;
+          document.getElementById('returnPhotoPreviewName').textContent = file.name;
+          document.getElementById('returnPhotoPreviewBox').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    window.handleSeedReturnSubmit = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitReturn');
+      btn.disabled = true;
+      btn.textContent = "Mengunggah & Memproses...";
+
+      const applicantName = document.getElementById('returnApplicantName').value.trim();
+      const phone = document.getElementById('returnPhone').value.trim();
+      const village = document.getElementById('returnVillage').value.trim();
+      const lat = parseFloat(document.getElementById('returnLat').value) || null;
+      const lng = parseFloat(document.getElementById('returnLng').value) || null;
+      const variety = document.getElementById('returnVariety').value.trim();
+      const batchCode = document.getElementById('returnBatchCode').value.trim() || null;
+      const grams = parseFloat(document.getElementById('returnGrams').value) || 50;
+      const harvestDate = document.getElementById('returnHarvestDate').value;
+      const notes = document.getElementById('returnNotes').value.trim();
+
+      let uploadedPhotoUrl = null;
+
+      // Proses upload foto jika ada dan sedang online
+      if (selectedReturnPhotoFile && navigator.onLine) {
+        try {
+          const fileExt = selectedReturnPhotoFile.name.split('.').pop();
+          const fileName = `exchange_${Date.now()}_${Math.random().toString(36).substr(2, 6)}.${fileExt}`;
+          const filePath = `exchange/${fileName}`;
+
+          const { error: upErr } = await dbClient.storage
+            .from('plant-gallery')
+            .upload(filePath, selectedReturnPhotoFile);
+
+          if (!upErr) {
+            const { data: pubData } = dbClient.storage.from('plant-gallery').getPublicUrl(filePath);
+            uploadedPhotoUrl = pubData.publicUrl;
+          }
+        } catch (e) {
+          console.warn("[Upload Foto Gagal, lanjut tanpa foto]:", e);
+        }
+      }
+
+      const payload = {
+        request_type: 'Setor Benih',
+        applicant_name: applicantName,
+        phone_whatsapp: phone,
+        village_region: village,
+        latitude: lat,
+        longitude: lng,
+        variety_name: variety,
+        batch_code: batchCode,
+        grams_amount: grams,
+        harvest_date: harvestDate,
+        photo_url: uploadedPhotoUrl,
+        notes: notes,
+        status: 'Menunggu Verifikasi',
+        created_at: new Date().toISOString()
+      };
+
+      if (!navigator.onLine) {
+        addToOfflineQueue({
+          table: 'seed_exchange_requests',
+          payload: payload,
+          description: `Setor benih panen ${payload.variety_name} (${payload.grams_amount}g) oleh ${payload.applicant_name}`
+        });
+
+        btn.disabled = false;
+        btn.textContent = "🌾 Kirim Setoran Benih";
+        document.getElementById('seedReturnForm').reset();
+        document.getElementById('returnPhotoPreviewBox').classList.add('hidden');
+        selectedReturnPhotoFile = null;
+        alert("📡 Anda sedang offline. Data setoran benih Anda berhasil disimpan di perangkat dan akan terkirim saat tersambung internet.");
+        return;
+      }
+
+      try {
+        const { error } = await dbClient.from('seed_exchange_requests').insert([payload]);
+        if (error) throw error;
+
+        btn.disabled = false;
+        btn.textContent = "🌾 Kirim Setoran Benih";
+        document.getElementById('seedReturnForm').reset();
+        document.getElementById('returnPhotoPreviewBox').classList.add('hidden');
+        selectedReturnPhotoFile = null;
+
+        showToast("Setoran benih berhasil dikirim! Suksema atas partisipasi Anda.");
+        alert(`Matur Suksema Bpk/Ibu ${payload.applicant_name}!\n\nSetoran benih panen [${payload.variety_name}] sebanyak ${payload.grams_amount} gram telah tercatat di sistem kami.\n\nStaf Bibit Pusaka akan menghubungi Anda untuk verifikasi fisik benih dan pemberian benih pusaka barter.`);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "🌾 Kirim Setoran Benih";
+        alert("Gagal mengirim setoran benih: " + err.message);
+      }
+    };
+
+    // ==============================================================
+    // CEK STATUS PENGAJUAN
+    // ==============================================================
+    window.checkMyRequests = async function() {
+      const phoneInput = document.getElementById('checkPhoneInput');
+      const box = document.getElementById('myRequestsResult');
+      const rawPhone = phoneInput.value.trim();
+
+      if (!rawPhone) {
+        alert("Silakan masukkan nomor WhatsApp Anda.");
+        return;
+      }
+
+      box.innerHTML = `<div class="text-xs text-stone-500 font-bold flex items-center gap-2"><div class="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin"></div> Mencari arsip permohonan...</div>`;
+
+      try {
+        const { data, error } = await dbClient
+          .from('seed_exchange_requests')
+          .select('*')
+          .or(`phone_whatsapp.ilike.%${rawPhone}%,phone_whatsapp.ilike.%${rawPhone.replace(/^0/, '')}%`)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          box.innerHTML = `
+            <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs text-center space-y-1">
+              <span class="text-xl">📭</span>
+              <p class="font-bold text-stone-700">Belum ada pengajuan dengan nomor ini</p>
+              <p class="text-[11px] text-stone-400">Pastikan nomor sesuai saat Anda mengisi formulir adopsi atau setor benih.</p>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = '';
+        data.forEach(item => {
+          let statusBadge = "bg-amber-100 text-amber-900 border-amber-300";
+          if (item.status === 'Disetujui') statusBadge = "bg-emerald-100 text-emerald-950 border-emerald-300";
+          if (item.status === 'Ditolak') statusBadge = "bg-rose-100 text-rose-950 border-rose-300";
+
+          const card = document.createElement('div');
+          card.className = "p-4 bg-stone-50 rounded-2xl border border-stone-200 text-xs space-y-2";
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-900">${item.request_type}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${statusBadge}">${item.status}</span>
+            </div>
+            <div>
+              <strong class="text-stone-900 text-sm block">${item.variety_name}</strong>
+              <span class="text-stone-500 text-[11px] font-mono">${item.batch_code ? 'Batch: ' + item.batch_code : 'Varietas Mandiri'} • ${item.grams_amount} gram</span>
+            </div>
+            <div class="text-[10px] text-stone-400 flex justify-between items-center pt-1 border-t border-stone-200/60">
+              <span>Diajukan: ${new Date(item.created_at).toLocaleDateString('id-ID')}</span>
+              <span>Lokasi: ${item.village_region}</span>
+            </div>
+          `;
+          box.appendChild(card);
+        });
+
+      } catch (err) {
+        box.innerHTML = `<p class="text-xs text-rose-600 font-bold">Gagal memeriksa status: ${err.message}</p>`;
+      }
+    };
+
+    // ==============================================================
+    // UTILITY: TOAST
+    // ==============================================================
+    function showToast(msg, icon = "🌱") {
+      const toast = document.getElementById("toastNotification");
+      const toastMsg = document.getElementById("toastMsg");
+      const toastIcon = document.getElementById("toastIcon");
+      if (!toast) return;
+
+      toastMsg.textContent = msg;
+      toastIcon.textContent = icon;
+      toast.classList.remove("hidden");
+
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3500);
+    }
+
+    // ==============================================================
+    // INISIALISASI
+    // ==============================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      updateNetworkBanner();
+      loadSeedBatches();
+
+      const harvestDateInput = document.getElementById('returnHarvestDate');
+      if (harvestDateInput) harvestDateInput.valueAsDate = new Date();
+    });
+  </script>
+</body>
+</html>

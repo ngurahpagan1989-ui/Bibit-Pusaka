@@ -49,11 +49,11 @@
     <!-- State Loading -->
     <div id="loadingState" class="bg-white rounded-3xl p-8 border border-stone-200 text-center space-y-3 shadow-md">
       <div class="inline-block w-8 h-8 border-4 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-xs font-bold text-stone-500">Memverifikasi tanda tangan digital benih...</p>
+      <p class="text-xs font-bold text-stone-500">Memverifikasi tanda tangan digital benih & simpul lumbung...</p>
     </div>
 
     <!-- State Sertifikat Benih Ditemukan -->
-    <div id="cardPassport" class="hidden relative bg-cert-pattern rounded-3xl p-5 sm:p-6 border-2 border-stone-300/80 shadow-2xl space-y-5 transition-all overflow-hidden">
+    <div id="cardPassport" class="hidden relative bg-cert-pattern rounded-3xl p-5 sm:p-6 border-2 border-stone-300/80 shadow-2xl space-y-4 transition-all overflow-hidden">
       
       <!-- Dekorasi Pojok Kanan Atas -->
       <div class="absolute -top-7 -right-7 w-20 h-20 bg-emerald-800/10 rounded-full flex items-end justify-start p-2 pointer-events-none">
@@ -70,6 +70,18 @@
           <span id="viewGenTag" class="px-2.5 py-0.5 rounded-lg bg-emerald-700 text-white font-mono font-black text-xs border border-emerald-500">G1</span>
           <span id="viewShortCode" class="block text-[10px] font-mono text-stone-300 mt-1 font-bold">Stempel: -</span>
         </div>
+      </div>
+
+      <!-- LENCANA RESMI OUTLET KOMUNITAS / SIMPUL LUMBUNG PEMILIK BATCH -->
+      <div id="viewOutletBox" class="p-3 rounded-2xl bg-amber-50/90 border border-amber-200 flex items-center justify-between shadow-2xs">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg p-1.5 rounded-xl bg-amber-200/80 text-amber-900 shadow-2xs">🏛️</span>
+          <div>
+            <span class="text-[9px] font-extrabold text-amber-800 uppercase tracking-wider block">Simpul Lumbung / Outlet Komunitas</span>
+            <strong id="viewOutletName" class="text-xs text-amber-950 font-black leading-tight block">-</strong>
+          </div>
+        </div>
+        <span id="viewOutletCodeBadge" class="px-2.5 py-1 rounded-xl bg-amber-800 text-white font-mono font-black text-[11px] shadow-2xs">BP</span>
       </div>
 
       <!-- GALERI FOTO MORFOLOGI TANAMAN DI PASPOR -->
@@ -321,7 +333,7 @@
 
   <!-- Footer Publik -->
   <footer class="max-w-md w-full mx-auto text-center py-2 border-t border-stone-300">
-    <p class="text-[10px] text-stone-500 font-medium">© 2026 Bibit Pusaka • Developed by I Gusti Ngurah Aristiana Adi Putra</p>
+    <p class="text-[10px] text-stone-500 font-medium">© 2026 Bibit Pusaka • Developed by <strong>I Gusti Ngurah Aristiana Adi Putra</strong></p>
   </footer>
 
   <script>
@@ -331,11 +343,27 @@
 
     let activeBatchData = null;
 
-    function getShortCode(batchCode, varietyName) {
+    // Database fallback outlet jika offline
+    const OUTLET_NAME_MAP = {
+      'BP': { name: 'Lumbung Utama Bibit Pusaka (Pusat Denpasar)', code: 'BP' },
+      'UBD': { name: 'Outlet Komunitas Ubud (Gianyar)', code: 'UBD' },
+      'KRG': { name: 'Outlet Komunitas Karangasem (Amlapura)', code: 'KRG' },
+      'BGL': { name: 'Outlet Komunitas Bangli (Kintamani)', code: 'BGL' }
+    };
+
+    function getShortCode(batchCode, varietyName, outletCode = 'BP') {
       if (!batchCode) return "";
-      const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
-      if (match) return `${match[1].charAt(0)}${match[2]}-${String(parseInt(match[3], 10)).padStart(2, '0')}`;
-      return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
+      // Format baru: [OUTLET]-[VAR]-[YY]-G[GEN]-[SEQ]
+      const matchNew = batchCode.match(/^([A-Z]{2,4})-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
+      if (matchNew) {
+        return `${matchNew[1].toUpperCase()}•${matchNew[2].charAt(0)}${matchNew[3]}-${String(parseInt(matchNew[4], 10)).padStart(2, '0')}`;
+      }
+      // Format lama: BN-[VAR]-[YY]-G[GEN]-[SEQ]
+      const matchOld = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
+      if (matchOld) {
+        return `${outletCode.toUpperCase()}•${matchOld[1].charAt(0)}${matchOld[2]}-${String(parseInt(matchOld[3], 10)).padStart(2, '0')}`;
+      }
+      return `${outletCode.toUpperCase()}•${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
 
     async function getPlantAgroData(varietyName) {
@@ -456,11 +484,30 @@
         const genMatch = data.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
 
+        // Deteksi Outlet Code
+        let outletCode = data.outlet_code || 'BP';
+        const batchPrefixMatch = data.batch_code.match(/^([A-Z]{2,4})-/);
+        if (batchPrefixMatch && batchPrefixMatch[1] !== 'BN') {
+          outletCode = batchPrefixMatch[1].toUpperCase();
+        }
+
         document.getElementById("viewBatchCode").textContent = data.batch_code;
         document.getElementById("viewGenTag").textContent = genLabel;
-        document.getElementById("viewShortCode").textContent = `Stempel: ${getShortCode(data.batch_code, data.variety_name)}`;
+        document.getElementById("viewShortCode").textContent = `Stempel: ${getShortCode(data.batch_code, data.variety_name, outletCode)}`;
         document.getElementById("viewVariety").textContent = data.variety_name;
         document.getElementById("viewSpeciesText").textContent = data.species || "Spesies botani terdata";
+
+        // Tampilkan Lencana Outlet Komunitas
+        let outletDisplayName = OUTLET_NAME_MAP[outletCode]?.name || `Lumbung Komunitas (${outletCode})`;
+        try {
+          const { data: outData } = await dbClient.from("community_outlets").select("*").eq("outlet_code", outletCode).maybeSingle();
+          if (outData) {
+            outletDisplayName = `${outData.outlet_name} (${outData.village_region || outData.outlet_code})`;
+          }
+        } catch (e) {}
+
+        document.getElementById("viewOutletName").textContent = outletDisplayName;
+        document.getElementById("viewOutletCodeBadge").textContent = outletCode;
         
         const germ = data.germination_rate || 0;
         document.getElementById("viewGermination").textContent = `${germ}%`;

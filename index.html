@@ -49,8 +49,8 @@
 </head>
 <body class="bg-stone-100 text-stone-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- MODAL LOGIN SUPABASE AUTH -->
-  <div id="authGateModal" class="fixed inset-0 bg-stone-900/90 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+  <!-- MODAL LOGIN SUPABASE AUTH (HARD AUTH GATE) -->
+  <div id="authGateModal" class="fixed inset-0 bg-stone-900/95 z-60 flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
         🔐
@@ -78,8 +78,8 @@
 
   <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-stone-900/60 z-40 hidden lg:hidden transition-opacity"></div>
 
-  <!-- WRAPPER APLIKASI INTERNAL -->
-  <div id="appContainer" class="flex min-h-screen w-full">
+  <!-- WRAPPER APLIKASI INTERNAL (HARD LOCKED BY DEFAULT) -->
+  <div id="appContainer" class="hidden min-h-screen w-full">
 
     <!-- SIDEBAR KIRI -->
     <aside id="mainSidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-emerald-950 text-white z-50 flex flex-col justify-between border-r border-emerald-900 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
@@ -142,7 +142,7 @@
         </div>
 
         <div class="pt-2 border-t border-emerald-900/50 text-[10px] text-emerald-400/80 leading-snug">
-          Dikembangkan oleh:<br/>
+          Developed by:<br/>
           <strong class="text-white font-semibold">I Gusti Ngurah Aristiana Adi Putra</strong>
         </div>
       </div>
@@ -288,11 +288,58 @@
 
         <!-- 2. KATALOG BATCH TAB -->
         <section id="tab-katalog" class="space-y-6 hidden">
+          
+          <!-- KARTU FILTER OUTLET KOMUNITAS DI TAB KATALOG -->
+          <div class="space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="font-extrabold text-stone-900 text-sm flex items-center gap-1.5">
+                  <span>🏛️</span> Simpul Lumbung / Outlet Komunitas
+                </h3>
+                <p class="text-xs text-stone-400">Pilih simpul lumbung untuk menyaring inventaris lot benih milik outlet terkait.</p>
+              </div>
+              <button type="button" onclick="openAddOutletModal()" class="px-3.5 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto cursor-pointer">
+                <span>➕</span> <span>Tambah Outlet Baru</span>
+              </button>
+            </div>
+
+            <!-- Wadah Kartu Outlet -->
+            <div id="katalogOutletCardsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <!-- Render via JS -->
+            </div>
+
+            <!-- Banner Info Detail Outlet Terpilih di Katalog -->
+            <div id="katalogOutletDetailBanner" class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg p-1.5 rounded-xl bg-emerald-100 text-emerald-900">🏛️</span>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <strong id="katalogBannerOutletName" class="text-emerald-950 font-black">Semua Simpul Lumbung</strong>
+                    <span id="katalogBannerOutletCode" class="px-2 py-0.2 rounded bg-emerald-800 text-white font-mono font-bold text-[10px]">ALL</span>
+                  </div>
+                  <p id="katalogBannerOutletRegion" class="text-[11px] text-emerald-800/80 mt-0.5">Menampilkan total seluruh lot benih dari semua cabang/outlet komunitas.</p>
+                </div>
+              </div>
+              <div id="katalogBannerOutletActions" class="flex items-center gap-2">
+                <span id="katalogBannerCoordinator" class="text-[11px] text-stone-600 font-semibold hidden sm:inline"></span>
+                <a id="katalogBannerWaBtn" href="#" target="_blank" class="hidden px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition shadow-2xs items-center gap-1">
+                  <span>💬</span> <span>WhatsApp Koordinator</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
             <h2 class="text-base font-extrabold text-stone-800 mb-1">Registrasi Batch & Cetak Sekaligus</h2>
             <p class="text-xs text-stone-400 mb-4">Ketik data benih, sistem otomatis menyinkronkan ke katalog dan langsung menyiapkan lembar label cetak.</p>
 
             <form id="seedForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+              <div>
+                <label class="block text-xs font-bold text-stone-600 mb-1">Simpul Lumbung / Outlet <span class="text-rose-500">*</span></label>
+                <select id="seedOutletCode" required onchange="generateAutoBatchCode()" class="w-full border border-stone-200 rounded-xl p-2.5 font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs bg-white">
+                  <!-- Diisi otomatis oleh JS -->
+                </select>
+              </div>
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Nama Varietas <span class="text-rose-500">*</span></label>
                 <input type="text" id="varietyName" required oninput="triggerVarietyAutoFill()" placeholder="Contoh: Tomat Rampai, Kelor" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
@@ -309,7 +356,7 @@
                   <label class="block text-xs font-bold text-stone-600">Kode Batch <span class="text-rose-500">*</span></label>
                   <button type="button" onclick="generateAutoBatchCode()" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded transition">⚡ Buat Ulang</button>
                 </div>
-                <input type="text" id="batchCode" required placeholder="BN-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+                <input type="text" id="batchCode" required placeholder="BP-TOM-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
               <div>
                 <label class="block text-xs font-bold text-stone-600 mb-1">Batch Induk (Parent)</label>
@@ -343,9 +390,9 @@
                 <label class="block text-xs font-bold text-stone-600 mb-1">Kadar Air (%)</label>
                 <input type="number" id="moistureContent" min="0" max="100" step="0.1" value="7.5" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
               </div>
-              <div class="flex items-end">
-                <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5">
-                  <span>🖨️</span><span>Cetak Label & Simpan ke Katalog</span>
+              <div class="flex items-end sm:col-span-2 lg:col-span-1">
+                <button type="submit" id="btnSubmitBatch" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                  <span>🖨️</span><span>Cetak Label & Simpan</span>
                 </button>
               </div>
             </form>
@@ -367,6 +414,7 @@
               <table class="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr class="border-b bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+                    <th class="p-3">Outlet</th>
                     <th class="p-3">Kode Batch & Sachet Stamp</th>
                     <th class="p-3">Varietas & Silsilah</th>
                     <th class="p-3">Lokasi Simpan</th>
@@ -378,7 +426,7 @@
                   </tr>
                 </thead>
                 <tbody id="katalogTableBody" class="divide-y divide-stone-100">
-                  <tr><td colspan="8" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td></tr>
+                  <tr><td colspan="9" class="p-6 text-center text-stone-400">Memuat inventaris batch...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -895,6 +943,12 @@
           </div>
         </section>
 
+        <!-- FOOTER ADMIN -->
+        <footer class="mt-12 pt-6 pb-8 border-t border-stone-200 text-center text-xs text-stone-500 space-y-1">
+          <p>© 2026 <strong class="text-emerald-950 font-black">Bibit Pusaka</strong> • Sistem Manajemen Bank Benih, Multi-Outlet Komunitas & Kamus Botani</p>
+          <p class="text-stone-400">Developed by <strong class="text-stone-700 font-bold">I Gusti Ngurah Aristiana Adi Putra</strong></p>
+        </footer>
+
       </main>
     </div>
   </div>
@@ -1063,6 +1117,69 @@
           </button>
         </div>
       </form>
+  <!-- MODAL 5: TAMBAH OUTLET KOMUNITAS BARU -->
+  <div id="addOutletModal" class="fixed inset-0 bg-stone-900/80 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl p-2 rounded-xl bg-emerald-100 text-emerald-800">🏛️</span>
+          <div>
+            <h3 class="font-black text-stone-900 text-sm leading-tight">Tambah Outlet Komunitas Baru</h3>
+            <p class="text-[11px] text-stone-400">Daftarkan simpul lumbung benih komunitas di Bali</p>
+          </div>
+        </div>
+        <button onclick="closeAddOutletModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition">✕</button>
+      </div>
+
+      <form id="addOutletForm" onsubmit="submitNewOutlet(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Kode (2-3 Huruf) <span class="text-rose-500">*</span></label>
+            <input type="text" id="newOutletCode" required maxlength="4" placeholder="Misal: BLL" class="w-full border border-stone-200 rounded-xl p-2.5 uppercase font-mono font-black focus:ring-2 focus:ring-emerald-600 outline-none" />
+          </div>
+          <div class="col-span-2">
+            <label class="block font-bold text-stone-600 mb-1">Nama Outlet / Lumbung <span class="text-rose-500">*</span></label>
+            <input type="text" id="newOutletName" required placeholder="Contoh: Outlet Komunitas Buleleng" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Nama Koordinator</label>
+            <input type="text" id="newOutletCoordinator" placeholder="I Made Kertayasa" class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">WhatsApp Koordinator</label>
+            <input type="text" id="newOutletPhone" placeholder="08123456789 atau 628..." class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-600 mb-1">Desa / Subak / Wilayah</label>
+          <input type="text" id="newOutletRegion" placeholder="Contoh: Sukasada, Singaraja, Buleleng" class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Latitude</label>
+            <input type="number" step="any" id="newOutletLat" placeholder="-8.112" class="w-full border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Longitude</label>
+            <input type="number" step="any" id="newOutletLng" placeholder="115.088" class="w-full border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+          </div>
+        </div>
+        <button type="button" onclick="getGpsForNewOutlet()" class="w-full py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] transition">
+          📍 Ambil Titik GPS Lokasi Saat Ini
+        </button>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeAddOutletModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">Batal</button>
+          <button type="submit" id="btnSubmitNewOutlet" class="bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-5 py-2 rounded-xl text-xs shadow-md transition">
+            + Simpan Outlet Komunitas
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1072,6 +1189,8 @@
     const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
 
     let allBatches = [];
+    let allOutlets = [];
+    let selectedKatalogOutletFilter = 'all';
     let allQcLogs = [];
     let allPlantingSchedules = [];
     let customPlantList = [];
@@ -1086,6 +1205,17 @@
     let selectedMasterPhotoFiles = [];
     let leafletMap = null;
     let mapMarkersGroup = null;
+
+    // Whitelist Email Staf Admin (Kosong = izinkan semua user terautentikasi Supabase)
+    const ALLOWED_ADMIN_EMAILS = [];
+
+    // Fallback Data 4 Simpul Lumbung Awal Bali jika offline
+    const DEFAULT_OUTLETS_DATA = [
+      { outlet_code: 'BP', outlet_name: 'Lumbung Utama Bibit Pusaka', coordinator_name: 'I Gusti Ngurah Aristiana Adi Putra', phone_whatsapp: '6281234567890', village_region: 'Pusat Konservasi Denpasar, Bali', latitude: -8.650000, longitude: 115.216667 },
+      { outlet_code: 'UBD', outlet_name: 'Outlet Komunitas Ubud', coordinator_name: 'I Wayan Sudira (Subak Ubud)', phone_whatsapp: '6281234567891', village_region: 'Banjar Tebesaya, Ubud, Gianyar', latitude: -8.506854, longitude: 115.262474 },
+      { outlet_code: 'KRG', outlet_name: 'Outlet Komunitas Karangasem', coordinator_name: 'I Ketut Karya (Tani Abian)', phone_whatsapp: '6281234567892', village_region: 'Desa Subagan, Amlapura, Karangasem', latitude: -8.448889, longitude: 115.612500 },
+      { outlet_code: 'BGL', outlet_name: 'Outlet Komunitas Bangli', coordinator_name: 'Ni Luh Putu Widi (Pertiwi Kintamani)', phone_whatsapp: '6281234567893', village_region: 'Kintamani / Bangli Kota, Bangli', latitude: -8.453889, longitude: 115.354722 }
+    ];
 
     // ==============================================================
     // PWA & SERVICE WORKER STAF INDEX
@@ -1243,13 +1373,35 @@
     };
 
     async function checkSupabaseSession() {
-      const { data: { session } } = await dbClient.auth.getSession();
-      if (session) {
-        document.getElementById("authGateModal").classList.add("hidden");
-        document.getElementById("userEmailBadge").textContent = session.user.email.split('@')[0];
-        await loadAllData();
-      } else {
+      try {
+        const { data: { session } } = await dbClient.auth.getSession();
+        if (session && session.user) {
+          const userEmail = (session.user.email || '').toLowerCase();
+          if (ALLOWED_ADMIN_EMAILS.length > 0 && !ALLOWED_ADMIN_EMAILS.includes(userEmail)) {
+            alert(`Akses Ditolak: Akun [${userEmail}] tidak memiliki hak akses sebagai staf admin Bibit Pusaka.`);
+            await dbClient.auth.signOut();
+            document.getElementById("authGateModal").classList.remove("hidden");
+            document.getElementById("authGateModal").classList.add("flex");
+            document.getElementById("appContainer").classList.add("hidden");
+            return;
+          }
+
+          // Akses sah dikonfirmasi
+          document.getElementById("authGateModal").classList.add("hidden");
+          document.getElementById("authGateModal").classList.remove("flex");
+          document.getElementById("appContainer").classList.remove("hidden");
+          document.getElementById("userEmailBadge").textContent = session.user.email.split('@')[0];
+          await loadAllData();
+        } else {
+          document.getElementById("authGateModal").classList.remove("hidden");
+          document.getElementById("authGateModal").classList.add("flex");
+          document.getElementById("appContainer").classList.add("hidden");
+        }
+      } catch (err) {
+        console.warn("Gagal memeriksa sesi auth:", err);
         document.getElementById("authGateModal").classList.remove("hidden");
+        document.getElementById("authGateModal").classList.add("flex");
+        document.getElementById("appContainer").classList.add("hidden");
       }
     }
 
@@ -1269,24 +1421,280 @@
       if (error) {
         alert("Gagal login: " + error.message);
       } else {
+        const userEmail = (data.user?.email || '').toLowerCase();
+        if (ALLOWED_ADMIN_EMAILS.length > 0 && !ALLOWED_ADMIN_EMAILS.includes(userEmail)) {
+          alert(`Akses Ditolak: Akun [${userEmail}] tidak memiliki hak akses sebagai staf admin Bibit Pusaka.`);
+          await dbClient.auth.signOut();
+          return;
+        }
+
         document.getElementById("authGateModal").classList.add("hidden");
+        document.getElementById("authGateModal").classList.remove("flex");
+        document.getElementById("appContainer").classList.remove("hidden");
         document.getElementById("userEmailBadge").textContent = data.user.email.split('@')[0];
-        showToast("Autentikasi berhasil! Selamat bekerja.");
+        showToast("Autentikasi staf berhasil! Selamat bekerja.");
         await loadAllData();
       }
     }
 
     window.lockSystem = async function() {
       await dbClient.auth.signOut();
+      document.getElementById("appContainer").classList.add("hidden");
+      document.getElementById("authGateModal").classList.remove("hidden");
+      document.getElementById("authGateModal").classList.add("flex");
       window.location.reload();
     };
 
-    function generateShortCode(batchCode, varietyName) {
+    function generateShortCode(batchCode, varietyName, outletCode = 'BP') {
       if (!batchCode) return "";
-      const match = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
-      if (match) return `${match[1].charAt(0)}${match[2]}-${String(parseInt(match[3], 10)).padStart(2, '0')}`;
-      return `${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
+      // Format baru: [OUTLET]-[3_HURUF]-[2_DIGIT_TAHUN]-G[GEN]-[SEQ]
+      const matchNew = batchCode.match(/^([A-Z]{2,4})-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
+      if (matchNew) {
+        return `${matchNew[1].toUpperCase()}•${matchNew[2].charAt(0)}${matchNew[3]}-${String(parseInt(matchNew[4], 10)).padStart(2, '0')}`;
+      }
+      // Format lama: BN-[3_HURUF]-[2_DIGIT_TAHUN]-G[GEN]-[SEQ]
+      const matchOld = batchCode.match(/^BN-([A-Z]{3})-(\d{2})-G\d+-(\d{3})$/i);
+      if (matchOld) {
+        return `${(outletCode || 'BP').toUpperCase()}•${matchOld[1].charAt(0)}${matchOld[2]}-${String(parseInt(matchOld[3], 10)).padStart(2, '0')}`;
+      }
+      return `${(outletCode || 'BP').toUpperCase()}•${(varietyName ? varietyName.charAt(0) : 'B').toUpperCase()}-${batchCode.slice(-4)}`;
     }
+
+    // ==============================================================
+    // SISTEM MASTER MULTI-OUTLET KOMUNITAS (PILAR 2)
+    // ==============================================================
+    async function loadOutlets() {
+      try {
+        const { data, error } = await dbClient
+          .from("community_outlets")
+          .select("*")
+          .order("outlet_code", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          allOutlets = data;
+          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(data));
+        } else {
+          throw error || new Error("Gagal mengambil outlet");
+        }
+      } catch (err) {
+        console.warn("[loadOutlets] Memuat cadangan lokal:", err);
+        const cached = localStorage.getItem('bibitpusaka_cache_outlets');
+        allOutlets = cached ? JSON.parse(cached) : DEFAULT_OUTLETS_DATA;
+      } finally {
+        populateSeedOutletDropdown();
+        renderKatalogOutletCards();
+        updateKatalogOutletDetailBanner();
+      }
+    }
+
+    function populateSeedOutletDropdown() {
+      const sel = document.getElementById("seedOutletCode");
+      if (!sel) return;
+      const currentVal = sel.value;
+      sel.innerHTML = "";
+
+      allOutlets.forEach(out => {
+        const opt = document.createElement("option");
+        opt.value = out.outlet_code;
+        opt.textContent = `[${out.outlet_code}] ${out.outlet_name} (${out.village_region || 'Bali'})`;
+        if (currentVal && currentVal === out.outlet_code) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderKatalogOutletCards() {
+      const container = document.getElementById("katalogOutletCardsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      // Hitung statistik per outlet
+      const outletStats = {};
+      let totalAllBatches = 0;
+      let totalAllGrams = 0;
+
+      allBatches.forEach(b => {
+        let code = b.outlet_code || 'BP';
+        const pMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+        if (pMatch && pMatch[1] !== 'BN') code = pMatch[1].toUpperCase();
+
+        if (!outletStats[code]) outletStats[code] = { count: 0, grams: 0 };
+        outletStats[code].count++;
+        outletStats[code].grams += Number(b.stock_grams || 0);
+
+        totalAllBatches++;
+        totalAllGrams += Number(b.stock_grams || 0);
+      });
+
+      // 1. Kartu Semua Lumbung (ALL)
+      const isAllActive = selectedKatalogOutletFilter === 'all';
+      const allCard = document.createElement("div");
+      allCard.onclick = () => selectKatalogOutletFilter('all');
+      allCard.className = `p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-1.5 ${
+        isAllActive 
+          ? 'bg-emerald-800 text-white border-emerald-950 shadow-md ring-2 ring-emerald-500 scale-[1.02]' 
+          : 'bg-white text-stone-800 border-stone-200 hover:border-emerald-500 hover:shadow-xs'
+      }`;
+      allCard.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-base">🏛️</span>
+          <span class="px-1.5 py-0.2 rounded font-mono font-bold text-[9px] ${isAllActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">SEMUA</span>
+        </div>
+        <div>
+          <h4 class="font-black text-xs leading-tight truncate">Semua Lumbung</h4>
+          <span class="text-[10px] ${isAllActive ? 'text-emerald-200' : 'text-stone-400'} block">Seluruh Bali</span>
+        </div>
+        <div class="pt-1 border-t ${isAllActive ? 'border-emerald-700/60' : 'border-stone-100'} flex items-center justify-between text-[10px]">
+          <span class="font-bold">${totalAllBatches} Batch</span>
+          <span class="${isAllActive ? 'text-emerald-300 font-bold' : 'text-emerald-700 font-extrabold'}">${totalAllGrams}g</span>
+        </div>
+      `;
+      container.appendChild(allCard);
+
+      // 2. Kartu untuk masing-masing outlet
+      allOutlets.forEach(out => {
+        const stats = outletStats[out.outlet_code] || { count: 0, grams: 0 };
+        const isActive = selectedKatalogOutletFilter === out.outlet_code;
+
+        const card = document.createElement("div");
+        card.onclick = () => selectKatalogOutletFilter(out.outlet_code);
+        card.className = `p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-1.5 ${
+          isActive 
+            ? 'bg-emerald-800 text-white border-emerald-950 shadow-md ring-2 ring-emerald-500 scale-[1.02]' 
+            : 'bg-white text-stone-800 border-stone-200 hover:border-emerald-500 hover:shadow-xs'
+        }`;
+
+        let icon = out.outlet_code === 'BP' ? '🌱' : '🤝';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-base">${icon}</span>
+            <span class="px-1.5 py-0.2 rounded font-mono font-bold text-[9px] ${isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">${out.outlet_code}</span>
+          </div>
+          <div>
+            <h4 class="font-black text-xs leading-tight truncate" title="${out.outlet_name}">${out.outlet_name}</h4>
+            <span class="text-[10px] ${isActive ? 'text-emerald-200' : 'text-stone-400'} truncate block">${out.village_region || '-'}</span>
+          </div>
+          <div class="pt-1 border-t ${isActive ? 'border-emerald-700/60' : 'border-stone-100'} flex items-center justify-between text-[10px]">
+            <span class="font-bold">${stats.count} Batch</span>
+            <span class="${isActive ? 'text-emerald-300 font-bold' : 'text-emerald-700 font-extrabold'}">${stats.grams}g</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.selectKatalogOutletFilter = function(code) {
+      selectedKatalogOutletFilter = code;
+      renderKatalogOutletCards();
+      updateKatalogOutletDetailBanner();
+      renderKatalog();
+    };
+
+    function updateKatalogOutletDetailBanner() {
+      const nameEl = document.getElementById("katalogBannerOutletName");
+      const codeEl = document.getElementById("katalogBannerOutletCode");
+      const regEl = document.getElementById("katalogBannerOutletRegion");
+      const coordEl = document.getElementById("katalogBannerCoordinator");
+      const waBtn = document.getElementById("katalogBannerWaBtn");
+
+      if (selectedKatalogOutletFilter === 'all') {
+        nameEl.textContent = "Semua Simpul Lumbung Komunitas";
+        codeEl.textContent = "ALL";
+        regEl.textContent = "Menampilkan total seluruh lot benih dari semua cabang/outlet komunitas.";
+        coordEl.textContent = "";
+        waBtn.classList.add("hidden");
+      } else {
+        const out = allOutlets.find(o => o.outlet_code === selectedKatalogOutletFilter);
+        if (out) {
+          nameEl.textContent = out.outlet_name;
+          codeEl.textContent = out.outlet_code;
+          regEl.textContent = `📍 Lokasi: ${out.village_region || 'Wilayah Bali'} • Koordinator: ${out.coordinator_name || 'Tim Komunitas'}`;
+          coordEl.textContent = out.coordinator_name ? `👤 Koord: ${out.coordinator_name}` : "";
+          
+          if (out.phone_whatsapp) {
+            let cleanPhone = out.phone_whatsapp.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
+            waBtn.href = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`Om Swastyastu / Halo Koordinator ${out.outlet_name}, saya ingin koordinasi stok benih pusaka di simpul lumbung Anda.`)}`;
+            waBtn.classList.remove("hidden");
+            waBtn.classList.add("inline-flex");
+          } else {
+            waBtn.classList.add("hidden");
+          }
+        }
+      }
+    }
+
+    window.openAddOutletModal = function() {
+      document.getElementById("addOutletForm").reset();
+      document.getElementById("addOutletModal").classList.remove("hidden");
+    };
+
+    window.closeAddOutletModal = function() {
+      document.getElementById("addOutletModal").classList.add("hidden");
+    };
+
+    window.getGpsForNewOutlet = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            document.getElementById("newOutletLat").value = pos.coords.latitude.toFixed(6);
+            document.getElementById("newOutletLng").value = pos.coords.longitude.toFixed(6);
+            showToast("📍 Koordinat GPS outlet berhasil diperoleh!");
+          },
+          () => alert("Gagal mengambil GPS perangkat. Pastikan izin lokasi diaktifkan.")
+        );
+      } else {
+        alert("Peramban Anda tidak mendukung sensor GPS.");
+      }
+    };
+
+    window.submitNewOutlet = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitNewOutlet");
+      btn.disabled = true;
+      btn.textContent = "Menyimpan Outlet...";
+
+      const code = document.getElementById("newOutletCode").value.trim().toUpperCase();
+      const name = document.getElementById("newOutletName").value.trim();
+      const coord = document.getElementById("newOutletCoordinator").value.trim();
+      const phone = document.getElementById("newOutletPhone").value.trim();
+      const region = document.getElementById("newOutletRegion").value.trim();
+      const lat = parseFloat(document.getElementById("newOutletLat").value) || null;
+      const lng = parseFloat(document.getElementById("newOutletLng").value) || null;
+
+      const payload = {
+        outlet_code: code,
+        outlet_name: name,
+        coordinator_name: coord,
+        phone_whatsapp: phone,
+        village_region: region,
+        latitude: lat,
+        longitude: lng
+      };
+
+      try {
+        const { error } = await dbClient.from("community_outlets").insert([payload]);
+        if (error) throw error;
+
+        btn.disabled = false;
+        btn.textContent = "+ Simpan Outlet Komunitas";
+        closeAddOutletModal();
+        showToast(`Outlet Komunitas [${code}] ${name} sukses terdaftar!`);
+        await loadOutlets();
+        initMemberMap();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "+ Simpan Outlet Komunitas";
+        alert("Gagal mendaftarkan outlet: " + err.message);
+      }
+    };
+
+    window.goToOutletKatalog = function(outletCode) {
+      switchTab('katalog');
+      selectKatalogOutletFilter(outletCode);
+      const kSec = document.getElementById("tab-katalog");
+      if (kSec) kSec.scrollIntoView({ behavior: 'smooth' });
+    };
 
     // KAMUS DASAR BOTANI
     const BASE_BOTANICAL_DICTIONARY = [
@@ -1642,8 +2050,61 @@
       if (!leafletMap || !mapMarkersGroup) return;
       mapMarkersGroup.clearLayers();
 
-      let plottedCount = 0;
+      let plottedOutlets = 0;
+      let plottedMembers = 0;
 
+      // 1. PIN KHUSUS SIMPUL LUMBUNG / OUTLET KOMUNITAS (EMAS / HIJAU TUA MENONJOL)
+      allOutlets.forEach(out => {
+        let lat = out.latitude;
+        let lng = out.longitude;
+
+        if (lat && lng) {
+          plottedOutlets++;
+          // Hitung batch di outlet ini
+          const outletBatches = allBatches.filter(b => {
+            let bOut = b.outlet_code || 'BP';
+            const m = b.batch_code?.match(/^([A-Z]{2,4})-/);
+            if (m && m[1] !== 'BN') bOut = m[1].toUpperCase();
+            return bOut === out.outlet_code;
+          });
+          const totalGrams = outletBatches.reduce((acc, curr) => acc + Number(curr.stock_grams || 0), 0);
+
+          const outletIcon = L.divIcon({
+            className: 'custom-outlet-pin',
+            html: `<div style="background-color: #065f46; color: #fbbf24; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2.5px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.35); font-weight: bold;">🏛️</div>`,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
+            popupAnchor: [0, -18]
+          });
+
+          const popupContent = `
+            <div class="text-xs p-1 space-y-2 font-sans max-w-xs">
+              <div class="flex items-center justify-between border-b border-stone-200 pb-1">
+                <span class="font-bold text-amber-700 text-[10px] uppercase tracking-wider">Simpul Lumbung Komunitas</span>
+                <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-mono font-black text-[10px]">${out.outlet_code}</span>
+              </div>
+              <div>
+                <h4 class="font-black text-stone-900 text-sm leading-tight">${out.outlet_name}</h4>
+                <p class="text-stone-500 text-[11px] mt-0.5">📍 ${out.village_region || 'Wilayah Bali'}</p>
+                ${out.coordinator_name ? `<p class="text-stone-600 text-[11px] font-semibold mt-0.5">👤 Koord: ${out.coordinator_name}</p>` : ''}
+              </div>
+              <div class="p-2 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between text-[11px]">
+                <span class="text-emerald-900 font-bold">Stok Benih:</span>
+                <span class="text-emerald-950 font-black">${outletBatches.length} Batch (${totalGrams}g)</span>
+              </div>
+              <button type="button" onclick="goToOutletKatalog('${out.outlet_code}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-1.5 px-3 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>🔍</span> <span>Lihat Stok Outlet Ini</span>
+              </button>
+            </div>
+          `;
+
+          L.marker([lat, lng], { icon: outletIcon })
+            .bindPopup(popupContent)
+            .addTo(mapMarkersGroup);
+        }
+      });
+
+      // 2. PIN PETANI MITRA / ANGGOTA CRM
       allMembers.forEach(member => {
         let lat = member.latitude;
         let lng = member.longitude;
@@ -1660,11 +2121,19 @@
         }
 
         if (lat && lng) {
-          plottedCount++;
+          plottedMembers++;
           const adoptedSeeds = allAdoptions
             .filter(a => a.member_id === member.id)
             .map(a => `<span class="inline-block px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-950 font-bold text-[10px] mr-1 mt-1">🌱 ${a.variety_name}</span>`)
             .join("") || '<span class="text-stone-400 italic text-[10px]">Belum ada adopsi aktif</span>';
+
+          const memberIcon = L.divIcon({
+            className: 'custom-member-pin',
+            html: `<div style="background-color: #2563eb; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; border: 2px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">👨‍🌾</div>`,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13],
+            popupAnchor: [0, -14]
+          });
 
           const popupContent = `
             <div class="text-xs p-1 space-y-1 font-sans">
@@ -1677,14 +2146,14 @@
             </div>
           `;
 
-          L.marker([lat, lng])
+          L.marker([lat, lng], { icon: memberIcon })
             .bindPopup(popupContent)
             .addTo(mapMarkersGroup);
         }
       });
 
       const badge = document.getElementById("mapMemberCountBadge");
-      if (badge) badge.textContent = `${plottedCount} Titik Terpantau`;
+      if (badge) badge.textContent = `${plottedOutlets} Lumbung • ${plottedMembers} Petani Terpantau`;
 
       setTimeout(() => { leafletMap.invalidateSize(); }, 300);
     }
@@ -1991,13 +2460,21 @@
           `;
         }
 
+        const reqOutlet = req.outlet_code || 'BP';
         const dateStr = req.created_at 
           ? new Date(req.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
           : '-';
 
         tr.innerHTML = `
           <td class="p-3 text-stone-500 font-mono text-[11px]">${dateStr}</td>
-          <td class="p-3">${typeBadge}</td>
+          <td class="p-3">
+            ${typeBadge}
+            <div class="mt-1">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-300 font-mono text-[9px] font-bold">
+                🏛️ ${reqOutlet}
+              </span>
+            </div>
+          </td>
           <td class="p-3">
             <div class="font-bold text-stone-900 text-sm">${req.applicant_name}</div>
             <a href="https://wa.me/${cleanPhone}" target="_blank" class="text-emerald-700 hover:underline font-mono text-[11px] block">
@@ -2195,8 +2672,9 @@
         sel.appendChild(opt);
       });
 
-      // Generate kode batch generasi baru otomatis
-      const newGenCode = generateGenerationBatchCode(req.variety_name, req.harvest_date, req.batch_code);
+      // Generate kode batch generasi baru otomatis berdasarkan outlet pemohon
+      const reqOutlet = req.outlet_code || 'BP';
+      const newGenCode = generateGenerationBatchCode(req.variety_name, req.harvest_date, req.batch_code, reqOutlet);
       document.getElementById("setorNewBatchCode").value = newGenCode;
 
       // Reset radio button ke existing
@@ -2284,16 +2762,18 @@
           await dbClient.from("seed_batches").update({ stock_grams: newStock }).eq("id", targetBatch.id);
         } else {
           // Opsi generasi baru
+          const reqOutlet = req.outlet_code || 'BP';
           const newBatchCode = document.getElementById("setorNewBatchCode").value;
           const locationVal = document.getElementById("setorNewLocation").value.trim() || "Gudang Masuk";
           const germVal = parseFloat(document.getElementById("setorNewGermination").value) || 90;
 
           const newBatchPayload = {
+            outlet_code: reqOutlet,
             batch_code: newBatchCode,
             variety_name: req.variety_name,
             species: autoDetectSpecies(req.variety_name),
             parent_batch_code: req.batch_code || null,
-            provenance: `Setoran Panen Komunitas: ${req.applicant_name} (${req.village_region})`,
+            provenance: `Setoran Panen Komunitas [${reqOutlet}]: ${req.applicant_name} (${req.village_region})`,
             storage_location: locationVal,
             harvest_date: req.harvest_date || new Date().toISOString().split('T')[0],
             stock_grams: gramsAmount,
@@ -2414,6 +2894,8 @@
 
     async function loadAllData() {
       try {
+        await loadOutlets();
+
         const [resBatches, resQc, resPlant, resRequests] = await Promise.allSettled([
           dbClient.from("seed_batches").select("*").order("created_at", { ascending: false }),
           dbClient.from("qc_logs").select("*").order("test_date", { ascending: false }),
@@ -2441,6 +2923,7 @@
         await loadCustomPlants();
         await loadCrmData();
         renderDashboard();
+        renderKatalogOutletCards();
         renderKatalog();
         populateDropdowns();
         renderQcLogs();
@@ -2453,6 +2936,7 @@
         if (cBatches) allBatches = JSON.parse(cBatches);
         if (cRequests) allExchangeRequests = JSON.parse(cRequests);
         renderDashboard();
+        renderKatalogOutletCards();
         renderKatalog();
         renderExchangeRequests();
         showToast("Memuat arsip data dari cache lokal (Offline).", true);
@@ -2503,16 +2987,30 @@
     function renderKatalog() {
       let filtered = [...allBatches];
 
+      // Filter berdasarkan Simpul Lumbung / Outlet Komunitas
+      if (selectedKatalogOutletFilter && selectedKatalogOutletFilter !== 'all') {
+        filtered = filtered.filter(b => {
+          let code = b.outlet_code || 'BP';
+          const pMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+          if (pMatch && pMatch[1] !== 'BN') code = pMatch[1].toUpperCase();
+          return code === selectedKatalogOutletFilter;
+        });
+      }
+
       if (currentFilter === 'urgent') filtered = filtered.filter(b => evaluateRegenStatus(b).needsRegen);
       else if (currentFilter === 'safe') filtered = filtered.filter(b => !evaluateRegenStatus(b).needsRegen);
 
       const q = (document.getElementById("katalogSearch")?.value || "").toLowerCase();
       if (q) {
         filtered = filtered.filter(b => {
-          const sc = generateShortCode(b.batch_code, b.variety_name).toLowerCase();
+          let code = b.outlet_code || 'BP';
+          const pMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+          if (pMatch && pMatch[1] !== 'BN') code = pMatch[1].toUpperCase();
+          const sc = generateShortCode(b.batch_code, b.variety_name, code).toLowerCase();
           return b.batch_code.toLowerCase().includes(q) || 
             b.variety_name.toLowerCase().includes(q) ||
             sc.includes(q) ||
+            code.toLowerCase().includes(q) ||
             (b.parent_batch_code && b.parent_batch_code.toLowerCase().includes(q)) ||
             (b.species && b.species.toLowerCase().includes(q)) ||
             (b.storage_location && b.storage_location.toLowerCase().includes(q));
@@ -2521,22 +3019,31 @@
 
       const tbody = document.getElementById("katalogTableBody");
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-400">Tidak ada batch yang cocok.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-stone-400">Tidak ada batch benih yang cocok dengan filter.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = "";
       filtered.forEach(batch => {
+        let outletCode = batch.outlet_code || 'BP';
+        const pMatch = batch.batch_code?.match(/^([A-Z]{2,4})-/);
+        if (pMatch && pMatch[1] !== 'BN') outletCode = pMatch[1].toUpperCase();
+
         const st = evaluateRegenStatus(batch);
         const germRate = Number(batch.germination_rate || 0);
 
         const genMatch = batch.batch_code.match(/-G(\d+)-/i);
         const genLabel = genMatch ? `G${genMatch[1]}` : 'G1';
-        const shortCode = generateShortCode(batch.batch_code, batch.variety_name);
+        const shortCode = generateShortCode(batch.batch_code, batch.variety_name, outletCode);
 
         const tr = document.createElement("tr");
         tr.className = "hover:bg-stone-50 transition";
         tr.innerHTML = `
+          <td class="p-3">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 font-extrabold text-[11px] border border-amber-300 font-mono shadow-2xs">
+              🏛️ ${outletCode}
+            </span>
+          </td>
           <td class="p-3">
             <div class="font-mono font-black text-emerald-950 flex items-center gap-1.5">
               <span>${batch.batch_code}</span>
@@ -2565,8 +3072,9 @@
           <td class="p-3 text-xs text-stone-500">${batch.harvest_date}</td>
           <td class="p-3"><span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${st.badge}">${st.label}</span></td>
           <td class="p-3 text-center space-x-1 whitespace-nowrap">
-            <button onclick="openPrintLabel('${batch.id}')" title="Cetak Label" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition shadow-2xs">🏷️ Label</button>
-            <button onclick="quickStockOut('${batch.id}', '${batch.batch_code}', ${batch.stock_grams})" title="Ambil Stok" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">⚡ Ambil</button>
+            <a href="paspor.html?batch=${encodeURIComponent(batch.batch_code)}" target="_blank" title="Buka Paspor Digital & QR" class="inline-block text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded-lg border border-emerald-300 transition shadow-2xs">🏷️ Paspor</a>
+            <button onclick="openPrintLabel('${batch.id}')" title="Cetak Label Sachet" class="text-xs bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded-lg border border-stone-300 transition shadow-2xs">🖨️ Label</button>
+            <button onclick="quickStockOut('${batch.id}', '${batch.batch_code}', ${batch.stock_grams})" title="Ambil Stok Cepat" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg border border-amber-300 transition shadow-2xs">⚡ Ambil</button>
             <button onclick="prefillQc('${batch.batch_code}')" class="text-xs text-emerald-700 hover:text-emerald-900 font-bold hover:underline">QC</button>
             <button onclick="deleteBatch('${batch.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold hover:underline">Hapus</button>
           </td>
@@ -2882,8 +3390,9 @@
       }
     };
 
-    function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode) {
+    function generateGenerationBatchCode(varietyName, harvestDateVal, parentCode, customOutletCode = null) {
       if (!varietyName) return "";
+      const outlet = (customOutletCode || document.getElementById("seedOutletCode")?.value || 'BP').toUpperCase();
       const cleanVar = varietyName.replace(/[^a-zA-Z]/g, '').toUpperCase();
       const prefix = cleanVar.length >= 3 ? cleanVar.substring(0, 3) : cleanVar.padEnd(3, 'X');
       const d = harvestDateVal ? new Date(harvestDateVal) : new Date();
@@ -2896,7 +3405,8 @@
       }
       const genTag = `G${genNum}`;
 
-      const regex = new RegExp(`^BN-${prefix}-${yy}-${genTag}-(\\d{3})$`);
+      // Format baru: [KODE_OUTLET]-[3_HURUF_VARIETAS]-[2_DIGIT_TAHUN]-G[GENERASI]-[3_DIGIT_URUT]
+      const regex = new RegExp(`^${outlet}-${prefix}-${yy}-${genTag}-(\\d{3})$`);
       const usedNums = [];
 
       [...allBatches.map(b => b.batch_code), ...allPlantingSchedules.map(p => p.target_batch_code)].forEach(code => {
@@ -2907,7 +3417,7 @@
       });
 
       const nextSeq = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 1;
-      return `BN-${prefix}-${yy}-${genTag}-${String(nextSeq).padStart(3, '0')}`;
+      return `${outlet}-${prefix}-${yy}-${genTag}-${String(nextSeq).padStart(3, '0')}`;
     }
 
     window.generateAutoBatchCode = function() {
@@ -2915,8 +3425,9 @@
       const harvestInput = document.getElementById("harvestDate");
       const parentInput = document.getElementById("parentBatchCode");
       const batchCodeInput = document.getElementById("batchCode");
+      const outletCode = document.getElementById("seedOutletCode")?.value || 'BP';
       if (!varietyInput.value.trim()) { alert("Ketik Nama Varietas terlebih dahulu!"); return; }
-      batchCodeInput.value = generateGenerationBatchCode(varietyInput.value.trim(), harvestInput.value, parentInput.value.trim());
+      batchCodeInput.value = generateGenerationBatchCode(varietyInput.value.trim(), harvestInput.value, parentInput.value.trim(), outletCode);
     };
 
     window.triggerAutoBatchSuggest = function() {
@@ -2925,8 +3436,9 @@
         const variety = document.getElementById("varietyName").value.trim();
         const harvest = document.getElementById("harvestDate").value;
         const parent = document.getElementById("parentBatchCode").value.trim();
+        const outletCode = document.getElementById("seedOutletCode")?.value || 'BP';
         if (variety.length >= 3) {
-          batchCodeInput.value = generateGenerationBatchCode(variety, harvest, parent);
+          batchCodeInput.value = generateGenerationBatchCode(variety, harvest, parent, outletCode);
         }
       }
     };
@@ -2954,7 +3466,9 @@
       const btn = document.getElementById("btnSubmitBatch");
       btn.disabled = true;
 
+      const outletCode = document.getElementById("seedOutletCode")?.value || 'BP';
       const payload = {
+        outlet_code: outletCode,
         batch_code: document.getElementById("batchCode").value.trim(),
         variety_name: document.getElementById("varietyName").value.trim(),
         species: document.getElementById("species").value.trim() || autoDetectSpecies(document.getElementById("varietyName").value),
@@ -2973,10 +3487,11 @@
           table: "seed_batches",
           action: "insert",
           payload: payload,
-          description: `Batch baru: ${payload.batch_code} (${payload.variety_name})`
+          description: `Batch baru: [${payload.outlet_code}] ${payload.batch_code} (${payload.variety_name})`
         });
         btn.disabled = false;
         document.getElementById("seedForm").reset();
+        populateSeedOutletDropdown();
         showToast(`📡 Offline: Batch [${payload.batch_code}] tersimpan di antrean perangkat.`);
         renderLabelModalView(payload);
         return;
@@ -2987,9 +3502,12 @@
 
       if (!error) {
         document.getElementById("seedForm").reset();
+        populateSeedOutletDropdown();
         showToast("Batch sukses tersimpan di katalog!");
         await loadAllData();
         renderLabelModalView(payload);
+      } else {
+        alert("Gagal menyimpan batch: " + error.message);
       }
     });
 

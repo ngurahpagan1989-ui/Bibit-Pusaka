@@ -1,7 +1,7 @@
-// Service Worker Bibit Pusaka - Offline & PWA Support
+// Service Worker Bibit Pusaka - Offline & PWA Multi-Outlet Support
 // Developed by I Gusti Ngurah Aristiana Adi Putra
 
-const CACHE_NAME = 'bibitpusaka-v1.1';
+const CACHE_NAME = 'bibitpusaka-v2.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -23,7 +23,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Menggunakan allSettled atau cache satu per satu agar jika salah satu CDN gagal, aset lokal tetap aman
       return Promise.allSettled(
         STATIC_ASSETS.map((url) =>
           cache.add(url).catch((err) => {
@@ -52,12 +51,11 @@ self.addEventListener('activate', (event) => {
 
 // Strategi Network-First with Cache Fallback
 self.addEventListener('fetch', (event) => {
-  // Hanya proses request bertipe GET
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Jangan cache panggilan realtime/websocket Supabase
+  // Jangan cache panggilan realtime/websocket dan autentikasi Supabase
   if (url.pathname.includes('/realtime/v1/') || url.pathname.includes('/auth/v1/')) {
     return;
   }
@@ -65,7 +63,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Jika response valid dan merupakan skema http/https
         if (networkResponse && networkResponse.status === 200 && (url.protocol === 'http:' || url.protocol === 'https:')) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -75,15 +72,14 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(async () => {
-        // Fallback jika network offline / terputus
+        // Fallback saat offline
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) {
           return cachedResponse;
         }
 
-        // Jika navigasi halaman HTML (misal berpindah rute saat offline)
+        // Navigasi routing halaman saat offline
         if (event.request.mode === 'navigate') {
-          // Cari cache berdasarkan path URL
           if (url.pathname.endsWith('portal.html')) {
             const portalCache = await caches.match('./portal.html');
             if (portalCache) return portalCache;
@@ -100,7 +96,7 @@ self.addEventListener('fetch', (event) => {
           if (defaultHtml) return defaultHtml;
         }
 
-        return new Response('Koneksi offline dan data tidak ditemukan di cache lokal.', {
+        return new Response('Koneksi offline dan data belum tersimpan di cache lokal.', {
           status: 503,
           statusText: 'Service Unavailable (Offline)',
           headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })

@@ -54,9 +54,9 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="font-black text-base sm:text-lg tracking-tight text-white leading-tight">Bibit Pusaka</h1>
-              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-800 text-emerald-300 border border-emerald-700">Komunitas</span>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-800 text-emerald-300 border border-emerald-700">Multi-Outlet</span>
             </div>
-            <p class="text-[11px] text-emerald-300/80 font-medium">Portal Adopsi & Barter Plasma Nutfah</p>
+            <p class="text-[11px] text-emerald-300/80 font-medium">Portal Adopsi, Simpul Lumbung & Barter Benih</p>
           </div>
         </a>
       </div>
@@ -88,10 +88,10 @@
         Gerakan Kedaulatan Benih Warisan Leluhur
       </span>
       <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
-        Lestarikan Plasma Nutfah Nusantara Bersama Komunitas
+        Lestarikan Plasma Nutfah Nusantara Bersama Jaringan Lumbung Komunitas
       </h2>
       <p class="text-xs sm:text-sm text-emerald-200/90 max-w-2xl mx-auto leading-relaxed">
-        Adopsi benih pusaka terbuka untuk pekebun & petani, rawat hingga berbuah, lalu kembalikan sebagian hasil panen benih Anda (<em>Seed Return Protocol</em>) agar rantai regenerasi tanaman tidak terputus.
+        Adopsi benih pusaka terbuka di outlet komunitas terdekat Anda di Bali, rawat hingga berbuah, lalu kembalikan sebagian hasil panen benih Anda (<em>Seed Return Protocol</em>) agar rantai regenerasi tidak terputus.
       </p>
 
       <!-- TAB NAVIGATION UTAMA -->
@@ -112,7 +112,49 @@
   </section>
 
   <!-- KONTEN UTAMA -->
-  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 -mt-6 mb-12 flex-1">
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 -mt-6 mb-12 flex-1 space-y-6">
+
+    <!-- ============================================================== -->
+    <!-- PILAR 2: KARTU FILTER OUTLET KOMUNITAS INTERAKTIF             -->
+    <!-- ============================================================== -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-black uppercase tracking-wider text-stone-600 flex items-center gap-1.5">
+          <span>🏛️</span> Pilih Simpul Lumbung / Outlet Komunitas Terdekat:
+        </span>
+        <span id="outletCountBadge" class="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200">
+          4 Outlet Aktif
+        </span>
+      </div>
+
+      <!-- Wadah Kartu Filter Outlet Horizontal Scrollable -->
+      <div id="outletCardsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <!-- Render dinamis via JS -->
+      </div>
+
+      <!-- Banner Info Detail Outlet Terpilih -->
+      <div id="outletDetailBanner" class="p-4 rounded-2xl bg-white border border-emerald-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center text-xl shrink-0">
+            🏛️
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="bannerOutletName" class="font-extrabold text-stone-900 text-sm">Semua Simpul Lumbung Komunitas</h3>
+              <span id="bannerOutletCode" class="px-2 py-0.2 rounded-md bg-stone-100 text-stone-700 font-mono font-bold text-[10px]">ALL</span>
+            </div>
+            <p id="bannerOutletRegion" class="text-xs text-stone-500 mt-0.5">Menampilkan koleksi plasma nutfah dari seluruh jaringan lumbung benih di Bali.</p>
+          </div>
+        </div>
+
+        <div id="bannerOutletActions" class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span id="bannerOutletCoordinator" class="text-xs text-stone-600 font-semibold hidden sm:inline">-</span>
+          <a id="bannerOutletWaBtn" href="#" target="_blank" class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition shadow-2xs items-center gap-1.5">
+            <span>💬</span> <span>Hubungi Koordinator</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================================== -->
     <!-- TAB 1: ETALASE ADOPSI BENIH                                   -->
@@ -122,7 +164,7 @@
       <!-- Filter & Pencarian Bar -->
       <div class="glass-card rounded-2xl p-4 sm:p-5 border border-stone-200/80 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
         <div class="relative w-full sm:w-96">
-          <input type="text" id="searchSeedInput" oninput="filterBatches()" placeholder="Cari varietas benih, spesies, atau desa..." class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-stone-800 placeholder-stone-400 focus:ring-2 focus:ring-emerald-600 outline-none" />
+          <input type="text" id="searchSeedInput" oninput="filterBatches()" placeholder="Cari varietas benih, spesies, atau kode batch..." class="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-stone-800 placeholder-stone-400 focus:ring-2 focus:ring-emerald-600 outline-none" />
           <span class="absolute left-3 top-3 text-stone-400 text-xs">🔍</span>
         </div>
 
@@ -144,7 +186,7 @@
       <!-- Status Memuat -->
       <div id="loadingBatches" class="bg-white rounded-3xl p-12 text-center border border-stone-200 shadow-sm space-y-3">
         <div class="inline-block w-8 h-8 border-4 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-xs font-bold text-stone-500">Menyiapkan etalase plasma nutfah yang tersedia...</p>
+        <p class="text-xs font-bold text-stone-500">Menyiapkan etalase plasma nutfah multi-outlet...</p>
       </div>
 
       <!-- Grid Kartu Koleksi Benih -->
@@ -155,10 +197,10 @@
       <!-- State Kosong / Tidak Ada Hasil -->
       <div id="emptyBatches" class="hidden bg-white rounded-3xl p-12 text-center border border-stone-200 shadow-sm space-y-3">
         <span class="text-4xl">🌾</span>
-        <h3 class="font-black text-stone-800 text-base">Tidak Ada Stok Benih yang Cocok</h3>
-        <p class="text-xs text-stone-400 max-w-sm mx-auto">Semua lot benih mungkin sedang dalam proses regenerasi atau kata kunci pencarian Anda belum sesuai.</p>
-        <button onclick="resetBatchFilters()" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-4 py-2 rounded-xl hover:bg-emerald-100 transition">
-          Tampilkan Semua Benih Tersedia
+        <h3 class="font-black text-stone-800 text-base">Tidak Ada Stok Benih di Outlet Ini</h3>
+        <p class="text-xs text-stone-400 max-w-sm mx-auto">Stok benih pada simpul lumbung ini sedang dalam proses regenerasi atau kata kunci pencarian Anda belum sesuai.</p>
+        <button onclick="selectOutletFilter('all')" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-4 py-2 rounded-xl hover:bg-emerald-100 transition">
+          Tampilkan Semua Lumbung Komunitas
         </button>
       </div>
     </div>
@@ -180,20 +222,20 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 text-xs text-purple-100">
           <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
-            <strong class="text-purple-300 block mb-1">1. Buah Matang Sempurna</strong>
-            Dipetik saat buah/polong mencapai kematangan fisiologis penuh di pohon induk.
+            <strong class="text-purple-300 block mb-1">1. Buah Matang Fisiologis</strong>
+            Dipetik saat buah/polong mencapai kematangan penuh di pohon induk yang sehat.
           </div>
           <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
             <strong class="text-purple-300 block mb-1">2. Alami & Non-Kimia</strong>
-            Ditanam secara organik atau tanpa residu pestisida kimia sintetis berlebih.
+            Ditanam secara organik atau tanpa residu pestisida kimia sintetis berbahaya.
           </div>
           <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
             <strong class="text-purple-300 block mb-1">3. Pengeringan Optimal</strong>
-            Dibersihkan dari lendir dan dijemur hingga kadar air rendah (&lt;8%).
+            Dibersihkan dari lendir dan dijemur hingga kadar air benih rendah (&lt;8%).
           </div>
           <div class="bg-purple-950/40 p-3 rounded-xl border border-purple-800/60">
             <strong class="text-purple-300 block mb-1">4. Seleksi Bernas</strong>
-            Hanya biji yang bernas, padat, utuh, dan bebas kutu/jamur yang disetorkan.
+            Hanya biji yang bernas, padat, utuh, dan bebas hama kutu/jamur yang disetorkan.
           </div>
         </div>
       </div>
@@ -204,10 +246,20 @@
           <h3 class="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
             <span>🌾</span> Formulir Setor / Barter Benih Panen
           </h3>
-          <p class="text-xs text-stone-400 mt-1">Isi formulir ini untuk menyetorkan hasil panen benih Anda. Tim kurator Bibit Pusaka akan memverifikasi fisik benih dan mengintegrasikannya ke bank benih.</p>
+          <p class="text-xs text-stone-400 mt-1">Isi formulir ini untuk menyetorkan hasil panen benih Anda ke outlet lumbung komunitas pilihan. Tim kurator akan memverifikasi fisik benih dan menyiapkan benih barter pengganti.</p>
         </div>
 
         <form id="seedReturnForm" onsubmit="handleSeedReturnSubmit(event)" class="space-y-4 text-xs">
+          
+          <!-- Pilihan Outlet Tujuan Penyetoran -->
+          <div class="p-3.5 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-1.5">
+            <label class="block font-bold text-purple-950">Pilih Outlet Komunitas Tujuan Penyetoran <span class="text-rose-500">*</span></label>
+            <select id="returnOutletCode" required class="w-full border border-purple-300 rounded-xl p-2.5 bg-white font-bold text-stone-800 outline-none focus:ring-2 focus:ring-purple-600 text-xs">
+              <!-- Diisi otomatis oleh JS -->
+            </select>
+            <span class="text-[10px] text-purple-800/80">Pilih simpul lumbung yang paling dekat dengan lokasi kebun Anda.</span>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block font-bold text-stone-700 mb-1">Nama Lengkap Petani / Penyetor <span class="text-rose-500">*</span></label>
@@ -247,7 +299,7 @@
 
             <div>
               <label class="block font-bold text-stone-700 mb-1">Kode Batch Induk (Jika Ada)</label>
-              <input type="text" id="returnBatchCode" placeholder="Contoh: BN-PAR-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs font-mono" />
+              <input type="text" id="returnBatchCode" placeholder="Contoh: BP-PAR-26-G1-001" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-purple-600 outline-none text-xs font-mono" />
               <span class="text-[10px] text-stone-400">Kosongkan jika varietas pusaka baru mandiri.</span>
             </div>
 
@@ -338,19 +390,27 @@
         </button>
       </div>
 
-      <!-- Ringkasan Batch Terpilih -->
-      <div class="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 flex items-center justify-between text-xs">
-        <div>
-          <span class="text-[10px] text-emerald-800/80 font-bold block">Stok Tersedia</span>
-          <strong id="modalStockGrams" class="font-black text-emerald-950 text-sm">0 gram</strong>
+      <!-- Ringkasan Batch & Outlet Terpilih -->
+      <div class="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-emerald-900/70 font-bold uppercase tracking-wider">Simpul Lumbung Pemilik:</span>
+          <span id="modalOutletBadge" class="px-2 py-0.5 rounded-md bg-emerald-800 text-white font-mono font-bold text-[10px]">BP</span>
         </div>
-        <div>
-          <span class="text-[10px] text-emerald-800/80 font-bold block">Viabilitas</span>
-          <strong id="modalGermination" class="font-black text-emerald-950 text-sm">0%</strong>
-        </div>
-        <div>
-          <span class="text-[10px] text-emerald-800/80 font-bold block">Generasi</span>
-          <span id="modalGenTag" class="px-2 py-0.5 rounded-md bg-emerald-800 text-white font-mono font-bold text-[11px]">G1</span>
+        <p id="modalOutletName" class="font-extrabold text-emerald-950 text-xs">Lumbung Utama Bibit Pusaka</p>
+        
+        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-emerald-200/60 text-center">
+          <div>
+            <span class="text-[10px] text-emerald-800/80 font-bold block">Stok</span>
+            <strong id="modalStockGrams" class="font-black text-emerald-950 text-xs">0 gram</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-emerald-800/80 font-bold block">Viabilitas</span>
+            <strong id="modalGermination" class="font-black text-emerald-950 text-xs">0%</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-emerald-800/80 font-bold block">Generasi</span>
+            <span id="modalGenTag" class="px-2 py-0.5 rounded bg-emerald-800 text-white font-mono font-bold text-[10px]">G1</span>
+          </div>
         </div>
       </div>
 
@@ -364,7 +424,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-stone-700 mb-1">Nomor WhatsApp Aktif <span class="text-rose-500">*</span></label>
-            <input type="text" id="adoptPhone" required placeholder="Contoh: 08123456789" class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
+            <input type="text" id="adoptPhone" required placeholder="Contoh: 08123456789 atau 628..." class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none text-xs" />
           </div>
           <div>
             <label class="block font-bold text-stone-700 mb-1">Jumlah Diadopsi (Gram) <span class="text-rose-500">*</span></label>
@@ -423,28 +483,37 @@
           <h4 class="font-black text-base text-white tracking-tight">Bibit Pusaka</h4>
         </div>
         <p class="text-xs text-emerald-300/80 max-w-md">
-          Sistem Terbuka Manajemen Bank Benih, Regenerasi Siklus Tanam, CRM Komunitas Petani & Ensiklopedia Botani Pusaka Bali.
+          Sistem Terbuka Manajemen Bank Benih, Multi-Outlet Komunitas, Regenerasi Siklus Tanam, CRM Petani & Ensiklopedia Botani Pusaka Bali.
         </p>
       </div>
 
       <div class="text-xs text-emerald-300/90 space-y-1 border-t md:border-t-0 md:border-l border-emerald-900 pt-4 md:pt-0 md:pl-6 text-center md:text-right">
-        <div>Developed with 💚 by:</div>
-        <strong class="text-white font-bold text-sm tracking-wide block">I Gusti Ngurah Aristiana Adi Putra</strong>
+        <p class="text-xs text-emerald-300/90 font-medium">Developed by <strong class="text-white font-bold text-sm tracking-wide">I Gusti Ngurah Aristiana Adi Putra</strong></p>
         <p class="text-[11px] text-emerald-400/80">&copy; 2026 Bibit Pusaka. Menjaga Benih, Merawat Masa Depan.</p>
       </div>
     </div>
   </footer>
 
-  <!-- SCRIPT LOGIKA PORTAL, OFFLINE QUEUE, & SUPABASE -->
+  <!-- SCRIPT LOGIKA PORTAL, MULTI-OUTLET, OFFLINE QUEUE, & SUPABASE -->
   <script>
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
     const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
     const dbClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_PUBLIC_KEY);
 
     let allAvailableBatches = [];
+    let allCommunityOutlets = [];
+    let selectedOutletFilter = 'all';
     let currentSelectedBatch = null;
     let deferredPwaPrompt = null;
     let selectedReturnPhotoFile = null;
+
+    // Data cadangan default 4 outlet di Bali
+    const DEFAULT_OUTLETS = [
+      { outlet_code: 'BP', outlet_name: 'Lumbung Utama Bibit Pusaka', coordinator_name: 'I Gusti Ngurah Aristiana Adi Putra', phone_whatsapp: '6281234567890', village_region: 'Pusat Konservasi Denpasar, Bali', latitude: -8.650000, longitude: 115.216667 },
+      { outlet_code: 'UBD', outlet_name: 'Outlet Komunitas Ubud', coordinator_name: 'I Wayan Sudira (Subak Ubud)', phone_whatsapp: '6281234567891', village_region: 'Banjar Tebesaya, Ubud, Gianyar', latitude: -8.506854, longitude: 115.262474 },
+      { outlet_code: 'KRG', outlet_name: 'Outlet Komunitas Karangasem', coordinator_name: 'I Ketut Karya (Tani Abian)', phone_whatsapp: '6281234567892', village_region: 'Desa Subagan, Amlapura, Karangasem', latitude: -8.448889, longitude: 115.612500 },
+      { outlet_code: 'BGL', outlet_name: 'Outlet Komunitas Bangli', coordinator_name: 'Ni Luh Putu Widi (Pertiwi Kintamani)', phone_whatsapp: '6281234567893', village_region: 'Kintamani / Bangli Kota, Bangli', latitude: -8.453889, longitude: 115.354722 }
+    ];
 
     // ==============================================================
     // PWA & SERVICE WORKER REGISTRATION
@@ -537,6 +606,7 @@
       updateNetworkBanner();
       syncOfflineQueue();
       loadSeedBatches();
+      loadOutlets();
     });
 
     window.addEventListener('offline', () => {
@@ -583,6 +653,170 @@
     };
 
     // ==============================================================
+    // PILAR 2: MULTI-OUTLET LOADER & RENDER KARTU FILTER
+    // ==============================================================
+    async function loadOutlets() {
+      try {
+        const { data, error } = await dbClient
+          .from('community_outlets')
+          .select('*')
+          .order('outlet_code', { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          allCommunityOutlets = data;
+          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(data));
+        } else {
+          throw error || new Error("Gagal mengambil data outlet");
+        }
+      } catch (err) {
+        const cached = localStorage.getItem('bibitpusaka_cache_outlets');
+        allCommunityOutlets = cached ? JSON.parse(cached) : DEFAULT_OUTLETS;
+      } finally {
+        renderOutletCards();
+        populateReturnOutletDropdown();
+      }
+    }
+
+    function renderOutletCards() {
+      const container = document.getElementById('outletCardsContainer');
+      const badgeCount = document.getElementById('outletCountBadge');
+      if (!container) return;
+
+      if (badgeCount) badgeCount.textContent = `${allCommunityOutlets.length} Lumbung Komunitas`;
+      container.innerHTML = '';
+
+      // Hitung total stok & batch per outlet
+      const outletStats = {};
+      let grandTotalBatches = 0;
+      let grandTotalGrams = 0;
+
+      allAvailableBatches.forEach(b => {
+        let code = b.outlet_code || 'BP';
+        // Fallback jika kode batch memiliki prefix outlet
+        const prefixMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+        if (prefixMatch && prefixMatch[1] !== 'BN') code = prefixMatch[1].toUpperCase();
+
+        if (!outletStats[code]) outletStats[code] = { count: 0, grams: 0 };
+        outletStats[code].count++;
+        outletStats[code].grams += Number(b.stock_grams || 0);
+
+        grandTotalBatches++;
+        grandTotalGrams += Number(b.stock_grams || 0);
+      });
+
+      // 1. Kartu Semua Lumbung (ALL)
+      const isAllActive = selectedOutletFilter === 'all';
+      const allCard = document.createElement('div');
+      allCard.onclick = () => selectOutletFilter('all');
+      allCard.className = `p-3.5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-2 ${
+        isAllActive 
+          ? 'bg-emerald-800 text-white border-emerald-900 shadow-md ring-2 ring-emerald-600 scale-[1.02]' 
+          : 'bg-white text-stone-800 border-stone-200/90 hover:border-emerald-500 hover:shadow-sm'
+      }`;
+      allCard.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-base">🏛️</span>
+          <span class="px-2 py-0.2 rounded-md font-mono font-bold text-[10px] ${isAllActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">SEMUA</span>
+        </div>
+        <div>
+          <h4 class="font-black text-xs leading-snug truncate">Semua Lumbung</h4>
+          <span class="text-[10px] ${isAllActive ? 'text-emerald-200' : 'text-stone-400'} block">Seluruh Bali</span>
+        </div>
+        <div class="pt-1 border-t ${isAllActive ? 'border-emerald-700/60' : 'border-stone-100'} flex items-center justify-between text-[10px]">
+          <span class="font-bold">${grandTotalBatches} Varietas</span>
+          <span class="${isAllActive ? 'text-emerald-300 font-bold' : 'text-emerald-700 font-extrabold'}">${grandTotalGrams}g</span>
+        </div>
+      `;
+      container.appendChild(allCard);
+
+      // 2. Kartu untuk masing-masing outlet
+      allCommunityOutlets.forEach(out => {
+        const stats = outletStats[out.outlet_code] || { count: 0, grams: 0 };
+        const isActive = selectedOutletFilter === out.outlet_code;
+
+        const card = document.createElement('div');
+        card.onclick = () => selectOutletFilter(out.outlet_code);
+        card.className = `p-3.5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-2 ${
+          isActive 
+            ? 'bg-emerald-800 text-white border-emerald-900 shadow-md ring-2 ring-emerald-600 scale-[1.02]' 
+            : 'bg-white text-stone-800 border-stone-200/90 hover:border-emerald-500 hover:shadow-sm'
+        }`;
+
+        let icon = out.outlet_code === 'BP' ? '🌱' : '🤝';
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-base">${icon}</span>
+            <span class="px-2 py-0.2 rounded-md font-mono font-bold text-[10px] ${isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">${out.outlet_code}</span>
+          </div>
+          <div>
+            <h4 class="font-black text-xs leading-snug truncate" title="${out.outlet_name}">${out.outlet_name}</h4>
+            <span class="text-[10px] ${isActive ? 'text-emerald-200' : 'text-stone-400'} truncate block">${out.village_region || '-'}</span>
+          </div>
+          <div class="pt-1 border-t ${isActive ? 'border-emerald-700/60' : 'border-stone-100'} flex items-center justify-between text-[10px]">
+            <span class="font-bold">${stats.count} Batch</span>
+            <span class="${isActive ? 'text-emerald-300 font-bold' : 'text-emerald-700 font-extrabold'}">${stats.grams}g</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.selectOutletFilter = function(code) {
+      selectedOutletFilter = code;
+      renderOutletCards();
+      updateOutletDetailBanner();
+      filterBatches();
+    };
+
+    function updateOutletDetailBanner() {
+      const nameEl = document.getElementById('bannerOutletName');
+      const codeEl = document.getElementById('bannerOutletCode');
+      const regEl = document.getElementById('bannerOutletRegion');
+      const coordEl = document.getElementById('bannerOutletCoordinator');
+      const waBtn = document.getElementById('bannerOutletWaBtn');
+
+      if (selectedOutletFilter === 'all') {
+        nameEl.textContent = 'Semua Simpul Lumbung Komunitas';
+        codeEl.textContent = 'ALL';
+        regEl.textContent = 'Menampilkan koleksi plasma nutfah dari seluruh jaringan lumbung benih di Bali.';
+        coordEl.textContent = '-';
+        waBtn.classList.add('hidden');
+      } else {
+        const outlet = allCommunityOutlets.find(o => o.outlet_code === selectedOutletFilter);
+        if (outlet) {
+          nameEl.textContent = outlet.outlet_name;
+          codeEl.textContent = outlet.outlet_code;
+          regEl.textContent = `📍 Lokasi: ${outlet.village_region || 'Wilayah Bali'} • Koordinator: ${outlet.coordinator_name || 'Tim Komunitas'}`;
+          coordEl.textContent = outlet.coordinator_name ? `👤 Koord: ${outlet.coordinator_name}` : '';
+          
+          if (outlet.phone_whatsapp) {
+            let cleanPhone = outlet.phone_whatsapp.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
+            waBtn.href = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`Om Swastyastu / Halo Koordinator ${outlet.outlet_name}, saya ingin menanyakan ketersediaan benih pusaka di simpul lumbung Anda.`)}`;
+            waBtn.classList.remove('hidden');
+            waBtn.classList.add('flex');
+          } else {
+            waBtn.classList.add('hidden');
+          }
+        }
+      }
+    }
+
+    function populateReturnOutletDropdown() {
+      const select = document.getElementById('returnOutletCode');
+      if (!select) return;
+      select.innerHTML = '';
+
+      allCommunityOutlets.forEach(out => {
+        const opt = document.createElement('option');
+        opt.value = out.outlet_code;
+        opt.textContent = `[${out.outlet_code}] ${out.outlet_name} (${out.village_region || 'Bali'})`;
+        select.appendChild(opt);
+      });
+    }
+
+    // ==============================================================
     // DATA LOADER & ETALASE BATCH
     // ==============================================================
     async function loadSeedBatches() {
@@ -603,7 +837,6 @@
 
         if (!error && data) {
           allAvailableBatches = data;
-          // Simpan ke offline cache lokal
           localStorage.setItem('bibitpusaka_cache_batches', JSON.stringify(data));
         } else {
           throw error || new Error("Gagal mengambil data");
@@ -617,7 +850,8 @@
         }
       } finally {
         loader?.classList.add('hidden');
-        renderBatches(allAvailableBatches);
+        renderOutletCards();
+        filterBatches();
       }
     }
 
@@ -640,6 +874,13 @@
         const genMatch = b.batch_code ? b.batch_code.match(/-G(\d+)-/i) : null;
         const genTag = genMatch ? `G${genMatch[1]}` : 'G1';
 
+        // Deteksi Outlet
+        let outletCode = b.outlet_code || 'BP';
+        const prefixMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+        if (prefixMatch && prefixMatch[1] !== 'BN') outletCode = prefixMatch[1].toUpperCase();
+
+        const outletObj = allCommunityOutlets.find(o => o.outlet_code === outletCode) || { outlet_name: `Lumbung (${outletCode})`, outlet_code: outletCode };
+
         const germRate = Number(b.germination_rate || 80);
         let germColor = "bg-emerald-600";
         let germText = "text-emerald-700";
@@ -651,16 +892,17 @@
         card.innerHTML = `
           <!-- Header Kartu -->
           <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded-lg bg-emerald-800 text-emerald-100 font-mono font-bold text-[11px] shadow-2xs">
+            <div class="flex items-center justify-between gap-1">
+              <span class="px-2.5 py-0.5 rounded-lg bg-emerald-800 text-emerald-100 font-mono font-bold text-[11px] shadow-2xs truncate">
                 ${genTag} • ${b.batch_code}
               </span>
-              <span class="text-[11px] font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md">
-                ${b.stock_grams} gram tersedia
+              <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[10px] shrink-0">
+                🏛️ ${outletCode}
               </span>
             </div>
 
             <div>
+              <div class="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">${outletObj.outlet_name}</div>
               <h3 class="font-black text-stone-900 text-lg group-hover:text-emerald-800 transition-colors leading-tight">
                 ${b.variety_name}
               </h3>
@@ -682,8 +924,8 @@
 
             <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-600 pt-1">
               <div>
-                <span class="text-stone-400 block text-[10px]">Asal Benih:</span>
-                <span class="font-semibold truncate block">${b.provenance || 'Kebun Mandiri'}</span>
+                <span class="text-stone-400 block text-[10px]">Stok Tersedia:</span>
+                <span class="font-extrabold text-emerald-900 block">${b.stock_grams} gram</span>
               </div>
               <div>
                 <span class="text-stone-400 block text-[10px]">Tgl Panen:</span>
@@ -694,16 +936,16 @@
 
           <!-- Tombol Aksi -->
           <div class="pt-3 border-t border-stone-100 space-y-2">
-            <button onclick="openAdoptModal('${b.batch_code}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold py-2.5 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5">
+            <button onclick="openAdoptModal('${b.batch_code}')" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold py-2.5 rounded-xl transition text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
               <span>🌱</span> Ajukan Adopsi Benih
             </button>
 
             <div class="grid grid-cols-2 gap-2">
               <a href="tanaman.html?nama=${encodeURIComponent(b.variety_name)}" class="py-1.5 px-2 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-bold text-[11px] text-center transition flex items-center justify-center gap-1">
-                <span>📖</span> Ensiklopedia
+                <span>📖</span> Profil Botani
               </a>
               <a href="paspor.html?batch=${encodeURIComponent(b.batch_code)}" class="py-1.5 px-2 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 font-bold text-[11px] text-center transition flex items-center justify-center gap-1">
-                <span>🏷️</span> Paspor Digital
+                <span>🏷️</span> Paspor QR
               </a>
             </div>
           </div>
@@ -717,13 +959,21 @@
       const gen = document.getElementById('genFilterSelect')?.value || 'all';
 
       let filtered = allAvailableBatches.filter(b => {
+        // Filter Outlet
+        if (selectedOutletFilter !== 'all') {
+          let bOutlet = b.outlet_code || 'BP';
+          const prefixMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+          if (prefixMatch && prefixMatch[1] !== 'BN') bOutlet = prefixMatch[1].toUpperCase();
+
+          if (bOutlet !== selectedOutletFilter) return false;
+        }
+
         const varName = (b.variety_name || '').toLowerCase();
         const specName = (b.species || '').toLowerCase();
         const bCode = (b.batch_code || '').toLowerCase();
         const prov = (b.provenance || '').toLowerCase();
 
         const matchQuery = varName.includes(q) || specName.includes(q) || bCode.includes(q) || prov.includes(q);
-
         if (!matchQuery) return false;
 
         if (gen !== 'all') {
@@ -741,14 +991,6 @@
 
       renderBatches(filtered);
     }
-
-    window.resetBatchFilters = function() {
-      const s = document.getElementById('searchSeedInput');
-      const g = document.getElementById('genFilterSelect');
-      if (s) s.value = '';
-      if (g) g.value = 'all';
-      renderBatches(allAvailableBatches);
-    };
 
     // ==============================================================
     // TAB SWITCHER PORTAL
@@ -789,11 +1031,19 @@
       const genMatch = batch.batch_code ? batch.batch_code.match(/-G(\d+)-/i) : null;
       const genTag = genMatch ? `G${genMatch[1]}` : 'G1';
 
+      // Outlet info
+      let outletCode = batch.outlet_code || 'BP';
+      const prefixMatch = batch.batch_code?.match(/^([A-Z]{2,4})-/);
+      if (prefixMatch && prefixMatch[1] !== 'BN') outletCode = prefixMatch[1].toUpperCase();
+      const outletObj = allCommunityOutlets.find(o => o.outlet_code === outletCode) || { outlet_name: `Lumbung (${outletCode})`, outlet_code: outletCode };
+
       document.getElementById('modalVarietyName').textContent = batch.variety_name;
       document.getElementById('modalBatchCode').textContent = batch.batch_code;
       document.getElementById('modalStockGrams').textContent = `${batch.stock_grams} gram`;
       document.getElementById('modalGermination').textContent = `${batch.germination_rate || 85}%`;
       document.getElementById('modalGenTag').textContent = genTag;
+      document.getElementById('modalOutletBadge').textContent = outletCode;
+      document.getElementById('modalOutletName').textContent = `${outletObj.outlet_name} (${outletObj.village_region || 'Bali'})`;
 
       const gramsInput = document.getElementById('adoptGramsInput');
       if (gramsInput) {
@@ -855,8 +1105,14 @@
       const lng = parseFloat(document.getElementById('adoptLng').value) || null;
       const notes = document.getElementById('adoptNotes').value.trim();
 
+      // Outlet code dari batch
+      let outletCode = currentSelectedBatch.outlet_code || 'BP';
+      const prefixMatch = currentSelectedBatch.batch_code?.match(/^([A-Z]{2,4})-/);
+      if (prefixMatch && prefixMatch[1] !== 'BN') outletCode = prefixMatch[1].toUpperCase();
+
       const payload = {
         request_type: 'Adopsi Benih',
+        outlet_code: outletCode,
         applicant_name: applicantName,
         phone_whatsapp: phone,
         village_region: village,
@@ -871,11 +1127,10 @@
       };
 
       if (!navigator.onLine) {
-        // Mode offline: Simpan ke antrean lokal
         addToOfflineQueue({
           table: 'seed_exchange_requests',
           payload: payload,
-          description: `Adopsi benih ${payload.variety_name} (${payload.grams_amount}g) oleh ${payload.applicant_name}`
+          description: `Adopsi benih ${payload.variety_name} (${payload.grams_amount}g) di Outlet ${outletCode} oleh ${payload.applicant_name}`
         });
 
         btn.disabled = false;
@@ -896,7 +1151,7 @@
         document.getElementById('adoptRequestForm').reset();
 
         showToast("Pengajuan adopsi benih berhasil dikirim! Menunggu verifikasi tim.");
-        alert(`Sukses! Permohonan adopsi benih [${payload.variety_name}] sebanyak ${payload.grams_amount} gram telah kami terima.\n\nStaf kurator Bibit Pusaka akan menghubungi Anda via WhatsApp (${phone}) untuk konfirmasi serah terima benih.`);
+        alert(`Sukses! Permohonan adopsi benih [${payload.variety_name}] sebanyak ${payload.grams_amount} gram di Simpul Lumbung [${outletCode}] telah kami terima.\n\nStaf kurator Bibit Pusaka akan menghubungi Anda via WhatsApp (${phone}) untuk konfirmasi serah terima benih.`);
       } catch (err) {
         btn.disabled = false;
         btn.textContent = "🌱 Ajukan Adopsi Sekarang";
@@ -905,7 +1160,7 @@
     };
 
     // ==============================================================
-    // TAB SETOR BENIH & UPLOAD FOTO
+    // TAB SETOR BENIH & UPLOAD FOTO KE STORAGE
     // ==============================================================
     document.getElementById('returnPhotoInput')?.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -927,6 +1182,7 @@
       btn.disabled = true;
       btn.textContent = "Mengunggah & Memproses...";
 
+      const targetOutlet = document.getElementById('returnOutletCode').value || 'BP';
       const applicantName = document.getElementById('returnApplicantName').value.trim();
       const phone = document.getElementById('returnPhone').value.trim();
       const village = document.getElementById('returnVillage').value.trim();
@@ -962,6 +1218,7 @@
 
       const payload = {
         request_type: 'Setor Benih',
+        outlet_code: targetOutlet,
         applicant_name: applicantName,
         phone_whatsapp: phone,
         village_region: village,
@@ -981,7 +1238,7 @@
         addToOfflineQueue({
           table: 'seed_exchange_requests',
           payload: payload,
-          description: `Setor benih panen ${payload.variety_name} (${payload.grams_amount}g) oleh ${payload.applicant_name}`
+          description: `Setor benih panen ${payload.variety_name} (${payload.grams_amount}g) ke Outlet ${targetOutlet} oleh ${payload.applicant_name}`
         });
 
         btn.disabled = false;
@@ -1003,8 +1260,8 @@
         document.getElementById('returnPhotoPreviewBox').classList.add('hidden');
         selectedReturnPhotoFile = null;
 
-        showToast("Setoran benih berhasil dikirim! Suksema atas partisipasi Anda.");
-        alert(`Matur Suksema Bpk/Ibu ${payload.applicant_name}!\n\nSetoran benih panen [${payload.variety_name}] sebanyak ${payload.grams_amount} gram telah tercatat di sistem kami.\n\nStaf Bibit Pusaka akan menghubungi Anda untuk verifikasi fisik benih dan pemberian benih pusaka barter.`);
+        showToast("Setoran benih berhasil dikirim! Suksema atas gotong royong Anda.");
+        alert(`Matur Suksema Bpk/Ibu ${payload.applicant_name}!\n\nSetoran benih panen [${payload.variety_name}] sebanyak ${payload.grams_amount} gram ke Simpul Lumbung [${targetOutlet}] telah tercatat di sistem kami.\n\nStaf Bibit Pusaka akan menghubungi Anda untuk verifikasi fisik benih dan pemberian benih pusaka barter.`);
       } catch (err) {
         btn.disabled = false;
         btn.textContent = "🌾 Kirim Setoran Benih";
@@ -1057,7 +1314,10 @@
           card.className = "p-4 bg-stone-50 rounded-2xl border border-stone-200 text-xs space-y-2";
           card.innerHTML = `
             <div class="flex items-center justify-between">
-              <span class="font-bold text-emerald-900">${item.request_type}</span>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-emerald-900">${item.request_type}</span>
+                <span class="px-1.5 py-0.2 rounded bg-stone-200 text-stone-700 font-mono font-bold text-[10px]">Lumbung: ${item.outlet_code || 'BP'}</span>
+              </div>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${statusBadge}">${item.status}</span>
             </div>
             <div>
@@ -1100,6 +1360,7 @@
     // ==============================================================
     window.addEventListener('DOMContentLoaded', () => {
       updateNetworkBanner();
+      loadOutlets();
       loadSeedBatches();
 
       const harvestDateInput = document.getElementById('returnHarvestDate');

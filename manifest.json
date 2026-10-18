@@ -1,7 +1,7 @@
 {
-  "name": "Bibit Pusaka - Bank Benih & Ensiklopedia Botani",
+  "name": "Bibit Pusaka - Sistem Bank Benih & Ensiklopedia Botani",
   "short_name": "Bibit Pusaka",
-  "description": "Sistem Manajemen Bank Benih, Regenerasi, CRM & Ensiklopedia Botani. Developed by I Gusti Ngurah Aristiana Adi Putra",
+  "description": "Sistem Manajemen Bank Benih, Multi-Outlet Komunitas, Regenerasi, CRM & Ensiklopedia Botani. Developed by I Gusti Ngurah Aristiana Adi Putra",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -29,16 +29,16 @@
   ],
   "shortcuts": [
     {
-      "name": "Portal Adopsi Benih",
-      "short_name": "Adopsi Benih",
-      "description": "Etalase publik adopsi dan barter benih pusaka",
+      "name": "Portal Adopsi & Barter",
+      "short_name": "Portal Publik",
+      "description": "Etalase adopsi multi-outlet dan barter panen benih",
       "url": "./portal.html",
       "icons": [{ "src": "./icon-192.svg", "sizes": "192x192" }]
     },
     {
-      "name": "Dashboard Staf",
+      "name": "Dashboard Staf Bank Benih",
       "short_name": "Dashboard",
-      "description": "Panel operasional bank benih & CRM",
+      "description": "Panel operasional bank benih & CRM multi-outlet",
       "url": "./index.html",
       "icons": [{ "src": "./icon-192.svg", "sizes": "192x192" }]
     }

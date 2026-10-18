@@ -320,11 +320,17 @@
                   <p id="katalogBannerOutletRegion" class="text-[11px] text-emerald-800/80 mt-0.5">Menampilkan total seluruh lot benih dari semua cabang/outlet komunitas.</p>
                 </div>
               </div>
-              <div id="katalogBannerOutletActions" class="flex items-center gap-2">
+              <div id="katalogBannerOutletActions" class="flex flex-wrap items-center gap-2">
                 <span id="katalogBannerCoordinator" class="text-[11px] text-stone-600 font-semibold hidden sm:inline"></span>
                 <a id="katalogBannerWaBtn" href="#" target="_blank" class="hidden px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition shadow-2xs items-center gap-1">
-                  <span>💬</span> <span>WhatsApp Koordinator</span>
+                  <span>💬</span> <span>WhatsApp</span>
                 </a>
+                <button type="button" id="katalogBannerEditBtn" onclick="openEditSelectedOutletModal()" class="hidden px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition border border-amber-300 shadow-2xs items-center gap-1">
+                  <span>✏️</span> <span>Edit Lumbung</span>
+                </button>
+                <button type="button" id="katalogBannerDeleteBtn" onclick="deleteSelectedOutlet()" class="hidden px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition border border-rose-200 shadow-2xs items-center gap-1">
+                  <span>🗑️</span> <span>Hapus</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1183,6 +1189,78 @@
     </div>
   </div>
 
+  <!-- MODAL 6: EDIT SIMPUL LUMBUNG / OUTLET KOMUNITAS -->
+  <div id="editOutletModal" class="fixed inset-0 bg-stone-900/80 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl p-2 rounded-xl bg-amber-100 text-amber-900">✏️</span>
+          <div>
+            <h3 class="font-black text-stone-900 text-sm leading-tight">Edit Simpul Lumbung / Outlet</h3>
+            <p class="text-[11px] text-stone-400">Perbarui profil simpul lumbung komunitas</p>
+          </div>
+        </div>
+        <button onclick="closeEditOutletModal()" class="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition">✕</button>
+      </div>
+
+      <form id="editOutletForm" onsubmit="handleSaveEditOutlet(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editOutletId" />
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Kode Outlet</label>
+            <input type="text" id="editOutletCode" readonly class="w-full border border-stone-200 bg-stone-100 text-stone-600 font-mono font-black rounded-xl p-2.5 uppercase outline-none cursor-not-allowed select-none" />
+          </div>
+          <div class="col-span-2">
+            <label class="block font-bold text-stone-600 mb-1">Nama Outlet / Lumbung <span class="text-rose-500">*</span></label>
+            <input type="text" id="editOutletName" required placeholder="Nama Outlet..." class="w-full border border-stone-200 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-600 outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Nama Koordinator</label>
+            <input type="text" id="editOutletCoordinator" placeholder="Nama koordinator..." class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">WhatsApp Koordinator</label>
+            <input type="text" id="editOutletPhone" placeholder="08123456789 atau 628..." class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-600 mb-1">Desa / Subak / Wilayah</label>
+          <input type="text" id="editOutletRegion" placeholder="Contoh: Sukasada, Singaraja, Buleleng" class="w-full border border-stone-200 rounded-xl p-2.5 outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Latitude</label>
+            <input type="number" step="any" id="editOutletLat" placeholder="-8.112" class="w-full border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-600 mb-1">Longitude</label>
+            <input type="number" step="any" id="editOutletLng" placeholder="115.088" class="w-full border border-stone-200 rounded-xl p-2 text-xs outline-none" />
+          </div>
+        </div>
+        <button type="button" onclick="getGpsForEditOutlet()" class="w-full py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] transition">
+          📍 Ambil Titik GPS Lokasi Saat Ini
+        </button>
+
+        <div class="pt-2 flex justify-between items-center gap-2">
+          <button type="button" id="btnDeleteOutletInModal" onclick="triggerDeleteFromEditModal()" class="text-rose-600 hover:bg-rose-50 border border-rose-200 font-bold px-3 py-2 rounded-xl text-xs transition">
+            🗑️ Hapus
+          </button>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeEditOutletModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-500 hover:bg-stone-100 transition">Batal</button>
+            <button type="submit" id="btnSubmitEditOutlet" class="bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold px-5 py-2 rounded-xl text-xs shadow-md transition">
+              💾 Simpan Perubahan
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_PROJECT_URL = "https://acaarknxdetojywbdwdh.supabase.co";
     const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjYWFya254ZGV0b2p5d2Jkd2RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTcwMTAsImV4cCI6MjEwNTczMzAxMH0.rXHbvIpfHxHH2AangxtcGnPswXZgpBhQH4zO9nGeKd0";
@@ -1568,7 +1646,11 @@
         card.innerHTML = `
           <div class="flex items-center justify-between">
             <span class="text-base">${icon}</span>
-            <span class="px-1.5 py-0.2 rounded font-mono font-bold text-[9px] ${isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">${out.outlet_code}</span>
+            <div class="flex items-center gap-1">
+              <span class="px-1.5 py-0.2 rounded font-mono font-bold text-[9px] ${isActive ? 'bg-emerald-950 text-emerald-300' : 'bg-stone-100 text-stone-600'}">${out.outlet_code}</span>
+              <button type="button" title="Edit Profil Lumbung" onclick="event.stopPropagation(); openEditOutletModalByCode('${out.outlet_code}')" class="p-1 rounded-md text-[11px] ${isActive ? 'text-emerald-100 hover:bg-emerald-700' : 'text-stone-400 hover:text-stone-800 hover:bg-stone-100'} transition">✏️</button>
+              ${out.outlet_code !== 'BP' ? `<button type="button" title="Hapus Lumbung" onclick="event.stopPropagation(); deleteOutlet('${out.outlet_code}')" class="p-1 rounded-md text-[11px] ${isActive ? 'text-rose-300 hover:bg-emerald-700' : 'text-stone-400 hover:text-rose-600 hover:bg-stone-100'} transition">🗑️</button>` : ''}
+            </div>
           </div>
           <div>
             <h4 class="font-black text-xs leading-tight truncate" title="${out.outlet_name}">${out.outlet_name}</h4>
@@ -1596,13 +1678,20 @@
       const regEl = document.getElementById("katalogBannerOutletRegion");
       const coordEl = document.getElementById("katalogBannerCoordinator");
       const waBtn = document.getElementById("katalogBannerWaBtn");
+      const editBtn = document.getElementById("katalogBannerEditBtn");
+      const delBtn = document.getElementById("katalogBannerDeleteBtn");
 
       if (selectedKatalogOutletFilter === 'all') {
         nameEl.textContent = "Semua Simpul Lumbung Komunitas";
         codeEl.textContent = "ALL";
         regEl.textContent = "Menampilkan total seluruh lot benih dari semua cabang/outlet komunitas.";
         coordEl.textContent = "";
-        waBtn.classList.add("hidden");
+        waBtn?.classList.add("hidden");
+        waBtn?.classList.remove("inline-flex");
+        editBtn?.classList.add("hidden");
+        editBtn?.classList.remove("inline-flex");
+        delBtn?.classList.add("hidden");
+        delBtn?.classList.remove("inline-flex");
       } else {
         const out = allOutlets.find(o => o.outlet_code === selectedKatalogOutletFilter);
         if (out) {
@@ -1618,7 +1707,22 @@
             waBtn.classList.remove("hidden");
             waBtn.classList.add("inline-flex");
           } else {
-            waBtn.classList.add("hidden");
+            waBtn?.classList.add("hidden");
+            waBtn?.classList.remove("inline-flex");
+          }
+
+          if (editBtn) {
+            editBtn.classList.remove("hidden");
+            editBtn.classList.add("inline-flex");
+          }
+          if (delBtn) {
+            if (out.outlet_code === 'BP') {
+              delBtn.classList.add("hidden");
+              delBtn.classList.remove("inline-flex");
+            } else {
+              delBtn.classList.remove("hidden");
+              delBtn.classList.add("inline-flex");
+            }
           }
         }
       }
@@ -1631,6 +1735,187 @@
 
     window.closeAddOutletModal = function() {
       document.getElementById("addOutletModal").classList.add("hidden");
+    };
+
+    window.openEditOutletModalByCode = function(code) {
+      const out = allOutlets.find(o => o.outlet_code === code);
+      if (!out) {
+        alert("Data Simpul Lumbung [" + code + "] tidak ditemukan.");
+        return;
+      }
+      document.getElementById("editOutletId").value = out.id || '';
+      document.getElementById("editOutletCode").value = out.outlet_code;
+      document.getElementById("editOutletName").value = out.outlet_name || '';
+      document.getElementById("editOutletCoordinator").value = out.coordinator_name || '';
+      document.getElementById("editOutletPhone").value = out.phone_whatsapp || '';
+      document.getElementById("editOutletRegion").value = out.village_region || '';
+      document.getElementById("editOutletLat").value = (out.latitude !== undefined && out.latitude !== null) ? out.latitude : '';
+      document.getElementById("editOutletLng").value = (out.longitude !== undefined && out.longitude !== null) ? out.longitude : '';
+
+      const btnDel = document.getElementById("btnDeleteOutletInModal");
+      if (btnDel) {
+        if (out.outlet_code === 'BP') {
+          btnDel.classList.add("hidden");
+        } else {
+          btnDel.classList.remove("hidden");
+        }
+      }
+
+      document.getElementById("editOutletModal").classList.remove("hidden");
+    };
+
+    window.openEditSelectedOutletModal = function() {
+      if (!selectedKatalogOutletFilter || selectedKatalogOutletFilter === 'all') return;
+      openEditOutletModalByCode(selectedKatalogOutletFilter);
+    };
+
+    window.closeEditOutletModal = function() {
+      document.getElementById("editOutletModal").classList.add("hidden");
+    };
+
+    window.getGpsForEditOutlet = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            document.getElementById("editOutletLat").value = pos.coords.latitude.toFixed(6);
+            document.getElementById("editOutletLng").value = pos.coords.longitude.toFixed(6);
+            showToast("📍 Koordinat GPS outlet berhasil diperoleh!");
+          },
+          () => alert("Gagal mengambil GPS perangkat. Pastikan izin lokasi diaktifkan.")
+        );
+      } else {
+        alert("Peramban Anda tidak mendukung sensor GPS.");
+      }
+    };
+
+    window.handleSaveEditOutlet = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitEditOutlet");
+      btn.disabled = true;
+      btn.textContent = "Menyimpan Perubahan...";
+
+      const code = document.getElementById("editOutletCode").value.trim().toUpperCase();
+      const name = document.getElementById("editOutletName").value.trim();
+      const coord = document.getElementById("editOutletCoordinator").value.trim();
+      const phone = document.getElementById("editOutletPhone").value.trim();
+      const region = document.getElementById("editOutletRegion").value.trim();
+      const latVal = document.getElementById("editOutletLat").value.trim();
+      const lngVal = document.getElementById("editOutletLng").value.trim();
+      const lat = latVal ? parseFloat(latVal) : null;
+      const lng = lngVal ? parseFloat(lngVal) : null;
+
+      const payload = {
+        outlet_name: name,
+        coordinator_name: coord || null,
+        phone_whatsapp: phone || null,
+        village_region: region || null,
+        latitude: lat,
+        longitude: lng
+      };
+
+      try {
+        if (!navigator.onLine) {
+          addToOfflineQueue({
+            table: "community_outlets",
+            action: "update",
+            match: { outlet_code: code },
+            payload: payload,
+            description: `Perbarui Simpul Lumbung [${code}] ${name}`
+          });
+          const idx = allOutlets.findIndex(o => o.outlet_code === code);
+          if (idx !== -1) allOutlets[idx] = { ...allOutlets[idx], ...payload };
+          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
+          showToast(`📡 Offline: Perubahan Simpul Lumbung [${code}] tersimpan di antrean perangkat.`);
+        } else {
+          const { error } = await dbClient
+            .from("community_outlets")
+            .update(payload)
+            .eq("outlet_code", code);
+          if (error) throw error;
+          showToast(`Profil Simpul Lumbung [${code}] ${name} berhasil diperbarui!`);
+        }
+
+        btn.disabled = false;
+        btn.textContent = "💾 Simpan Perubahan";
+        closeEditOutletModal();
+        await loadOutlets();
+        renderKatalog();
+        initMemberMap();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "💾 Simpan Perubahan";
+        alert("Gagal memperbarui outlet: " + err.message);
+      }
+    };
+
+    window.deleteOutlet = async function(code) {
+      if (!code) return;
+      if (code === 'BP') {
+        alert("⛔ Lumbung Utama Bibit Pusaka [BP] adalah simpul induk pusat dan tidak boleh dihapus.");
+        return;
+      }
+
+      const out = allOutlets.find(o => o.outlet_code === code);
+      const name = out ? out.outlet_name : code;
+
+      const associatedBatches = allBatches.filter(b => {
+        let bCode = b.outlet_code || 'BP';
+        const pMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+        if (pMatch && pMatch[1] !== 'BN') bCode = pMatch[1].toUpperCase();
+        return bCode === code;
+      });
+
+      let confirmMsg = `Hapus Simpul Lumbung [${code}] - ${name} dari daftar outlet komunitas?`;
+      if (associatedBatches.length > 0) {
+        confirmMsg += `\n\n⚠️ PERINGATAN: Terdapat ${associatedBatches.length} batch stok benih yang tercatat di simpul ini. Menghapus outlet tidak menghapus fisik benih, namun atribut simpul akan beralih ke arsip.`;
+      }
+      confirmMsg += `\n\nLanjutkan penghapusan?`;
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        if (!navigator.onLine) {
+          addToOfflineQueue({
+            table: "community_outlets",
+            action: "delete",
+            match: { outlet_code: code },
+            payload: {},
+            description: `Hapus Simpul Lumbung [${code}]`
+          });
+          allOutlets = allOutlets.filter(o => o.outlet_code !== code);
+          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
+          showToast(`📡 Offline: Penghapusan Simpul Lumbung [${code}] disimpan di antrean perangkat.`);
+        } else {
+          const { error } = await dbClient
+            .from("community_outlets")
+            .delete()
+            .eq("outlet_code", code);
+          if (error) throw error;
+          showToast(`Simpul Lumbung [${code}] berhasil dihapus dari jaringan.`);
+        }
+
+        if (selectedKatalogOutletFilter === code) {
+          selectedKatalogOutletFilter = 'all';
+        }
+
+        await loadOutlets();
+        renderKatalog();
+        initMemberMap();
+      } catch (err) {
+        alert("Gagal menghapus outlet: " + err.message);
+      }
+    };
+
+    window.deleteSelectedOutlet = function() {
+      if (!selectedKatalogOutletFilter || selectedKatalogOutletFilter === 'all') return;
+      deleteOutlet(selectedKatalogOutletFilter);
+    };
+
+    window.triggerDeleteFromEditModal = function() {
+      const code = document.getElementById("editOutletCode").value.trim().toUpperCase();
+      if (!code) return;
+      closeEditOutletModal();
+      deleteOutlet(code);
     };
 
     window.getGpsForNewOutlet = function() {

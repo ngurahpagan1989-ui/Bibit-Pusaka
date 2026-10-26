@@ -1123,8 +1123,11 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
   <!-- MODAL 5: TAMBAH OUTLET KOMUNITAS BARU -->
-  <div id="addOutletModal" class="fixed inset-0 bg-stone-900/80 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+  <div id="addOutletModal" class="fixed inset-0 bg-stone-900/80 z-[70] hidden items-center justify-center p-4 backdrop-blur-xs">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
       <div class="flex items-center justify-between border-b pb-3">
         <div class="flex items-center gap-2">
@@ -1190,7 +1193,7 @@
   </div>
 
   <!-- MODAL 6: EDIT SIMPUL LUMBUNG / OUTLET KOMUNITAS -->
-  <div id="editOutletModal" class="fixed inset-0 bg-stone-900/80 z-60 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+  <div id="editOutletModal" class="fixed inset-0 bg-stone-900/80 z-[70] hidden items-center justify-center p-4 backdrop-blur-xs">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
       <div class="flex items-center justify-between border-b pb-3">
         <div class="flex items-center gap-2">
@@ -1416,6 +1419,10 @@
             const { error } = await dbClient.from(item.table).update(item.payload).match(item.match);
             if (error) throw error;
             successCount++;
+          } else if (item.action === 'delete') {
+            const { error } = await dbClient.from(item.table).delete().match(item.match);
+            if (error && error.code !== 'PGRST205') throw error;
+            successCount++;
           }
         } catch (err) {
           console.warn("[Sync Staf Error]", err);
@@ -1557,7 +1564,16 @@
       } catch (err) {
         console.warn("[loadOutlets] Memuat cadangan lokal:", err);
         const cached = localStorage.getItem('bibitpusaka_cache_outlets');
-        allOutlets = cached ? JSON.parse(cached) : DEFAULT_OUTLETS_DATA;
+        if (cached) {
+          try {
+            allOutlets = JSON.parse(cached);
+          } catch(e) {
+            allOutlets = DEFAULT_OUTLETS_DATA;
+          }
+        } else {
+          allOutlets = DEFAULT_OUTLETS_DATA;
+          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(DEFAULT_OUTLETS_DATA));
+        }
       } finally {
         populateSeedOutletDropdown();
         renderKatalogOutletCards();
@@ -1730,11 +1746,15 @@
 
     window.openAddOutletModal = function() {
       document.getElementById("addOutletForm").reset();
-      document.getElementById("addOutletModal").classList.remove("hidden");
+      const modal = document.getElementById("addOutletModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
     };
 
     window.closeAddOutletModal = function() {
-      document.getElementById("addOutletModal").classList.add("hidden");
+      const modal = document.getElementById("addOutletModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
     };
 
     window.openEditOutletModalByCode = function(code) {
@@ -1761,7 +1781,9 @@
         }
       }
 
-      document.getElementById("editOutletModal").classList.remove("hidden");
+      const modal = document.getElementById("editOutletModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
     };
 
     window.openEditSelectedOutletModal = function() {
@@ -1770,7 +1792,9 @@
     };
 
     window.closeEditOutletModal = function() {
-      document.getElementById("editOutletModal").classList.add("hidden");
+      const modal = document.getElementById("editOutletModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
     };
 
     window.getGpsForEditOutlet = function() {
@@ -1814,7 +1838,32 @@
       };
 
       try {
-        if (!navigator.onLine) {
+        // 1. Selalu perbarui state lokal & localStorage terlebih dahulu
+        const idx = allOutlets.findIndex(o => o.outlet_code === code);
+        if (idx !== -1) {
+          allOutlets[idx] = { ...allOutlets[idx], ...payload };
+        } else {
+          allOutlets.push({ outlet_code: code, ...payload });
+        }
+        localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
+
+        // 2. Sinkronkan ke Supabase jika online
+        if (navigator.onLine) {
+          try {
+            const { error } = await dbClient
+              .from("community_outlets")
+              .upsert({ outlet_code: code, ...payload }, { onConflict: 'outlet_code' });
+            if (error) {
+              if (error.code === 'PGRST205') {
+                console.warn("[Simpul Lumbung] Tabel belum ada di cloud Supabase. Data tersimpan di memori perangkat.", error);
+              } else {
+                console.warn("[Simpul Lumbung] Supabase notice:", error);
+              }
+            }
+          } catch (cloudErr) {
+            console.warn("Gagal sinkron cloud outlet:", cloudErr);
+          }
+        } else {
           addToOfflineQueue({
             table: "community_outlets",
             action: "update",
@@ -1822,23 +1871,15 @@
             payload: payload,
             description: `Perbarui Simpul Lumbung [${code}] ${name}`
           });
-          const idx = allOutlets.findIndex(o => o.outlet_code === code);
-          if (idx !== -1) allOutlets[idx] = { ...allOutlets[idx], ...payload };
-          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
-          showToast(`📡 Offline: Perubahan Simpul Lumbung [${code}] tersimpan di antrean perangkat.`);
-        } else {
-          const { error } = await dbClient
-            .from("community_outlets")
-            .update(payload)
-            .eq("outlet_code", code);
-          if (error) throw error;
-          showToast(`Profil Simpul Lumbung [${code}] ${name} berhasil diperbarui!`);
         }
 
+        showToast(`Profil Simpul Lumbung [${code}] ${name} berhasil diperbarui!`);
         btn.disabled = false;
         btn.textContent = "💾 Simpan Perubahan";
         closeEditOutletModal();
-        await loadOutlets();
+        populateSeedOutletDropdown();
+        renderKatalogOutletCards();
+        updateKatalogOutletDetailBanner();
         renderKatalog();
         initMemberMap();
       } catch (err) {
@@ -1867,14 +1908,58 @@
 
       let confirmMsg = `Hapus Simpul Lumbung [${code}] - ${name} dari daftar outlet komunitas?`;
       if (associatedBatches.length > 0) {
-        confirmMsg += `\n\n⚠️ PERINGATAN: Terdapat ${associatedBatches.length} batch stok benih yang tercatat di simpul ini. Menghapus outlet tidak menghapus fisik benih, namun atribut simpul akan beralih ke arsip.`;
+        confirmMsg += `\n\n⚠️ PERINGATAN: Terdapat ${associatedBatches.length} batch stok benih di simpul ini. Menghapus outlet akan mengalihkan kepemilikan lot benih ke Lumbung Utama [BP].`;
       }
       confirmMsg += `\n\nLanjutkan penghapusan?`;
 
       if (!confirm(confirmMsg)) return;
 
       try {
-        if (!navigator.onLine) {
+        // 1. Alihkan batch benih yang terhubung ke BP di lokal
+        let batchReassigned = false;
+        allBatches.forEach(b => {
+          let bCode = b.outlet_code || 'BP';
+          const pMatch = b.batch_code?.match(/^([A-Z]{2,4})-/);
+          if (pMatch && pMatch[1] !== 'BN') bCode = pMatch[1].toUpperCase();
+          if (bCode === code) {
+            b.outlet_code = 'BP';
+            batchReassigned = true;
+          }
+        });
+        if (batchReassigned) {
+          localStorage.setItem('bibitpusaka_cache_batches', JSON.stringify(allBatches));
+        }
+
+        // Alihkan juga di cloud Supabase jika online
+        if (navigator.onLine && batchReassigned) {
+          try {
+            await dbClient
+              .from("seed_batches")
+              .update({ outlet_code: 'BP' })
+              .eq("outlet_code", code);
+          } catch (e) {
+            console.warn("Gagal mengalihkan batch ke BP di cloud:", e);
+          }
+        }
+
+        // 2. Hapus simpul dari memori lokal & cache
+        allOutlets = allOutlets.filter(o => o.outlet_code !== code);
+        localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
+
+        // 3. Hapus dari Supabase jika online
+        if (navigator.onLine) {
+          try {
+            const { error } = await dbClient
+              .from("community_outlets")
+              .delete()
+              .eq("outlet_code", code);
+            if (error && error.code !== 'PGRST205') {
+              console.warn("Supabase delete outlet notice:", error);
+            }
+          } catch (cloudErr) {
+            console.warn("Gagal hapus outlet di cloud:", cloudErr);
+          }
+        } else {
           addToOfflineQueue({
             table: "community_outlets",
             action: "delete",
@@ -1882,23 +1967,17 @@
             payload: {},
             description: `Hapus Simpul Lumbung [${code}]`
           });
-          allOutlets = allOutlets.filter(o => o.outlet_code !== code);
-          localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
-          showToast(`📡 Offline: Penghapusan Simpul Lumbung [${code}] disimpan di antrean perangkat.`);
-        } else {
-          const { error } = await dbClient
-            .from("community_outlets")
-            .delete()
-            .eq("outlet_code", code);
-          if (error) throw error;
-          showToast(`Simpul Lumbung [${code}] berhasil dihapus dari jaringan.`);
         }
+
+        showToast(`Simpul Lumbung [${code}] berhasil dihapus.`);
 
         if (selectedKatalogOutletFilter === code) {
           selectedKatalogOutletFilter = 'all';
         }
 
-        await loadOutlets();
+        populateSeedOutletDropdown();
+        renderKatalogOutletCards();
+        updateKatalogOutletDetailBanner();
         renderKatalog();
         initMemberMap();
       } catch (err) {
@@ -1947,25 +2026,57 @@
       const lat = parseFloat(document.getElementById("newOutletLat").value) || null;
       const lng = parseFloat(document.getElementById("newOutletLng").value) || null;
 
+      if (!code || !name) {
+        alert("Kode dan Nama Outlet wajib diisi.");
+        btn.disabled = false;
+        btn.textContent = "+ Simpan Outlet Komunitas";
+        return;
+      }
+
       const payload = {
         outlet_code: code,
         outlet_name: name,
-        coordinator_name: coord,
-        phone_whatsapp: phone,
-        village_region: region,
+        coordinator_name: coord || null,
+        phone_whatsapp: phone || null,
+        village_region: region || null,
         latitude: lat,
         longitude: lng
       };
 
       try {
-        const { error } = await dbClient.from("community_outlets").insert([payload]);
-        if (error) throw error;
+        // 1. Simpan ke lokal memori & cache
+        const existIdx = allOutlets.findIndex(o => o.outlet_code === code);
+        if (existIdx >= 0) {
+          allOutlets[existIdx] = { ...allOutlets[existIdx], ...payload };
+        } else {
+          allOutlets.push(payload);
+        }
+        localStorage.setItem('bibitpusaka_cache_outlets', JSON.stringify(allOutlets));
+
+        // 2. Sinkronkan ke cloud jika online
+        if (navigator.onLine) {
+          try {
+            const { error } = await dbClient.from("community_outlets").insert([payload]);
+            if (error && error.code !== 'PGRST205') console.warn(error);
+          } catch(e) {
+            console.warn("Gagal simpan outlet ke cloud:", e);
+          }
+        } else {
+          addToOfflineQueue({
+            table: "community_outlets",
+            action: "insert",
+            payload: payload,
+            description: `Tambah Outlet Baru [${code}] ${name}`
+          });
+        }
 
         btn.disabled = false;
         btn.textContent = "+ Simpan Outlet Komunitas";
         closeAddOutletModal();
         showToast(`Outlet Komunitas [${code}] ${name} sukses terdaftar!`);
-        await loadOutlets();
+        populateSeedOutletDropdown();
+        renderKatalogOutletCards();
+        updateKatalogOutletDetailBanner();
         initMemberMap();
       } catch (err) {
         btn.disabled = false;

@@ -670,7 +670,15 @@
         }
       } catch (err) {
         const cached = localStorage.getItem('bibitpusaka_cache_outlets');
-        allCommunityOutlets = cached ? JSON.parse(cached) : DEFAULT_OUTLETS;
+        if (cached) {
+          try {
+            allCommunityOutlets = JSON.parse(cached);
+          } catch(e) {
+            allCommunityOutlets = DEFAULT_OUTLETS;
+          }
+        } else {
+          allCommunityOutlets = DEFAULT_OUTLETS;
+        }
       } finally {
         renderOutletCards();
         populateReturnOutletDropdown();

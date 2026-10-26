@@ -1,7 +1,7 @@
 // Service Worker Bibit Pusaka - Offline & PWA Multi-Outlet Support
 // Developed by I Gusti Ngurah Aristiana Adi Putra
 
-const CACHE_NAME = 'bibitpusaka-v2.0';
+const CACHE_NAME = 'bibitpusaka-v2.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
